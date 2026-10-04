@@ -1,0 +1,474 @@
+@import "tailwindcss";
+
+/* Tokens de marca (cga-marca §5). Valores de partida: si llegan los oficiales, se cambian aquí. */
+:root {
+  --cga-negro: #0a0a0a;
+  --cga-carbon: #161616;
+  --cga-gris-oscuro: #2a2a2a;
+  --cga-gris: #8c8c8c;
+  --cga-gris-foto: #bdbdbd;
+  --cga-blanco: #f4f4f1;
+
+  /* Tema del drop activo: layout.tsx los sobrescribe en <html> */
+  --cga-acento: #a39c84; /* caqui del gorila (insignia oficial) */
+  --cga-texto-sobre-acento: #0a0a0a;
+  --cga-fondo-campana: #a39c84;
+}
+
+@theme inline {
+  --color-negro: var(--cga-negro);
+  --color-carbon: var(--cga-carbon);
+  --color-gris-oscuro: var(--cga-gris-oscuro);
+  --color-gris: var(--cga-gris);
+  --color-gris-foto: var(--cga-gris-foto);
+  --color-blanco: var(--cga-blanco);
+  --color-acento: var(--cga-acento);
+  --color-sobre-acento: var(--cga-texto-sobre-acento);
+  --color-campana: var(--cga-fondo-campana);
+
+  --font-texto: var(--font-archivo);
+  --font-grito: var(--font-sedgwick);
+  --font-sello: var(--font-pirata);
+}
+
+@layer base {
+  html {
+    background: var(--cga-negro);
+    color: var(--cga-blanco);
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: var(--font-archivo), system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--cga-acento);
+    color: var(--cga-texto-sobre-acento);
+  }
+  :focus-visible {
+    outline: 3px solid var(--cga-acento);
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Grano ligero sobre las superficies (cga-marca §5: texturas permitidas) */
+  .grano {
+    position: relative;
+    isolation: isolate;
+  }
+  .grano::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Tira de cinta americana: marca de sección */
+  .cinta {
+    display: inline-block;
+    padding: 0.35rem 1rem 0.3rem;
+    background: var(--cga-gris-foto);
+    color: var(--cga-negro);
+    transform: rotate(-1.5deg);
+    clip-path: polygon(1% 4%, 99% 0, 100% 92%, 98% 100%, 2% 96%, 0 8%);
+  }
+
+  /* Marcador de dato pendiente: visible a propósito */
+  .pendiente {
+    color: var(--cga-acento);
+    font-family: var(--font-archivo), monospace;
+    font-stretch: 85%;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ---------- Botón de Instagram con posts ---------- */
+@layer components {
+  .boton-ig {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    justify-content: center;
+    min-height: 3rem;
+    text-decoration: none;
+    --suave: cubic-bezier(0.22, 1, 0.36, 1); /* salida suave, sin rebote */
+  }
+
+  /* La cara del botón tapa los posts mientras están escondidos */
+  .boton-ig__cara {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding-inline: 1.75rem;
+    border-radius: 999px;
+    background: var(--cga-acento);
+    color: var(--cga-texto-sobre-acento);
+    font-weight: 700;
+    font-stretch: 90%;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+    transition:
+      background-color 350ms var(--suave),
+      color 350ms var(--suave),
+      transform 350ms var(--suave);
+  }
+
+  /* En la cabecera del móvil el botón es más compacto */
+  @media (max-width: 639px) {
+    .boton-ig--cabecera {
+      min-height: 2.75rem;
+    }
+    .boton-ig--cabecera .boton-ig__cara {
+      gap: 0.5rem;
+      padding-inline: 1rem;
+      font-size: 0.9375rem;
+    }
+  }
+
+  .boton-ig__posts {
+    position: absolute;
+    left: 50%;
+    z-index: 1;
+    width: 0;
+    pointer-events: none;
+  }
+  .boton-ig[data-direccion="arriba"] .boton-ig__posts {
+    bottom: calc(100% - 2px);
+  }
+  .boton-ig[data-direccion="abajo"] .boton-ig__posts {
+    top: calc(100% - 6px);
+  }
+
+  .post-ig {
+    --giro: 0deg;
+    --dx: 0px;
+    --retardo: 0ms;
+    position: absolute;
+    left: -30px;
+    display: flex;
+    width: 60px;
+    flex-direction: column;
+    gap: 2px;
+    padding: 2px;
+    border-radius: 10px;
+    background: #fff;
+    color: #0a0a0a;
+    box-shadow: 0 14px 30px -10px rgb(0 0 0 / 0.55);
+    opacity: 0;
+    transition:
+      transform 550ms var(--suave) var(--retardo),
+      opacity 300ms var(--suave) var(--retardo);
+  }
+  .boton-ig[data-direccion="arriba"] .post-ig {
+    bottom: 0;
+    transform: translate(0, 34px) scale(0.85);
+  }
+  .boton-ig[data-direccion="abajo"] .post-ig {
+    top: 0;
+    transform: translate(0, -34px) scale(0.85);
+  }
+  .post-ig[data-lado="izq"] {
+    --giro: -6deg;
+    --dx: -50px;
+    z-index: 0;
+  }
+  .post-ig[data-lado="centro"] {
+    --retardo: 50ms;
+    z-index: 1;
+  }
+  .post-ig[data-lado="der"] {
+    --giro: 6deg;
+    --dx: 50px;
+    --retardo: 100ms;
+    z-index: 0;
+  }
+  .boton-ig[data-direccion="abajo"] .post-ig[data-lado="izq"] {
+    --giro: 6deg;
+  }
+  .boton-ig[data-direccion="abajo"] .post-ig[data-lado="der"] {
+    --giro: -6deg;
+  }
+
+  .post-ig__foto {
+    display: block;
+    width: 56px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+  .post-ig__iconos {
+    display: flex;
+    gap: 2px;
+    padding-inline: 1px;
+  }
+  .post-ig__texto {
+    height: 3px;
+    width: 70%;
+    margin: 0 0 1px 1px;
+    border-radius: 2px;
+    background: #e8e8e8;
+  }
+
+  /* Estado activo: ratón encima o foco de teclado */
+  @media (hover: hover) {
+    .boton-ig:hover .boton-ig__cara {
+      background: var(--cga-blanco);
+      color: var(--cga-negro);
+      transform: translateY(-1px);
+    }
+    .boton-ig:hover .post-ig {
+      opacity: 1;
+      transform: translate(var(--dx), 0) rotate(var(--giro));
+    }
+  }
+  .boton-ig:focus-visible .boton-ig__cara {
+    background: var(--cga-blanco);
+    color: var(--cga-negro);
+  }
+  .boton-ig:focus-visible .post-ig {
+    opacity: 1;
+    transform: translate(var(--dx), 0) rotate(var(--giro));
+  }
+
+  /* Movimiento reducido: los posts aparecen sin desplazarse */
+  @media (prefers-reduced-motion: reduce) {
+    .boton-ig .post-ig,
+    .boton-ig[data-direccion] .post-ig {
+      transform: translate(var(--dx), 0) rotate(var(--giro));
+      transition: opacity 200ms ease;
+    }
+  }
+}
+
+
+/* ---------- Gorila rompiendo la pared ---------- */
+@layer components {
+  /* Las grietas se desvanecen antes de llegar al texto de las secciones vecinas */
+  .rotura__pared {
+    mask-image: linear-gradient(to bottom, transparent 4%, #000 20%, #000 80%, transparent 96%);
+  }
+  .rotura__gorila {
+    filter: drop-shadow(0 18px 18px rgb(0 0 0 / 0.75)) drop-shadow(0 4px 4px rgb(0 0 0 / 0.6));
+  }
+  .rotura__escombro {
+    fill: #2c2c2c;
+    stroke: #000;
+    stroke-width: 1;
+    stroke-linejoin: round;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .rotura__escombros--delante .rotura__escombro {
+    fill: #3b3b3b;
+    filter: drop-shadow(0 3px 2px rgb(0 0 0 / 0.8));
+  }
+
+  /* Salida ligada al scroll: el gorila empuja, la pared se agrieta y saltan los escombros */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .rotura__gorila,
+      .rotura__grietas path,
+      .rotura__escombro {
+        animation-fill-mode: both;
+        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        animation-timeline: view();
+        animation-range: entry 15% cover 45%;
+      }
+      .rotura__gorila {
+        animation-name: rotura-gorila;
+      }
+      .rotura__grietas path {
+        stroke-dasharray: 1;
+        animation-name: rotura-grieta;
+      }
+      .rotura__escombro {
+        animation-name: rotura-escombro;
+      }
+    }
+  }
+  @keyframes rotura-gorila {
+    from {
+      transform: scale(0.78) translateY(10px);
+      filter: brightness(0.45) drop-shadow(0 4px 4px rgb(0 0 0 / 0.6));
+    }
+  }
+  @keyframes rotura-grieta {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes rotura-escombro {
+    from {
+      opacity: 0;
+      transform: translate(calc(var(--dx) * -1), calc(var(--dy) * -1)) rotate(calc(var(--giro) * -1)) scale(0.4);
+    }
+  }
+}
+
+/* ---------- Portada ---------- */
+@layer components {
+  /* La foto se funde con el negro por abajo (el corte de los pantalones no se ve) */
+  .portada-foto {
+    mask-image: linear-gradient(to bottom, #000 62%, transparent 98%);
+  }
+  /* Legibilidad de las palabras cuando se montan sobre la foto en móvil */
+  .portada-titulo {
+    text-shadow:
+      0 2px 18px rgb(0 0 0 / 0.85),
+      0 0 2px rgb(0 0 0 / 0.6);
+  }
+  @media (min-width: 1024px) {
+    .portada-foto {
+      /* el 13 % inferior queda fuera de la sección: el fundido termina justo en su borde */
+      mask-image: linear-gradient(to bottom, #000 66%, transparent 87%);
+    }
+    .portada-titulo {
+      text-shadow: none;
+    }
+  }
+}
+
+/* ---------- Fondo difuminado de la portada (escritorio) ---------- */
+@layer components {
+  .portada-fondo {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .portada-fondo {
+      position: absolute;
+      inset: 0;
+      z-index: -2; /* por debajo del grano (::after de .grano), que queda encima y lo ensucia */
+      display: block;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .portada-fondo__foto {
+      position: absolute;
+      right: max(0px, calc((100% - 80rem) / 2));
+      top: -4%;
+      height: 118%;
+      width: auto;
+      max-width: none;
+      filter: blur(56px) saturate(1.4) brightness(0.8);
+      opacity: 0.8;
+      transform: scale(1.15) translateZ(0);
+      transform-origin: 60% 40%;
+    }
+    /* Viñeta: el lado del texto se queda negro y abajo se funde con la sección siguiente */
+    .portada-fondo::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to right, var(--cga-negro) 22%, rgb(10 10 10 / 0.8) 42%, rgb(10 10 10 / 0) 70%),
+        linear-gradient(to top, var(--cga-negro) 0%, rgb(10 10 10 / 0) 30%);
+    }
+  }
+}
+
+/* ---------- Vídeo de la historia ---------- */
+@layer components {
+  .video-portada {
+    border: 1px solid var(--cga-gris-oscuro);
+  }
+  .video-portada__relleno {
+    filter: blur(28px) brightness(0.55) saturate(1.1);
+    transform: scale(1.15);
+  }
+  /* En pantallas anchas la foto vertical se funde por los lados con su relleno difuminado */
+  @media (min-width: 640px) {
+    .video-portada__marco {
+      mask-image: linear-gradient(to right, transparent 0%, #000 22%, #000 78%, transparent 100%);
+    }
+  }
+  .video-portada__foto {
+    filter: contrast(1.05) brightness(0.9);
+    transform: scale(1.001);
+    transition:
+      transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+      filter 600ms ease;
+  }
+  .video-portada__velo {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, rgb(10 10 10 / 0.92) 0%, rgb(10 10 10 / 0.45) 38%, rgb(10 10 10 / 0) 65%),
+      linear-gradient(to right, rgb(10 10 10 / 0.55) 0%, rgb(10 10 10 / 0) 55%);
+  }
+  .video-portada__play {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 4.25rem;
+    height: 4.25rem;
+    padding-left: 3px;
+    border-radius: 999px;
+    background: var(--cga-acento);
+    color: var(--cga-texto-sobre-acento);
+    box-shadow: 0 0 0 0 rgb(163 156 132 / 0.5);
+    transition:
+      background-color 300ms ease,
+      transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @media (hover: hover) {
+    .video-portada:hover .video-portada__foto {
+      transform: scale(1.03);
+      filter: contrast(1.05) brightness(1);
+    }
+    .video-portada:hover .video-portada__play {
+      background: var(--cga-blanco);
+      transform: scale(1.06);
+    }
+  }
+  .video-portada:focus-visible .video-portada__play {
+    background: var(--cga-blanco);
+  }
+
+  .video-modal {
+    margin: auto;
+    max-width: none;
+    max-height: none;
+    padding: 4rem 0 0;
+    border: 0;
+    background: transparent;
+    color: var(--cga-blanco);
+    overflow: visible;
+  }
+  .video-modal::backdrop {
+    background: rgb(5 5 5 / 0.92);
+    backdrop-filter: blur(6px);
+  }
+  .sin-scroll {
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .video-portada__foto,
+    .video-portada__play {
+      transition: none;
+    }
+  }
+}
