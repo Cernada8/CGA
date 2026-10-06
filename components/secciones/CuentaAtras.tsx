@@ -1,10 +1,11 @@
+import { AnimarCinta } from "@/components/animacion/AnimarCinta";
 import { BotonInstagram } from "@/components/ui/BotonInstagram";
 import type { Drop } from "@/lib/drops";
 import { Reloj } from "./Reloj";
 
 const FRASES = ["Ediciones limitadas", "Pocas unidades", "Sin reposiciones"] as const;
 
-/** Cinta americana que cruza la pantalla con el lema de la exclusividad (se desliza muy despacio). */
+/** Cinta americana que cruza la pantalla con el lema de la exclusividad (se desliza solo al hacer scroll). */
 function CintaLema({ inclinacion }: { inclinacion: "izq" | "der" }) {
   const tira = Array.from({ length: 4 }, () => FRASES).flat();
   return (
@@ -46,7 +47,9 @@ export function CuentaAtras({ drop }: { drop: Drop | null }) {
           <BotonInstagram />
         </div>
       </div>
-      <CintaLema inclinacion="izq" />
+      <AnimarCinta>
+        <CintaLema inclinacion="izq" />
+      </AnimarCinta>
     </section>
   );
 }

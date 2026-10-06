@@ -48,18 +48,36 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const drop = await getDropActivo();
   const tema = drop?.tema ?? TEMA_POR_DEFECTO;
 
   return (
     <html
       lang="es-ES"
+      suppressHydrationWarning // el script del <head> añade la clase anim antes de hidratar
       data-drop={tema.slug}
       style={variablesDeTema(tema)}
       className={`${archivo.variable} ${sedgwick.variable} ${pirata.variable}`}
     >
-      <body className="min-h-dvh bg-negro text-blanco antialiased">{children}</body>
+      <head>
+        {/* Estado inicial de la entrada de la portada: solo con JS y sin movimiento reducido.
+            Si GSAP no llega en 2,5 s, se quita la clase y se ve todo. */}
+        {process.env.NEXT_PUBLIC_SIN_ANIMACIONES === "1" ? null : (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){var d=document.documentElement;if(!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("anim");setTimeout(function(){d.classList.remove("anim")},2500)}})();`,
+            }}
+          />
+        )}
+      </head>
+      <body className="min-h-dvh bg-negro text-blanco antialiased">
+        {children}
+      </body>
     </html>
   );
 }

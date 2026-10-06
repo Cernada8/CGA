@@ -13,6 +13,15 @@
   --cga-acento: #a39c84; /* caqui del gorila (insignia oficial) */
   --cga-texto-sobre-acento: #0a0a0a;
   --cga-fondo-campana: #a39c84;
+
+  /* Tokens de movimiento: espejo de lib/motion.ts (un test comprueba que coinciden) */
+  --mov-rapida: 0.2s;
+  --mov-media: 0.5s;
+  --mov-lenta: 0.9s;
+  --mov-entrada: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --mov-salida: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  --mov-transicion: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --mov-golpe: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 @theme inline {
@@ -109,10 +118,12 @@
     justify-content: center;
     min-height: 3rem;
     text-decoration: none;
-    --suave: cubic-bezier(0.22, 1, 0.36, 1); /* salida suave, sin rebote */
   }
 
   /* La cara del botón tapa los posts mientras están escondidos */
+  .boton-ig__cara svg {
+    transition: transform var(--mov-rapida) var(--mov-entrada);
+  }
   .boton-ig__cara {
     position: relative;
     z-index: 2;
@@ -129,9 +140,9 @@
     font-stretch: 90%;
     box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
     transition:
-      background-color 350ms var(--suave),
-      color 350ms var(--suave),
-      transform 350ms var(--suave);
+      background-color var(--mov-rapida) var(--mov-transicion),
+      color var(--mov-rapida) var(--mov-transicion),
+      transform var(--mov-rapida) var(--mov-entrada);
   }
 
   /* En la cabecera del móvil el botón es más compacto */
@@ -177,8 +188,8 @@
     box-shadow: 0 14px 30px -10px rgb(0 0 0 / 0.55);
     opacity: 0;
     transition:
-      transform 550ms var(--suave) var(--retardo),
-      opacity 300ms var(--suave) var(--retardo);
+      transform var(--mov-media) var(--mov-entrada) var(--retardo),
+      opacity var(--mov-rapida) var(--mov-entrada) var(--retardo);
   }
   .boton-ig[data-direccion="arriba"] .post-ig {
     bottom: 0;
@@ -194,13 +205,13 @@
     z-index: 0;
   }
   .post-ig[data-lado="centro"] {
-    --retardo: 50ms;
+    --retardo: 60ms;
     z-index: 1;
   }
   .post-ig[data-lado="der"] {
     --giro: 6deg;
     --dx: 50px;
-    --retardo: 100ms;
+    --retardo: 120ms;
     z-index: 0;
   }
   .boton-ig[data-direccion="abajo"] .post-ig[data-lado="izq"] {
@@ -237,6 +248,9 @@
       color: var(--cga-negro);
       transform: translateY(-1px);
     }
+    .boton-ig:hover .boton-ig__cara svg {
+      transform: translateY(-2px);
+    }
     .boton-ig:hover .post-ig {
       opacity: 1;
       transform: translate(var(--dx), 0) rotate(var(--giro));
@@ -256,7 +270,7 @@
     .boton-ig .post-ig,
     .boton-ig[data-direccion] .post-ig {
       transform: translate(var(--dx), 0) rotate(var(--giro));
-      transition: opacity 200ms ease;
+      transition: opacity var(--mov-rapida) ease;
     }
   }
 }
@@ -284,49 +298,7 @@
     filter: drop-shadow(0 3px 2px rgb(0 0 0 / 0.8));
   }
 
-  /* Salida ligada al scroll: el gorila empuja, la pared se agrieta y saltan los escombros */
-  @supports (animation-timeline: view()) {
-    @media (prefers-reduced-motion: no-preference) {
-      .rotura__gorila,
-      .rotura__grietas path,
-      .rotura__escombro {
-        animation-fill-mode: both;
-        animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-        animation-timeline: view();
-        animation-range: entry 15% cover 45%;
-      }
-      .rotura__gorila {
-        animation-name: rotura-gorila;
-      }
-      .rotura__grietas path {
-        stroke-dasharray: 1;
-        animation-name: rotura-grieta;
-      }
-      .rotura__escombro {
-        animation-name: rotura-escombro;
-      }
-    }
-  }
-  @keyframes rotura-gorila {
-    from {
-      transform: scale(0.78) translateY(10px);
-      filter: brightness(0.45) drop-shadow(0 4px 4px rgb(0 0 0 / 0.6));
-    }
-  }
-  @keyframes rotura-grieta {
-    from {
-      stroke-dashoffset: 1;
-    }
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-  @keyframes rotura-escombro {
-    from {
-      opacity: 0;
-      transform: translate(calc(var(--dx) * -1), calc(var(--dy) * -1)) rotate(calc(var(--giro) * -1)) scale(0.4);
-    }
-  }
+
 }
 
 /* ---------- Portada ---------- */
@@ -369,14 +341,11 @@
     .portada-fondo__foto {
       position: absolute;
       right: max(0px, calc((100% - 80rem) / 2));
-      top: -4%;
-      height: 118%;
+      top: -22%;
+      height: 165%;
       width: auto;
       max-width: none;
-      filter: blur(56px) saturate(1.4) brightness(0.8);
       opacity: 0.8;
-      transform: scale(1.15) translateZ(0);
-      transform-origin: 60% 40%;
     }
     /* Viñeta: el lado del texto se queda negro y abajo se funde con la sección siguiente */
     .portada-fondo::after {
@@ -408,9 +377,7 @@
   .video-portada__foto {
     filter: contrast(1.05) brightness(0.9);
     transform: scale(1.001);
-    transition:
-      transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
-      filter 600ms ease;
+    transition: transform var(--mov-lenta) var(--mov-entrada);
   }
   .video-portada__velo {
     position: absolute;
@@ -431,8 +398,8 @@
     color: var(--cga-texto-sobre-acento);
     box-shadow: 0 0 0 0 rgb(163 156 132 / 0.5);
     transition:
-      background-color 300ms ease,
-      transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+      background-color var(--mov-rapida) var(--mov-transicion),
+      transform var(--mov-rapida) var(--mov-entrada);
   }
   @media (hover: hover) {
     .video-portada:hover .video-portada__foto {
@@ -497,13 +464,27 @@
   }
 
   /* Fichas: respuesta sutil al pasar el ratón */
-  .ficha .foto-pendiente,
-  .ficha img {
-    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  .ficha__foto {
+    overflow: hidden;
+  }
+  .ficha__foto .foto-pendiente,
+  .ficha__foto img {
+    transition: transform var(--mov-media) var(--mov-entrada);
+  }
+  .ficha__nombre {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+    transition: text-decoration-color var(--mov-rapida) var(--mov-transicion);
   }
   @media (hover: hover) {
-    .ficha:hover .foto-pendiente {
-      transform: translateY(-4px);
+    .ficha:hover .ficha__foto .foto-pendiente,
+    .ficha:hover .ficha__foto img {
+      transform: scale(1.03);
+    }
+    .ficha:hover .ficha__nombre {
+      text-decoration-color: var(--cga-acento);
     }
   }
 
@@ -543,7 +524,6 @@
   .cinta-lema__pista {
     display: flex;
     width: max-content;
-    animation: cinta-desliza 60s linear infinite;
   }
   .cinta-lema__grupo {
     display: flex;
@@ -564,16 +544,7 @@
     background: var(--cga-negro);
     vertical-align: middle;
   }
-  @keyframes cinta-desliza {
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .cinta-lema__pista {
-      animation: none;
-    }
-  }
+
 
   /* Pasos de «Cómo conseguirlo»: numerales grandes en gótica unidos por una línea */
   .paso {
@@ -608,5 +579,52 @@
   /* Foto de colaboraciones fundida por abajo */
   .colab-foto img {
     mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+  }
+}
+
+/* ---------- Animación: estados iniciales y máscaras ---------- */
+@layer components {
+  /* Máscara de las palabras de la portada: recorta en vertical pero deja respirar los trazos del grafiti */
+  .portada-mascara {
+    overflow-x: visible;
+    overflow-y: clip;
+    padding-block: 0.14em 0.1em;
+    margin-block: -0.14em -0.1em;
+  }
+  .anim [data-anim="palabra"] {
+    transform: translateY(120%);
+  }
+  .anim [data-anim="despues"] {
+    opacity: 0;
+  }
+  .anim [data-anim="foto"] {
+    transform: translateY(24px);
+  }
+}
+
+/* ---------- Revelado C-G-A ---------- */
+@layer components {
+  .revela__palabra {
+    visibility: hidden; /* se muestra cuando SplitText ya ha partido las letras (sin destello) */
+  }
+  .revela__destello {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: radial-gradient(45% 40% at 50% 50%, var(--cga-acento), transparent 70%);
+    mix-blend-mode: screen;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .revela__palabra {
+      visibility: visible;
+    }
+  }
+}
+
+@layer components {
+  /* Máscara del «telón»: recorta el bloque que sube sin cortar el anillo de foco */
+  .mascara-telon {
+    overflow: clip;
+    overflow-clip-margin: 8px;
   }
 }

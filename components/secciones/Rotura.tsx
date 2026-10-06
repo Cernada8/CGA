@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import Image from "next/image";
 import { BORDE, ESCOMBROS_ATRAS, ESCOMBROS_DELANTE, type Escombro, GRIETAS, HUECO } from "./rotura-datos";
 
@@ -25,7 +24,6 @@ function Escombros({ lista, clase }: { lista: Escombro[]; clase: string }) {
           key={i}
           d={e.d}
           className="rotura__escombro"
-          style={{ "--dx": `${e.dx}px`, "--dy": `${e.dy}px`, "--giro": `${e.giro}deg` } as CSSProperties}
         />
       ))}
     </g>
@@ -67,6 +65,9 @@ export function Rotura({ ancho, sizes, arriba, abajo, margen = "" }: Props) {
         <path d={BORDE} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={1} transform="translate(0 -1)" />
         <path d={HUECO} fill="url(#rotura-hueco)" />
         <path d={HUECO} fill="none" stroke="#000" strokeWidth={8} strokeOpacity={0.85} />
+      </svg>
+
+      <svg aria-hidden="true" viewBox="0 0 1000 420" className={`${capa} rotura__capa-escombros`} style={{ width: anchoSvg }}>
         <Escombros lista={ESCOMBROS_ATRAS} clase="rotura__escombros" />
       </svg>
 
@@ -80,7 +81,7 @@ export function Rotura({ ancho, sizes, arriba, abajo, margen = "" }: Props) {
         style={{ width: ancho }}
       />
 
-      <svg aria-hidden="true" viewBox="0 0 1000 420" className={capa} style={{ width: anchoSvg }}>
+      <svg aria-hidden="true" viewBox="0 0 1000 420" className={`${capa} rotura__capa-escombros`} style={{ width: anchoSvg }}>
         <Escombros lista={ESCOMBROS_DELANTE} clase="rotura__escombros rotura__escombros--delante" />
       </svg>
     </div>

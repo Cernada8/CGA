@@ -1,4 +1,5 @@
 import { Cinta } from "@/components/ui/Cinta";
+import { AnimarReveal } from "@/components/animacion/AnimarReveal";
 import { VideoHistoria } from "./VideoHistoria";
 
 export function Historia() {
@@ -31,7 +32,9 @@ export function Historia() {
           </div>
         </div>
         <div className="lg:col-span-2">
-          <VideoHistoria />
+          <AnimarReveal clip escala={1.08}>
+            <VideoHistoria />
+          </AnimarReveal>
         </div>
       </div>
     </section>

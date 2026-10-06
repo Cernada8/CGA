@@ -8,6 +8,7 @@ import { Historia } from "@/components/secciones/Historia";
 import { Manifiesto } from "@/components/secciones/Manifiesto";
 import { Pie } from "@/components/secciones/Pie";
 import { Rotura } from "@/components/secciones/Rotura";
+import { AnimarRotura } from "@/components/animacion/AnimarRotura";
 import { Cabecera } from "@/components/ui/Cabecera";
 import { getArchivo, getDropActivo, getProximoDrop } from "@/lib/drops";
 import { EMAIL_CONTACTO, INSTAGRAM_URL, SITIO_URL } from "@/lib/marca";
@@ -34,13 +35,15 @@ export default async function Inicio() {
         <Manifiesto />
         <Historia />
         <DropActual drop={dropActivo} />
-        <Rotura
-          ancho="min(50vw, 240px)"
-          sizes="(max-width: 480px) 50vw, 240px"
-          arriba="bg-carbon"
-          abajo="bg-negro grano"
-          margen="-mt-12 -mb-12 lg:-mt-16 lg:-mb-16"
-        />
+        <AnimarRotura>
+          <Rotura
+            ancho="min(50vw, 240px)"
+            sizes="(max-width: 480px) 50vw, 240px"
+            arriba="bg-carbon"
+            abajo="bg-negro grano"
+            margen="-mt-12 -mb-12 lg:-mt-16 lg:-mb-16"
+          />
+        </AnimarRotura>
         <CuentaAtras drop={proximo} />
         <Archivo prendas={archivo} />
         <ComoConseguirlo />

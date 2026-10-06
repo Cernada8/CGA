@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { cargarMotor } from "@/lib/gsap-cliente";
+import { CURVA, DURACION } from "@/lib/motion";
 
 type Partes = { dias: number; horas: number; minutos: number; segundos: number };
 
@@ -44,12 +46,37 @@ export function Reloj({ fechaIso }: { fechaIso: string }) {
         {ETIQUETAS.map(([clave, etiqueta]) => (
           <div key={clave} className="flex flex-col-reverse gap-1 border-t-4 border-acento pt-3">
             <dt className="text-sm text-gris">{etiqueta}</dt>
-            <dd className="text-[clamp(2.25rem,8vw,5.5rem)] font-black leading-none tabular-nums [font-stretch:75%]">
-              {partes ? String(partes[clave]).padStart(2, "0") : "--"}
+            <dd className="flex text-[clamp(2.25rem,8vw,5.5rem)] font-black leading-none tabular-nums [font-stretch:75%]">
+              {(partes ? String(partes[clave]).padStart(2, "0") : "--").split("").map((d, i) => (
+                <Digito key={i} valor={d} />
+              ))}
             </dd>
           </div>
         ))}
       </dl>
     </div>
+  );
+}
+
+/** Un dígito en su máscara: cuando cambia, el nuevo entra desde abajo (duración rápida). Nada se mueve si no cambia. */
+function Digito({ valor }: { valor: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const previo = useRef(valor);
+  useEffect(() => {
+    if (previo.current === valor) return;
+    previo.current = valor;
+    if (valor === "-" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let tween: { kill: () => void } | undefined;
+    cargarMotor().then(({ gsap }) => {
+      if (ref.current) tween = gsap.fromTo(ref.current, { yPercent: 100 }, { yPercent: 0, duration: DURACION.rapida, ease: CURVA.entrada });
+    });
+    return () => tween?.kill();
+  }, [valor]);
+  return (
+    <span className="inline-block overflow-hidden">
+      <span ref={ref} className="inline-block">
+        {valor}
+      </span>
+    </span>
   );
 }

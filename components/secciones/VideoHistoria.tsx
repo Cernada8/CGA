@@ -32,6 +32,7 @@ export function VideoHistoria() {
         type="button"
         onClick={abrir}
         aria-haspopup="dialog"
+        data-anim-revelar
         className="video-portada group relative mx-auto block w-full max-w-[900px] overflow-hidden text-left"
       >
         <span className="relative block aspect-[4/5] sm:aspect-[16/10] lg:aspect-video">
@@ -41,9 +42,9 @@ export function VideoHistoria() {
             alt=""
             fill
             sizes="(min-width: 1024px) 900px, 100vw"
-            className="video-portada__relleno object-cover"
+            className="video-portada__relleno hidden object-cover sm:block"
           />
-          <span className="video-portada__marco absolute inset-0 sm:inset-y-0 sm:right-auto sm:left-1/2 sm:aspect-[926/1232] sm:-translate-x-1/2">
+          <span data-anim-escala className="video-portada__marco absolute inset-0 sm:inset-y-0 sm:right-auto sm:left-1/2 sm:aspect-[926/1232] sm:-translate-x-1/2">
             <Image
               src="/video/historia-portada.webp"
               alt=""
