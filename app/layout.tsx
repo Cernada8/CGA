@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     template: "%s · CGA Training Hard",
   },
   description:
-    "Ropa de jiu-jitsu y streetwear hecha en ediciones cortas. Constancia, Ganas y Actitud. Siempre humildes, nunca sumisos.",
+    "Ropa de jiu-jitsu y streetwear en ediciones limitadas, sin reposiciones. Constancia, Ganas y Actitud. Siempre humildes, nunca sumisos.",
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",

@@ -21,7 +21,7 @@ export default async function Inicio() {
     name: "CGA Training Hard",
     url: SITIO_URL,
     slogan: "Siempre humildes, nunca sumisos",
-    description: "Ropa de jiu-jitsu y streetwear en ediciones cortas. Constancia, Ganas y Actitud.",
+    description: "Ropa de jiu-jitsu y streetwear en ediciones limitadas, sin reposiciones. Constancia, Ganas y Actitud.",
     email: EMAIL_CONTACTO,
     sameAs: [INSTAGRAM_URL],
   };

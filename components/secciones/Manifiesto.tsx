@@ -1,6 +1,7 @@
 import { getImageProps } from "next/image";
 import { preload } from "react-dom";
 import { BotonInstagram } from "@/components/ui/BotonInstagram";
+import { INSTAGRAM_URL } from "@/lib/marca";
 
 const PALABRAS = [
   { palabra: "Constancia", para: "para seguir." },
@@ -85,7 +86,7 @@ export function Manifiesto() {
           <h1 id="manifiesto-titulo" className="portada-titulo font-grito leading-[0.88] tracking-tight">
             {PALABRAS.map(({ palabra, para }) => (
               <span key={palabra} className="block">
-                <span className="block text-[clamp(3.6rem,15vw,9.5rem)] lg:text-[clamp(4.5rem,min(13.5svh,9vw),9.5rem)]">
+                <span className="block text-[clamp(3.6rem,15vw,9.5rem)] lg:text-[clamp(4rem,min(12svh,9vw),9.5rem)]">
                   {palabra}
                 </span>
                 <span className="-mt-1 mb-3 block font-texto text-base font-medium tracking-normal text-gris [font-stretch:100%] sm:text-lg lg:mb-[1.2svh]">
@@ -94,10 +95,27 @@ export function Manifiesto() {
               </span>
             ))}
           </h1>
-          <p className="mt-8 max-w-xl text-lg text-blanco/90 sm:text-xl lg:mt-[3.5svh] lg:max-w-md">
-            Ropa de jiu-jitsu y streetwear para quien vuelve al tatami al día siguiente. Sale en ediciones cortas.
-            Cuando se acaba, se acaba.
-          </p>
+          <div className="mt-8 max-w-xl space-y-3 text-lg text-blanco/90 sm:text-xl lg:mt-[3svh] lg:max-w-lg lg:space-y-[1.2svh] lg:text-[clamp(1rem,2.4svh,1.25rem)]">
+            <p>Ropa de jiu-jitsu y streetwear para quien vuelve al tatami al día siguiente.</p>
+            <p className="font-bold text-blanco [font-stretch:90%]">
+              Ediciones limitadas.
+              <br />
+              Pocas unidades. Sin reposiciones.
+            </p>
+            <p>
+              Sigue nuestros{" "}
+              <a
+                href={`${INSTAGRAM_URL}reels/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold underline decoration-acento decoration-2 underline-offset-4 hover:text-acento"
+              >
+                Reels
+                <span className="sr-only"> (se abre en Instagram)</span>
+              </a>{" "}
+              y no te pierdas el próximo drop.
+            </p>
+          </div>
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 lg:mt-[4svh]">
             {/* En móvil el CTA ya está en la cabecera; aquí solo en escritorio para no repetirlo en la misma pantalla */}
             <div className="hidden md:block">
