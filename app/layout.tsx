@@ -1,30 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Archivo, Pirata_One, Sedgwick_Ave_Display } from "next/font/google";
 import { getDropActivo, TEMA_POR_DEFECTO } from "@/lib/drops";
+import { clasesFuentes } from "@/lib/fuentes";
 import { SITIO_URL } from "@/lib/marca";
 import { variablesDeTema } from "@/lib/tema";
 import "./globals.css";
-
-const archivo = Archivo({
-  subsets: ["latin", "latin-ext"],
-  axes: ["wdth"],
-  variable: "--font-archivo",
-  display: "swap",
-});
-
-const sedgwick = Sedgwick_Ave_Display({
-  subsets: ["latin", "latin-ext"],
-  weight: "400",
-  variable: "--font-sedgwick",
-  display: "swap",
-});
-
-const pirata = Pirata_One({
-  subsets: ["latin", "latin-ext"],
-  weight: "400",
-  variable: "--font-pirata",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITIO_URL),
@@ -62,7 +41,7 @@ export default async function RootLayout({
       suppressHydrationWarning // el script del <head> añade la clase anim antes de hidratar
       data-drop={tema.slug}
       style={variablesDeTema(tema)}
-      className={`${archivo.variable} ${sedgwick.variable} ${pirata.variable}`}
+      className={clasesFuentes}
     >
       <head>
         {/* Estado inicial de la entrada de la portada: solo con JS y sin movimiento reducido.

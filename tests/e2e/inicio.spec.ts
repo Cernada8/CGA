@@ -56,3 +56,10 @@ test("vídeo de la historia: no descarga nada hasta pulsar y se abre y cierra en
   await expect(dialogo).toBeHidden();
   await expect(portada).toBeFocused(); // el foco vuelve al botón
 });
+
+test("404: página propia con código 404 y salida al inicio", async ({ page }) => {
+  const r = await page.goto("/esto-no-existe");
+  expect(r?.status()).toBe(404);
+  await expect(page.locator("h1")).toHaveText("Aquí no hay nada");
+  await expect(page.getByRole("link", { name: "Volver al inicio" })).toBeVisible();
+});

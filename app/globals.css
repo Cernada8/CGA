@@ -628,3 +628,20 @@
     overflow-clip-margin: 8px;
   }
 }
+
+/* ---------- Páginas de error ---------- */
+@layer components {
+  /* Código gigante de fondo, como un número de dorsal estampado */
+  .pagina-error__codigo {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    transform: translate(-50%, -55%);
+    font-family: var(--font-pirata), serif;
+    font-size: clamp(14rem, 48vw, 34rem);
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--cga-gris-oscuro);
+    pointer-events: none;
+    user-select: none;
+  }
+}
