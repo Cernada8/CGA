@@ -13,10 +13,7 @@ export function DropActual({ drop }: { drop: Drop | null }) {
   return (
     <section aria-labelledby="lo-nuevo" className="scroll-mt-20 border-t border-gris-oscuro bg-carbon">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
-        <div className="flex flex-wrap items-end justify-between gap-6">
-          <Cinta id="lo-nuevo">Lo nuevo</Cinta>
-          <p className="max-w-sm text-lg text-blanco/90">Cada prenda sale una vez. Cuando se acaba, se acaba.</p>
-        </div>
+        <Cinta id="lo-nuevo" entradilla="Cada prenda sale una vez. Cuando se acaba, se acaba.">Lo nuevo</Cinta>
 
         {drop && drop.productos.length > 0 ? (
           <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
@@ -47,7 +44,7 @@ function FichaProducto({ producto }: { producto: Producto }) {
   const imagen = producto.imagenes[0];
   const linea = NOMBRE_LINEA[producto.linea];
   return (
-    <article>
+    <article className="ficha">
       <FotoPendiente alt={imagen?.alt ?? producto.nombre ?? "Prenda de CGA"} />
       <h3 className="mt-4 text-lg font-bold leading-snug [font-stretch:85%] sm:text-xl">
         {producto.nombre ?? <span className="pendiente">[NOMBRE PRENDA]</span>}

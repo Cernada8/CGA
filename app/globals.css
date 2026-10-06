@@ -472,3 +472,141 @@
     }
   }
 }
+
+/* ---------- Pulido de diseño ---------- */
+@layer components {
+  /* Huecos de foto: oscuros y discretos, con la insignia como marca de agua */
+  .foto-pendiente {
+    position: relative;
+    display: grid;
+    width: 100%;
+    place-items: end start;
+    overflow: hidden;
+    padding: 0.75rem;
+    background:
+      radial-gradient(120% 80% at 50% 30%, rgb(255 255 255 / 0.05), transparent 60%),
+      var(--cga-gris-oscuro);
+  }
+  .foto-pendiente__marca {
+    position: absolute;
+    inset: 22%;
+    background: var(--cga-blanco);
+    opacity: 0.07;
+    mask: url("/marca/cga-texto-vertical.svg") center / contain no-repeat;
+    -webkit-mask: url("/marca/cga-texto-vertical.svg") center / contain no-repeat;
+  }
+
+  /* Fichas: respuesta sutil al pasar el ratón */
+  .ficha .foto-pendiente,
+  .ficha img {
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @media (hover: hover) {
+    .ficha:hover .foto-pendiente {
+      transform: translateY(-4px);
+    }
+  }
+
+  /* Sello de agotado: tinta estampada, en gótica */
+  .sello-agotado {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    padding: 0.15em 0.6em 0.25em;
+    border: 3px solid var(--cga-acento);
+    border-radius: 6px;
+    color: var(--cga-acento);
+    font-family: var(--font-pirata), serif;
+    font-size: clamp(1.4rem, 3.4vw, 2.1rem);
+    line-height: 1;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    mix-blend-mode: screen;
+    opacity: 0.9;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .ficha--agotada .foto-pendiente__marca {
+    opacity: 0.04;
+  }
+
+  /* Cinta del lema que cruza «Lo próximo» */
+  .cinta-lema {
+    position: absolute;
+    left: -5%;
+    right: -5%;
+    bottom: 2.25rem;
+    overflow: hidden;
+    background: var(--cga-gris-foto);
+    color: var(--cga-negro);
+    transform: rotate(-2deg);
+    box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.8);
+  }
+  .cinta-lema__pista {
+    display: flex;
+    width: max-content;
+    animation: cinta-desliza 60s linear infinite;
+  }
+  .cinta-lema__grupo {
+    display: flex;
+  }
+  .cinta-lema__frase {
+    padding: 0.55rem 1.25rem 0.45rem;
+    font-family: var(--font-sedgwick), sans-serif;
+    font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+    white-space: nowrap;
+  }
+  .cinta-lema__frase::after {
+    content: "";
+    display: inline-block;
+    width: 0.45em;
+    height: 0.45em;
+    margin-left: 2.5rem;
+    border-radius: 999px;
+    background: var(--cga-negro);
+    vertical-align: middle;
+  }
+  @keyframes cinta-desliza {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cinta-lema__pista {
+      animation: none;
+    }
+  }
+
+  /* Pasos de «Cómo conseguirlo»: numerales grandes en gótica unidos por una línea */
+  .paso {
+    position: relative;
+  }
+  .paso__numero {
+    display: grid;
+    width: 4.5rem;
+    height: 4.5rem;
+    place-items: center;
+    border: 2px solid var(--cga-acento);
+    border-radius: 999px;
+    background: var(--cga-negro);
+    color: var(--cga-acento);
+    font-family: var(--font-pirata), serif;
+    font-size: 2.4rem;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+  }
+  @media (min-width: 768px) {
+    .paso:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      top: 2.25rem;
+      left: 4.5rem;
+      right: -2rem;
+      border-top: 2px dashed var(--cga-gris-oscuro);
+    }
+  }
+
+  /* Foto de colaboraciones fundida por abajo */
+  .colab-foto img {
+    mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+  }
+}
