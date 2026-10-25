@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { POLITICAS_TRUSTED_TYPES } from "./lib/seguridad";
 
 const esDev = process.env.NODE_ENV !== "production";
 
@@ -23,7 +24,11 @@ const csp = [
   "base-uri 'none'",
   "form-action 'none'",
   "frame-ancestors 'none'",
-  ...(esDev ? [] : ["upgrade-insecure-requests"]),
+  // Ningún atributo on*="..." puede ejecutar código (React no los usa)
+  "script-src-attr 'none'",
+  // Trusted Types: solo se cargan scripts del propio /_next/ y el HTML que se inyecta pasa por una
+  // política que bloquea etiquetas y atributos ejecutables (ver lib/seguridad.ts)
+  ...(esDev ? [] : ["require-trusted-types-for 'script'", `trusted-types ${POLITICAS_TRUSTED_TYPES}`, "upgrade-insecure-requests"]),
 ].join("; ");
 
 const cabecerasSeguridad = [
@@ -58,6 +63,12 @@ const cabecerasSeguridad = [
   },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+  // Aislamiento total de origen: la web solo carga recursos propios, así que se puede exigir.
+  // OJO: si algún día se incrusta algo de fuera (vídeo de YouTube, post de Instagram, imágenes de Supabase
+  // Storage), ese recurso tiene que mandar Cross-Origin-Resource-Policy o habrá que relajar esta cabecera.
+  { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
+  // El filtro XSS antiguo de los navegadores causaba más fallos que los que evitaba: se desactiva (OWASP)
+  { key: "X-XSS-Protection", value: "0" },
   { key: "Origin-Agent-Cluster", value: "?1" },
   { key: "X-DNS-Prefetch-Control", value: "off" },
   { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
@@ -71,6 +82,12 @@ const nextConfig: NextConfig = {
     // Solo imágenes propias: el optimizador no acepta URLs externas ni SVG.
     remotePatterns: [],
     dangerouslyAllowSVG: false,
+    // Solo carpetas de imágenes propias y sin parámetros: nadie puede usar el optimizador para otra cosa
+    localPatterns: ["hero", "grafiti", "instagram", "marca", "video"].map((carpeta) => ({ pathname: `/${carpeta}/**`, search: "" })),
+    // Una sola calidad y anchos acotados: no se puede reventar la caché pidiendo mil variantes
+    qualities: [75],
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
   async headers() {
     return [

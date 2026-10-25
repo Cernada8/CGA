@@ -3,6 +3,7 @@ import { getDropActivo, TEMA_POR_DEFECTO } from "@/lib/drops";
 import { clasesFuentes } from "@/lib/fuentes";
 import { SITIO_URL } from "@/lib/marca";
 import { scriptInicio } from "@/lib/puerta";
+import { scriptTrustedTypes } from "@/lib/seguridad";
 import { variablesDeTema } from "@/lib/tema";
 import "./globals.css";
 
@@ -45,6 +46,8 @@ export default async function RootLayout({
       className={clasesFuentes}
     >
       <head>
+        {/* Lo primero de todo: la política Trusted Types, antes de que cargue ningún script */}
+        <script dangerouslySetInnerHTML={{ __html: scriptTrustedTypes }} />
         {/* Antes de pintar: si toca mostrar la puerta de entrada (html.con-puerta) y el estado inicial
             de la portada (html.anim). Ver lib/puerta.ts. */}
         <script dangerouslySetInnerHTML={{ __html: scriptInicio(process.env.NEXT_PUBLIC_SIN_ANIMACIONES !== "1") }} />

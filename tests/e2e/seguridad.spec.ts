@@ -14,6 +14,8 @@ const CABECERAS_OBLIGATORIAS: Record<string, RegExp> = {
   "permissions-policy": /^(?=.*camera=\(\))(?=.*microphone=\(\))(?=.*geolocation=\(\))(?=.*payment=\(\))/,
   "cross-origin-opener-policy": /^same-origin$/,
   "cross-origin-resource-policy": /^same-origin$/,
+  "cross-origin-embedder-policy": /^require-corp$/,
+  "x-xss-protection": /^0$/,
 };
 
 test.describe("cabeceras de seguridad", () => {
@@ -37,6 +39,8 @@ test.describe("cabeceras de seguridad", () => {
       "frame-ancestors 'none'",
       "frame-src 'none'",
       "upgrade-insecure-requests",
+      "script-src-attr 'none'",
+      "require-trusted-types-for 'script'",
     ]) {
       expect(csp).toContain(d);
     }
@@ -208,5 +212,90 @@ test.describe("superficie expuesta", () => {
     expect(texto).toMatch(/^Contact: mailto:/m);
     const expira = new Date(texto.match(/^Expires: (.+)$/m)![1]);
     expect(expira.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  test("el optimizador de imágenes solo acepta carpetas propias, sin parámetros y con una calidad", async ({ request }) => {
+    const pedir = (url: string, q = 75) => request.get(`/_next/image?url=${encodeURIComponent(url)}&w=640&q=${q}`);
+    expect((await pedir("/hero/cga-luchador.webp")).status()).toBe(200);
+    expect((await pedir("/hero/cga-luchador.webp", 100)).status()).toBe(400);
+    expect((await pedir("/hero/cga-luchador.webp?v=1")).status()).toBe(400);
+    expect((await pedir("/icon.png")).status()).toBe(400);
+    expect((await pedir("/marca/../../package.json")).status()).toBeGreaterThanOrEqual(400);
+  });
+
+  test("ningún secreto ni variable privada acaba en el JS o el HTML públicos", async ({ request, page }) => {
+    await page.goto("/");
+    const fuentes = await page.locator("script[src^='/_next/']").evaluateAll((s) => s.map((e) => e.getAttribute("src")!));
+    const textos = [await (await request.get("/")).text()];
+    for (const src of fuentes) textos.push(await (await request.get(src)).text());
+    const prohibido = /(service_role|SUPABASE_SERVICE|sk_live_|sk_test_|-----BEGIN [A-Z ]*PRIVATE KEY|VERCEL_TOKEN|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})/;
+    for (const t of textos) expect(t).not.toMatch(prohibido);
+    // Sin atributos on*="…" en el HTML (además, la CSP los bloquearía)
+    expect(textos[0]).not.toMatch(/<[^>]+\son[a-z]+\s*=/i);
+  });
+});
+
+test.describe("Trusted Types y aislamiento", () => {
+  test("la página queda aislada de otros orígenes (crossOriginIsolated)", async ({ page }) => {
+    await page.goto("/");
+    expect(await page.evaluate(() => self.crossOriginIsolated)).toBe(true);
+  });
+
+  test("una inyección de HTML o de script desde el navegador se bloquea", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const r = await page.evaluate(() => {
+      const intentos: Record<string, string> = {};
+      const probar = (nombre: string, f: () => void) => {
+        try {
+          f();
+          intentos[nombre] = "pasa";
+        } catch {
+          intentos[nombre] = "bloqueado";
+        }
+      };
+      probar("img onerror", () => (document.createElement("div").innerHTML = '<img src=x onerror="window.__x=1">'));
+      probar("script en innerHTML", () => (document.createElement("div").innerHTML = "<script>window.__x=1<\/script>"));
+      probar("script externo", () => (document.createElement("script").src = "https://evil.example/x.js"));
+      probar("javascript:", () => (document.createElement("div").innerHTML = '<a href="javascript:alert(1)">x</a>'));
+      // (eval directo no se prueba aquí: el código que mete Playwright por DevTools está exento de la CSP)
+      probar("código en un temporizador", () => window.setTimeout("window.__x=1" as unknown as () => void, 0));
+      probar("script creado con texto", () => {
+        const sc = document.createElement("script");
+        sc.textContent = "window.__x=1";
+        document.head.appendChild(sc);
+      });
+      probar("HTML inofensivo", () => (document.createElement("div").innerHTML = "<span>hola</span>"));
+      return intentos;
+    });
+    await page.waitForTimeout(300);
+    const ejecutado = await page.evaluate(() => (window as unknown as { __x?: number }).__x === 1);
+    expect(ejecutado).toBe(false);
+    expect(r).toEqual({
+      "img onerror": "bloqueado",
+      "script en innerHTML": "bloqueado",
+      "script externo": "bloqueado",
+      "javascript:": "bloqueado",
+      "código en un temporizador": "bloqueado",
+      "script creado con texto": "bloqueado",
+      "HTML inofensivo": "pasa",
+    });
+  });
+
+  test("el parámetro de la puerta no se puede usar para inyectar nada", async ({ browser }) => {
+    const ctx = await browser.newContext({ storageState: { cookies: [], origins: [] } });
+    const page = await ctx.newPage();
+    let dialogo = false;
+    page.on("dialog", async (d) => {
+      dialogo = true;
+      await d.dismiss();
+    });
+    const carga = encodeURIComponent('directo"><script>alert(1)</script>');
+    await page.goto(`/?entrar=${carga}`);
+    await page.waitForTimeout(500);
+    expect(dialogo).toBe(false);
+    // No es «directo» exacto: la puerta sigue cerrada
+    await expect(page.locator("html")).toHaveClass(/(^|\s)con-puerta(\s|$)/);
+    await ctx.close();
   });
 });

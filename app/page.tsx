@@ -4,7 +4,8 @@ import { ComoConseguirlo } from "@/components/secciones/ComoConseguirlo";
 import { Costura } from "@/components/secciones/Costura";
 import { CuentaAtras } from "@/components/secciones/CuentaAtras";
 import { DropActual } from "@/components/secciones/DropActual";
-import { Historia } from "@/components/secciones/Historia";
+// Historia («Un chico. Un tatami.») retirada de momento a petición del cliente: el componente sigue en
+// components/secciones/Historia.tsx para volver a ponerla con una línea.
 import { Manifiesto } from "@/components/secciones/Manifiesto";
 import { Pie } from "@/components/secciones/Pie";
 import { Rotura } from "@/components/secciones/Rotura";
@@ -34,7 +35,6 @@ export default async function Inicio() {
       <Cabecera />
       <main id="contenido">
         <Manifiesto />
-        <Historia />
         <DropActual drop={dropActivo} />
         <AnimarRotura>
           <Rotura

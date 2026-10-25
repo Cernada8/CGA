@@ -96,6 +96,10 @@ test.describe("puerta de entrada", () => {
     const { ctx, page } = await nueva(browser);
     const errores: string[] = [];
     page.on("pageerror", (e) => errores.push(e.message));
+    // Ni errores ni bloqueos de CSP / Trusted Types durante todo el juego
+    page.on("console", (m) => {
+      if (m.type() === "error") errores.push(m.text());
+    });
     await page.goto("/");
     await page.getByRole("button", { name: "Empezar" }).click();
 

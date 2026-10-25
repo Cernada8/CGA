@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const SECCIONES = ["historia", "lo-nuevo", "lo-proximo", "ya-no-hay", "como-conseguirlo", "colaboraciones"];
+const SECCIONES = ["lo-nuevo", "lo-proximo", "ya-no-hay", "como-conseguirlo", "colaboraciones"];
 const PROHIBIDAS = [/drop \d/i, /\[NÚMERO\]/, /carrito/i, /comprar/i, /oferta/i, /descuento/i, /rebajas/i, /\d+\s*unidades/i, /\bstock\b/i];
 
 test.describe("inicio", () => {
@@ -42,7 +42,20 @@ test("colaboraciones: accesible y sin laberinto", async ({ page }) => {
   expect(violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
 });
 
-test("vídeo de la historia: no descarga nada hasta pulsar y se abre y cierra en una ventana", async ({ page }) => {
+test("la historia está retirada: ni la sección ni el vídeo aparecen", async ({ page }) => {
+  const mp4: string[] = [];
+  page.on("request", (r) => r.url().includes(".mp4") && mp4.push(r.url()));
+  await page.goto("/");
+  await expect(page.locator("#historia")).toHaveCount(0);
+  await expect(page.getByText(/Un chico/)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Mira la historia de CGA/ })).toHaveCount(0);
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(500);
+  expect(mp4).toHaveLength(0);
+});
+
+// Se recupera cuando el cliente quiera contar su historia (volver a montar <Historia /> en app/page.tsx)
+test.skip("vídeo de la historia: no descarga nada hasta pulsar y se abre y cierra en una ventana", async ({ page }) => {
   const mp4: string[] = [];
   page.on("request", (r) => r.url().includes(".mp4") && mp4.push(r.url()));
   await page.goto("/");
