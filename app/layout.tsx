@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { getDropActivo, TEMA_POR_DEFECTO } from "@/lib/drops";
 import { clasesFuentes } from "@/lib/fuentes";
 import { SITIO_URL } from "@/lib/marca";
+import { scriptInicio } from "@/lib/puerta";
 import { variablesDeTema } from "@/lib/tema";
 import "./globals.css";
 
@@ -38,21 +39,15 @@ export default async function RootLayout({
   return (
     <html
       lang="es-ES"
-      suppressHydrationWarning // el script del <head> añade la clase anim antes de hidratar
+      suppressHydrationWarning // el script del <head> añade las clases puerta y anim antes de hidratar
       data-drop={tema.slug}
       style={variablesDeTema(tema)}
       className={clasesFuentes}
     >
       <head>
-        {/* Estado inicial de la entrada de la portada: solo con JS y sin movimiento reducido.
-            Si GSAP no llega en 2,5 s, se quita la clase y se ve todo. */}
-        {process.env.NEXT_PUBLIC_SIN_ANIMACIONES === "1" ? null : (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `(function(){var d=document.documentElement;if(!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("anim");setTimeout(function(){d.classList.remove("anim")},2500)}})();`,
-            }}
-          />
-        )}
+        {/* Antes de pintar: si toca mostrar la puerta de entrada (html.con-puerta) y el estado inicial
+            de la portada (html.anim). Ver lib/puerta.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: scriptInicio(process.env.NEXT_PUBLIC_SIN_ANIMACIONES !== "1") }} />
       </head>
       <body className="min-h-dvh bg-negro text-blanco antialiased">
         {children}

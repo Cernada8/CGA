@@ -10,6 +10,7 @@ import { Pie } from "@/components/secciones/Pie";
 import { Rotura } from "@/components/secciones/Rotura";
 import { AnimarRotura } from "@/components/animacion/AnimarRotura";
 import { Cabecera } from "@/components/ui/Cabecera";
+import { Puerta } from "@/components/laberinto/Puerta";
 import { getArchivo, getDropActivo, getProximoDrop } from "@/lib/drops";
 import { EMAIL_CONTACTO, INSTAGRAM_URL, SITIO_URL } from "@/lib/marca";
 
@@ -60,6 +61,7 @@ export default async function Inicio() {
         />
       </main>
       <Pie bordeSuperior={false} />
+      <Puerta />
     </>
   );
 }

@@ -588,8 +588,12 @@
   .portada-mascara {
     overflow-x: visible;
     overflow-y: clip;
-    padding-block: 0.14em 0.1em;
-    margin-block: -0.14em -0.1em;
+    /* Holgura medida en la brush: las mayúsculas suben 0,11 em sobre la caja de línea y la G baja 0,08 em.
+       Va en em del tamaño de la palabra (la clase de tamaño está en la propia máscara). */
+    padding-block: 0.2em 0.12em;
+    margin-block: -0.2em -0.12em;
+    padding-inline: 0.06em;
+    margin-inline: -0.06em;
   }
   .anim [data-anim="palabra"] {
     transform: translateY(120%);
@@ -643,5 +647,496 @@
     -webkit-text-stroke: 2px var(--cga-gris-oscuro);
     pointer-events: none;
     user-select: none;
+  }
+}
+
+/* ---------- Puerta de entrada (laberinto y pruebas) ---------- */
+@layer components {
+  /* Oculta salvo que el script del <head> haya decidido mostrarla: sin JS no existe para nadie */
+  .puerta {
+    display: none;
+  }
+  html.con-puerta {
+    overflow: hidden;
+  }
+  html.con-puerta .puerta {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background-color: var(--cga-negro);
+    /* Tatami: juntas de colchonetas 2:1 apenas marcadas y un foco de luz cenital */
+    background-image:
+      radial-gradient(120% 80% at 50% 35%, transparent 40%, rgb(0 0 0 / 0.75) 100%),
+      linear-gradient(to right, rgb(244 244 241 / 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(244 244 241 / 0.035) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      clamp(120px, 22vmin, 220px) clamp(240px, 44vmin, 440px),
+      clamp(120px, 22vmin, 220px) clamp(240px, 44vmin, 440px);
+  }
+  .puerta[data-fase="revelando"] {
+    background: transparent;
+  }
+  /* En móvil, durante las pruebas el pie se va: todo el alto para jugar (en la intro sí está) */
+  @media (max-width: 767px) {
+    .puerta[data-fase="juego"] .puerta__pie {
+      display: none;
+    }
+    .puerta[data-fase="juego"] .puerta__escena {
+      padding-bottom: 1.25rem;
+    }
+  }
+  .puerta[data-fase="revelando"]::after,
+  .puerta[data-fase="revelando"] .puerta__barra,
+  .puerta[data-fase="revelando"] .puerta__pie {
+    visibility: hidden;
+  }
+
+  .puerta__marco {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100dvh;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .puerta__marco {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  .puerta__barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 4rem;
+  }
+  /* Las tres letras de CGA en gótica: se estampan al superar cada prueba */
+  .puerta__letras {
+    display: flex;
+    gap: 0.9rem;
+    font-family: var(--font-pirata), serif;
+    font-size: 2.25rem;
+    line-height: 1;
+  }
+  .puerta__letras li {
+    position: relative;
+    color: var(--cga-gris-oscuro);
+    transition: color var(--mov-media) var(--mov-entrada);
+  }
+  .puerta__letras li > span[aria-hidden] {
+    display: inline-block;
+  }
+  .puerta__letras li[data-estado="actual"] {
+    color: var(--cga-gris);
+  }
+  .puerta__letras li[data-estado="actual"]::after {
+    content: "";
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: -0.35rem;
+    height: 2px;
+    background: currentColor;
+  }
+  .puerta__letras li[data-estado="superada"] {
+    color: var(--cga-blanco);
+  }
+
+  .puerta__escena {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    padding-block: 1rem;
+  }
+  .puerta__juego {
+    display: none;
+  }
+  .puerta:not([data-fase="intro"]) .puerta__intro {
+    display: none;
+  }
+  .puerta:not([data-fase="intro"]) .puerta__juego {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .puerta__cargando {
+    align-self: center;
+  }
+  .puerta__intro {
+    position: relative;
+  }
+  .puerta__titulo {
+    max-width: 10ch;
+    font-size: clamp(3.4rem, 14vw, 9rem);
+    line-height: 0.92;
+  }
+  /* Un laberinto que se pierde detrás del titular: el tatami que espera */
+  .puerta__fondo-laberinto {
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    right: -6%;
+    width: min(70vw, 46rem);
+    translate: 0 -50%;
+    rotate: -6deg;
+    color: var(--cga-blanco);
+    opacity: 0.16;
+    mask-image: radial-gradient(closest-side, #000 35%, transparent 100%);
+    pointer-events: none;
+  }
+  @media (max-width: 767px) {
+    .puerta__fondo-laberinto {
+      top: 0;
+      right: -30%;
+      width: 110vw;
+      translate: 0 -55%;
+      opacity: 0.12;
+    }
+  }
+
+  .boton-puerta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3.5rem;
+    padding-inline: 2.25rem;
+    border-radius: 999px;
+    background: var(--cga-acento);
+    color: var(--cga-texto-sobre-acento);
+    font-size: 1.125rem;
+    font-weight: 700;
+    transition:
+      transform var(--mov-rapida) var(--mov-entrada),
+      background-color var(--mov-rapida) var(--mov-entrada);
+  }
+  .boton-puerta:hover {
+    transform: translateY(-2px);
+    background: var(--cga-blanco);
+  }
+  .boton-puerta:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .puerta__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-block: 1rem 1.25rem;
+    font-size: 0.875rem;
+    color: var(--cga-gris);
+  }
+  .puerta__enlace {
+    display: inline-block;
+    padding-block: 0.6rem; /* objetivo táctil de 44 px sin cambiar el aspecto */
+    color: var(--cga-blanco);
+    text-decoration: underline;
+    text-decoration-color: var(--cga-acento);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  .puerta__enlace:hover {
+    color: var(--cga-acento);
+  }
+
+  /* ----- Prueba en curso ----- */
+  .puerta__prueba {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .puerta__paso {
+    margin-bottom: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+  .prueba {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 0;
+  }
+  .prueba__titulo {
+    font-size: clamp(2.6rem, 10vw, 5rem);
+    line-height: 0.9;
+  }
+  .prueba__titulo:focus {
+    outline: none;
+  }
+  .prueba__texto {
+    max-width: 34rem;
+    margin-top: 0.5rem;
+    color: rgb(244 244 241 / 0.85);
+  }
+  .prueba__controles--tactil {
+    display: none;
+  }
+  @media (pointer: coarse) {
+    .prueba__controles {
+      display: none;
+    }
+    .prueba__controles--tactil {
+      display: inline;
+    }
+  }
+  .prueba__ayuda {
+    min-height: 2.75rem;
+    padding-inline: 0.5rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--cga-acento);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+  /* ----- C · Laberinto ----- */
+  .laberinto {
+    display: grid;
+    flex: 1;
+    place-items: center;
+    min-height: 15rem;
+  }
+  .laberinto__tablero {
+    position: relative;
+    touch-action: none;
+    user-select: none;
+  }
+  .laberinto__lienzo {
+    display: block;
+  }
+  .laberinto__jugador {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(var(--celda, 40px) * 0.46);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--cga-acento);
+    box-shadow:
+      0 0 0 calc(var(--celda, 40px) * 0.08) color-mix(in srgb, var(--cga-acento) 25%, transparent),
+      0 0 calc(var(--celda, 40px) * 0.5) color-mix(in srgb, var(--cga-acento) 55%, transparent);
+    translate: var(--empuje-x, 0px) var(--empuje-y, 0px);
+    will-change: transform;
+  }
+  .laberinto__salida {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(var(--celda, 40px) * 0.9);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--cga-acento) 0 18%, color-mix(in srgb, var(--cga-acento) 35%, transparent) 30%, transparent 68%);
+    pointer-events: none;
+  }
+  .laberinto__salida::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 2px solid var(--cga-acento);
+    animation: latido-salida 1.8s var(--mov-entrada) infinite;
+  }
+  @keyframes latido-salida {
+    from {
+      transform: scale(0.45);
+      opacity: 0.9;
+    }
+    to {
+      transform: scale(1.35);
+      opacity: 0;
+    }
+  }
+  .laberinto__pie {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+  }
+  /* Cruceta: solo en pantallas táctiles, objetivos de 52 px */
+  .cruceta {
+    display: none;
+    grid-template-columns: repeat(3, 3rem);
+    grid-template-rows: repeat(3, 3rem);
+    grid-template-areas: ". a ." "i . d" ". b .";
+    gap: 0.25rem;
+  }
+  @media (pointer: coarse) {
+    .cruceta {
+      display: grid;
+    }
+  }
+  .cruceta__boton {
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--cga-gris-oscuro);
+    border-radius: 1rem;
+    background: var(--cga-carbon);
+    color: var(--cga-blanco);
+    touch-action: manipulation;
+  }
+  .cruceta__boton:active {
+    border-color: var(--cga-acento);
+    color: var(--cga-acento);
+  }
+  .cruceta__boton svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .cruceta__boton[data-dir="arriba"] {
+    grid-area: a;
+  }
+  .cruceta__boton[data-dir="abajo"] {
+    grid-area: b;
+  }
+  .cruceta__boton[data-dir="abajo"] svg {
+    rotate: 180deg;
+  }
+  .cruceta__boton[data-dir="izquierda"] {
+    grid-area: i;
+  }
+  .cruceta__boton[data-dir="izquierda"] svg {
+    rotate: -90deg;
+  }
+  .cruceta__boton[data-dir="derecha"] {
+    grid-area: d;
+  }
+  .cruceta__boton[data-dir="derecha"] svg {
+    rotate: 90deg;
+  }
+
+  /* ----- G · Agarre ----- */
+  .agarre {
+    display: grid;
+    flex: 1;
+    place-items: center;
+    align-content: center;
+    gap: 1.5rem;
+    padding-block: 1rem;
+  }
+  .agarre__boton {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(12rem, 52vw, 16rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--cga-carbon);
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .agarre__boton:active {
+    background: #1d1d1d;
+  }
+  .agarre__anillo {
+    position: absolute;
+    inset: 0;
+    rotate: -90deg;
+  }
+  .agarre__pista,
+  .agarre__fuerza {
+    fill: none;
+  }
+  .agarre__pista {
+    stroke: var(--cga-gris-oscuro);
+    stroke-width: 3;
+  }
+  .agarre__fuerza {
+    stroke: var(--cga-acento);
+    stroke-width: 6;
+    stroke-linecap: round;
+  }
+  .agarre__palabra {
+    position: relative;
+    font-size: clamp(2.2rem, 9vw, 3rem);
+    line-height: 1;
+  }
+  .agarre__ayuda {
+    max-width: 22rem;
+    text-align: center;
+    font-size: 0.9375rem;
+    color: var(--cga-gris);
+  }
+
+  /* ----- A · Lema ----- */
+  .lema {
+    margin-top: 1rem;
+    font-size: clamp(2.3rem, 8vw, 4.75rem);
+    line-height: 1.05;
+  }
+  .lema__hueco {
+    display: inline-block;
+    overflow-y: clip;
+    padding-block: 0.2em 0.12em;
+    margin-block: -0.2em -0.12em;
+    vertical-align: bottom;
+    color: var(--cga-gris-oscuro);
+  }
+  .lema__palabra {
+    display: inline-block;
+    color: var(--cga-acento);
+  }
+  .lema__vacio {
+    display: inline-block;
+    width: 4.2em;
+    height: 0.8em;
+    border-bottom: 0.08em solid var(--cga-gris);
+  }
+  .lema__opciones {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    max-width: 32rem;
+    margin-top: 1.5rem;
+  }
+  .lema__opcion {
+    min-height: 3.5rem;
+    padding-inline: 1rem;
+    border: 2px solid var(--cga-gris-oscuro);
+    border-radius: 999px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    transition:
+      border-color var(--mov-rapida) var(--mov-entrada),
+      color var(--mov-rapida) var(--mov-entrada);
+  }
+  .lema__opcion:hover {
+    border-color: var(--cga-blanco);
+  }
+  .lema__opcion[data-estado="mal"] {
+    border-color: var(--cga-gris-oscuro);
+    color: var(--cga-gris);
+    text-decoration: line-through;
+    cursor: not-allowed;
+  }
+  .lema__opcion[data-estado="bien"] {
+    border-color: var(--cga-acento);
+    background: var(--cga-acento);
+    color: var(--cga-texto-sobre-acento);
+  }
+  .lema__pista {
+    min-height: 1.5rem;
+    margin-top: 1rem;
+    color: var(--cga-gris);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .laberinto__salida::before {
+      animation: none;
+      transform: none;
+      opacity: 0.6;
+    }
   }
 }

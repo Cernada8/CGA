@@ -122,11 +122,10 @@ export function Manifiesto() {
             >
               {PALABRAS.map(({ palabra, para }) => (
                 <span key={palabra} className="block">
-                  <span className="portada-mascara block">
-                    <span
-                      data-anim="palabra"
-                      className="block text-[clamp(3.6rem,15vw,9.5rem)] lg:text-[clamp(4rem,min(12svh,9vw),9.5rem)]"
-                    >
+                  {/* El tamaño va en la máscara para que su holgura (en em) crezca con la letra:
+                      las mayúsculas de la brush suben por encima de la caja de línea. */}
+                  <span className="portada-mascara block text-[clamp(3.6rem,15vw,9.5rem)] lg:text-[clamp(4rem,min(12svh,9vw),9.5rem)]">
+                    <span data-anim="palabra" className="block">
                       {palabra}
                     </span>
                   </span>

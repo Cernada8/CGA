@@ -81,10 +81,10 @@ Es el elemento estrella y el más delicado. Requisitos técnicos:
 - **El contenido va primero.** Toda la home se renderiza en servidor y existe en el HTML. El laberinto es una capa superpuesta que monta el cliente con `next/dynamic` (`ssr: false`). No bloquea el LCP y no oculta nada a Google.
 - **Mientras la capa está abierta**, el `<main>` lleva `inert` para que el foco no se escape. Al cerrarse se quita `inert` y el foco pasa al primer encabezado.
 - **Se muestra solo la primera vez.** Usa `localStorage` con la clave `cga:laberinto:superado`, envuelto en `try/catch`. Si el almacenamiento falla, el laberinto no se muestra: mejor perder la sorpresa que bloquear a alguien.
-- **Hay dos formas de saltarlo:**
-  - el botón «Entrar directo», visible desde el primer frame y accesible por teclado;
-  - el parámetro `?entrar=directo`, que también guarda la marca de superado. Además, la ruta `/colaboraciones` nunca muestra laberinto.
-- **Movimiento reducido:** con `prefers-reduced-motion: reduce` no hay laberinto; se muestra una entrada estática con C-G-A.
+- **Decisión del cliente (oct. 2026): «a la web solo pueden entrar los reales y los que tengan interés».** No hay botón «Entrar directo». Se entra superando tres pruebas, una por letra: **C · Constancia** (laberinto), **G · Ganas** (mantener pulsado o a toques para escapar) y **A · Actitud** (completar el lema). Nadie se queda bloqueado: el laberinto marca el camino si tardas, Ganas acepta toques y el lema da pista tras fallar.
+- **Accesos sin pruebas:** el parámetro `?entrar=directo` (enlace privado para patrocinadores y academias, guarda la marca y limpia la URL), la ruta `/colaboraciones` (nunca hay puerta) y el enlace a colaboraciones del propio pie de la puerta.
+- **Implementación:** `lib/puerta.ts` (script del `<head>` que pone `html.con-puerta` antes de pintar y red de seguridad de 10 s), `components/laberinto/Puerta.tsx` (marco de servidor) + `PuertaControl.tsx` (cliente mínimo) + `PuertaJuego.tsx` y las pruebas, cargadas en diferido. Lógica pura del laberinto en `lib/laberinto.ts`.
+- **Movimiento reducido:** las pruebas se mantienen (el cliente quiere el filtro para todos), pero sin animaciones: el jugador salta de casilla y el revelado es un corte limpio.
 - **Implementación:** Canvas 2D (o SVG) con generación determinista por semilla. Nada de Three.js ni WebGL. Duración objetivo de unos 30 s, cuadrícula pequeña en móvil y ayuda sutil (marcar el camino) si alguien tarda más de unos 45 s.
 - **Controles:** flechas y WASD; en táctil, deslizar y una cruceta en pantalla con objetivos de al menos 44 px.
 - **Revelado final:** Constancia, Ganas y Actitud, una palabra cada vez, con una timeline de GSAP de menos de 2,5 s en total. Después se desmonta el componente y se liberan los listeners.

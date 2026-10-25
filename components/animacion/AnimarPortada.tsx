@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { useAnimacion } from "@/hooks/useAnimacion";
+import { EVENTO_PUERTA_ABIERTA } from "@/lib/puerta";
 import { CURVA, DISTANCIA, DURACION, STAGGER, staggerSeguro } from "@/lib/motion";
 
 /**
@@ -25,24 +26,33 @@ export function AnimarPortada({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // y: 0 anula el translate del CSS inicial (GSAP lo leería como y en px)
-    gsap.set(palabras, { y: 0, yPercent: 120 });
-    gsap.set(despues, { opacity: 0 });
-    if (foto) gsap.set(foto, { y: DISTANCIA.corta });
-    html.classList.remove("anim");
+    const entrar = () => {
+      // y: 0 anula el translate del CSS inicial (GSAP lo leería como y en px)
+      gsap.set(palabras, { y: 0, yPercent: 120 });
+      gsap.set(despues, { opacity: 0 });
+      if (foto) gsap.set(foto, { y: DISTANCIA.corta });
+      html.classList.remove("anim");
 
-    // Al terminar se limpian los estilos en línea: el DOM queda igual que sin animación (sin capas extra)
-    const tl = gsap.timeline({
-      defaults: { ease: CURVA.entrada },
-      onComplete: () => gsap.set([...palabras, ...despues, foto].filter(Boolean), { clearProps: "transform,opacity" }),
-    });
-    tl.to(palabras, {
-      yPercent: 0,
-      duration: DURACION.lenta,
-      stagger: staggerSeguro(palabras.length, movil ? STAGGER / 2 : STAGGER),
-    });
-    if (foto) tl.to(foto, { y: 0, duration: DURACION.lenta }, 0);
-    tl.to(despues, { opacity: 1, duration: DURACION.media, stagger: staggerSeguro(despues.length) }, "-=0.35");
+      // Al terminar se limpian los estilos en línea: el DOM queda igual que sin animación (sin capas extra)
+      const tl = gsap.timeline({
+        defaults: { ease: CURVA.entrada },
+        onComplete: () => gsap.set([...palabras, ...despues, foto].filter(Boolean), { clearProps: "transform,opacity" }),
+      });
+      tl.to(palabras, {
+        yPercent: 0,
+        duration: DURACION.lenta,
+        stagger: staggerSeguro(palabras.length, movil ? STAGGER / 2 : STAGGER),
+      });
+      if (foto) tl.to(foto, { y: 0, duration: DURACION.lenta }, 0);
+      tl.to(despues, { opacity: 1, duration: DURACION.media, stagger: staggerSeguro(despues.length) }, "-=0.35");
+    };
+
+    // Con la puerta de entrada cerrada, la portada espera y entra cuando se abre (tras el revelado C-G-A)
+    if (html.classList.contains("con-puerta")) {
+      window.addEventListener(EVENTO_PUERTA_ABIERTA, entrar, { once: true });
+      return () => window.removeEventListener(EVENTO_PUERTA_ABIERTA, entrar);
+    }
+    entrar();
   });
   return (
     <div ref={ref} className="contents">

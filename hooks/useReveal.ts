@@ -14,7 +14,7 @@ export function useReveal(scope: RefObject<HTMLElement | null>, { selector, clip
     const st = { trigger: raiz, start: "top 85%", once: true };
     // Movimiento reducido: nada se oculta ni se mueve
     if (reducido) return;
-    const tl = gsap.timeline({
+    const tl= gsap.timeline({
       scrollTrigger: st,
       defaults: { ease: CURVA.entrada },
       onComplete: () => gsap.set([objetivo, objetivo.querySelector("[data-anim-escala]")].filter(Boolean), { clearProps: "transform,opacity" }),

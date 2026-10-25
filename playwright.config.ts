@@ -8,8 +8,12 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   reporter: [["list"]],
   use: {
+    launchOptions: process.env.PW_EXE ? { executablePath: process.env.PW_EXE } : {},
     baseURL: `http://127.0.0.1:${PUERTO}`,
     locale: "es-ES",
+    // La puerta de entrada ya superada: las pruebas del resto de la web no la ven.
+    // tests/e2e/puerta.spec.ts abre contextos limpios para probarla.
+    storageState: "tests/e2e/puerta-superada.json",
     timezoneId: "Europe/Madrid",
   },
   projects: [
