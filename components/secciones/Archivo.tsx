@@ -8,7 +8,7 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
   return (
     <section aria-labelledby="ya-no-hay" className="border-t border-gris-oscuro bg-carbon">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
-        <Cinta id="ya-no-hay" entradilla="Lo que salió y no vuelve.">
+        <Cinta id="ya-no-hay" entradilla="Lo que salió y no vuelve. Quien lo tiene, lo tiene.">
           Ya no hay
         </Cinta>
         {prendas.length > 0 ? (

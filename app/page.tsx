@@ -10,6 +10,7 @@ import { Manifiesto } from "@/components/secciones/Manifiesto";
 import { Pie } from "@/components/secciones/Pie";
 import { Rotura } from "@/components/secciones/Rotura";
 import { AnimarRotura } from "@/components/animacion/AnimarRotura";
+import { AvisoDrop } from "@/components/ui/AvisoDrop";
 import { Cabecera } from "@/components/ui/Cabecera";
 import { Puerta } from "@/components/laberinto/Puerta";
 import { getArchivo, getDropActivo, getProximoDrop } from "@/lib/drops";
@@ -17,6 +18,15 @@ import { EMAIL_CONTACTO, INSTAGRAM_URL, SITIO_URL } from "@/lib/marca";
 
 export default async function Inicio() {
   const [dropActivo, proximo, archivo] = await Promise.all([getDropActivo(), getProximoDrop(), getArchivo()]);
+
+  // Recordatorio de la próxima prenda (cabecera en escritorio, barra abajo en móvil)
+  const fechaProxima = proximo?.fechaLanzamiento ?? null;
+  const aviso = fechaProxima
+    ? {
+        fecha: fechaProxima,
+        texto: `La próxima sale el ${new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", timeZone: "Europe/Madrid" }).format(new Date(fechaProxima))}`,
+      }
+    : null;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -32,7 +42,9 @@ export default async function Inicio() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
-      <Cabecera />
+      <Cabecera
+        centro={aviso ? <AvisoDrop variante="cabecera" fechaIso={aviso.fecha} textoInicial={aviso.texto} /> : null}
+      />
       <main id="contenido">
         <Manifiesto />
         <DropActual drop={dropActivo} />
@@ -59,6 +71,8 @@ export default async function Inicio() {
           arriba="bg-carbon grano"
           abajo="bg-negro"
         />
+        {/* Barra fija de móvil: dentro de <main> para que quede inert mientras la puerta está cerrada */}
+        {aviso ? <AvisoDrop variante="barra" fechaIso={aviso.fecha} textoInicial={aviso.texto} /> : null}
       </main>
       <Pie bordeSuperior={false} />
       <Puerta />

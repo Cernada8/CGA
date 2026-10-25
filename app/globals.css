@@ -1140,3 +1140,225 @@
     }
   }
 }
+
+/* ---------- Escasez y urgencia: próxima prenda ---------- */
+@layer components {
+  /* Punto «en directo»: late despacio; con movimiento reducido, fijo */
+  .punto-vivo {
+    position: relative;
+    display: inline-block;
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--cga-acento);
+  }
+  .punto-vivo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: inherit;
+    animation: latido-punto 1.6s var(--mov-entrada) infinite;
+  }
+  @keyframes latido-punto {
+    from {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    to {
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+
+  /* Recordatorio: píldora en la cabecera (escritorio, desde 1024 px) */
+  .aviso-drop {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .aviso-drop__texto {
+    color: var(--cga-gris);
+    font-weight: 500;
+  }
+  .aviso-drop__tiempo {
+    font-variant-numeric: tabular-nums;
+    font-stretch: 85%;
+    color: var(--cga-blanco);
+  }
+  .aviso-drop--cabecera {
+    min-height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 999px;
+    background: rgb(22 22 22 / 0.7);
+    transition: border-color var(--mov-rapida) var(--mov-entrada);
+  }
+  .aviso-drop--cabecera:hover {
+    border-color: var(--cga-acento);
+  }
+  .aviso-drop[data-fase="horas"] .aviso-drop__texto,
+  .aviso-drop[data-fase="ultima"] .aviso-drop__texto,
+  .aviso-drop[data-fase="horas"] .aviso-drop__tiempo,
+  .aviso-drop[data-fase="ultima"] .aviso-drop__tiempo,
+  .aviso-drop[data-fase="fuera"] .aviso-drop__tiempo {
+    color: var(--cga-acento);
+  }
+
+  /* Recordatorio: barra fija abajo en móvil y tableta */
+  .aviso-drop--barra {
+    position: fixed;
+    inset-inline: max(0.75rem, calc((100% - 28rem) / 2));
+    bottom: max(0.75rem, env(safe-area-inset-bottom));
+    z-index: 30;
+    justify-content: space-between;
+    min-height: 3.25rem;
+    padding: 0 1.1rem;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 999px;
+    background: rgb(10 10 10 / 0.9);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 12px 30px -12px rgb(0 0 0 / 0.9);
+    font-size: 0.9375rem;
+    transition:
+      transform var(--mov-media) var(--mov-entrada),
+      opacity var(--mov-media) var(--mov-entrada);
+  }
+  .aviso-drop--barra .aviso-drop__texto {
+    flex: 1;
+  }
+  .aviso-drop--barra[data-oculta] {
+    transform: translateY(calc(100% + 1.5rem));
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* En escritorio el recordatorio va en la cabecera */
+  @media (min-width: 1024px) {
+    .aviso-drop--barra {
+      display: none;
+    }
+  }
+  /* Que la barra nunca tape el final del pie */
+  @media (max-width: 1023px) {
+    main:has(.aviso-drop--barra) + footer {
+      padding-bottom: 5rem;
+    }
+  }
+
+  /* Reloj grande de «Lo próximo» */
+  .reloj {
+    margin-top: 2.5rem;
+  }
+  .reloj__aviso {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    color: var(--cga-acento);
+    font-weight: 700;
+  }
+  .reloj__cifras {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    max-width: 40rem;
+  }
+  @media (min-width: 640px) {
+    .reloj__cifras {
+      gap: 1.25rem;
+    }
+  }
+  .reloj__unidad {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.35rem;
+    padding-top: 0.75rem;
+    border-top: 4px solid var(--cga-gris-oscuro);
+  }
+  /* La barra se llena de acento según la unidad: los días ya cuentan, los segundos corren */
+  .reloj__unidad:first-child {
+    border-top-color: var(--cga-acento);
+  }
+  .reloj[data-fase="horas"] .reloj__unidad,
+  .reloj[data-fase="ultima"] .reloj__unidad {
+    border-top-color: var(--cga-acento);
+  }
+  .reloj__etiqueta {
+    font-size: 0.875rem;
+    color: var(--cga-gris);
+  }
+  .reloj__numero {
+    display: flex;
+    font-size: clamp(2.6rem, 10vw, 5.5rem);
+    font-weight: 900;
+    font-stretch: 75%;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .reloj[data-fase="horas"] .reloj__numero,
+  .reloj[data-fase="ultima"] .reloj__numero {
+    color: var(--cga-acento);
+  }
+  .reloj__mascara {
+    display: inline-block;
+    overflow: hidden;
+  }
+
+  /* La prenda que viene, tapada con cinta americana */
+  .tapada {
+    position: relative;
+    width: 100%;
+    max-width: min(100%, 22rem);
+    aspect-ratio: 4 / 5;
+    justify-self: center;
+    overflow: hidden;
+    background:
+      radial-gradient(90% 70% at 50% 40%, rgb(255 255 255 / 0.07), transparent 65%),
+      var(--cga-carbon);
+    outline: 1px solid var(--cga-gris-oscuro);
+    outline-offset: -1px;
+  }
+  @media (min-width: 1024px) {
+    .tapada {
+      max-width: 28rem;
+    }
+  }
+  .tapada .foto-pendiente__marca {
+    opacity: 0.1;
+  }
+  .tapada__cinta {
+    position: absolute;
+    left: -15%;
+    right: -15%;
+    top: 50%;
+    padding: 0.7rem 0 0.6rem;
+    background: var(--cga-gris-foto);
+    color: var(--cga-negro);
+    font-family: var(--font-sedgwick), sans-serif;
+    font-size: clamp(1.15rem, 4.5vw, 1.6rem);
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 10px 24px -10px rgb(0 0 0 / 0.9);
+    clip-path: polygon(0 6%, 100% 0, 100% 94%, 0 100%);
+  }
+  .tapada__cinta--a {
+    top: 36%;
+    transform: translateY(-50%) rotate(-12deg);
+  }
+  .tapada__cinta--b {
+    top: 66%;
+    transform: translateY(-50%) rotate(9deg);
+    background: #cfcfca;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .punto-vivo::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
+}

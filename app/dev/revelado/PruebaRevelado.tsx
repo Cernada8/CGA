@@ -21,7 +21,7 @@ export function PruebaRevelado() {
       >
         Repetir revelado
       </button>
-      <Reloj fechaIso={fecha} />
+      <Reloj fechaIso={fecha} fechaLegible="fecha de prueba" />
       {visible ? <RevelaCGA key={vuelta} alTerminar={() => setVisible(false)} /> : null}
     </main>
   );

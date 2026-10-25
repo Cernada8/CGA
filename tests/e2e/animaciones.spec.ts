@@ -2,7 +2,8 @@ import { expect, test } from "@playwright/test";
 
 const visibles = async (page: import("@playwright/test").Page) =>
   page.evaluate(() =>
-    [...document.querySelectorAll("main h1, main h2, main h3, main p, main a, main button")].filter((e) => {
+    // La barra de aviso de móvil se oculta a propósito (portada y «Lo próximo» a la vista): no cuenta
+    [...document.querySelectorAll("main h1, main h2, main h3, main p, main a, main button")].filter((e) => !e.closest("[data-oculta], .aviso-drop--barra")).filter((e) => {
       const s = getComputedStyle(e);
       return s.visibility === "hidden" || Number(s.opacity) < 0.99;
     }).length,

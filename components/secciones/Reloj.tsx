@@ -1,71 +1,82 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { dosCifras, type Partes, useCuentaAtras } from "@/hooks/useCuentaAtras";
 import { cargarMotor } from "@/lib/gsap-cliente";
+import { INSTAGRAM_DM_URL } from "@/lib/marca";
 import { CURVA, DURACION } from "@/lib/motion";
 
-type Partes = { dias: number; horas: number; minutos: number; segundos: number };
-
-function calcular(objetivo: number, ahora: number): Partes {
-  const resto = Math.max(0, objetivo - ahora);
-  return {
-    dias: Math.floor(resto / 86_400_000),
-    horas: Math.floor(resto / 3_600_000) % 24,
-    minutos: Math.floor(resto / 60_000) % 60,
-    segundos: Math.floor(resto / 1000) % 60,
-  };
-}
-
-const ETIQUETAS: [keyof Partes, string][] = [
-  ["dias", "días"],
-  ["horas", "horas"],
-  ["minutos", "min"],
-  ["segundos", "seg"],
+const UNIDADES: [keyof Partes, string, string][] = [
+  ["dias", "día", "días"],
+  ["horas", "hora", "horas"],
+  ["minutos", "minuto", "minutos"],
+  ["segundos", "segundo", "segundos"],
 ];
 
-/** El servidor pinta guiones; el cliente calcula el tiempo (sin error de hidratación). */
-export function Reloj({ fechaIso }: { fechaIso: string }) {
-  const objetivo = new Date(fechaIso).getTime();
-  const [partes, setPartes] = useState<Partes | null>(null);
+const AVISO_FASE = { lejos: null, horas: "Últimas horas", ultima: "Última hora" } as const;
 
-  useEffect(() => {
-    const tick = () => setPartes(calcular(objetivo, Date.now()));
-    tick();
-    const id = window.setInterval(tick, 1000);
-    return () => window.clearInterval(id);
-  }, [objetivo]);
+/**
+ * Cuenta atrás grande de «Lo próximo». El servidor pinta guiones; el cliente calcula el tiempo.
+ * En las últimas 24 h los números pasan al acento y aparece el aviso; al llegar a cero, «Ya ha salido».
+ */
+export function Reloj({ fechaIso, fechaLegible }: { fechaIso: string; fechaLegible: string }) {
+  const cuenta = useCuentaAtras(fechaIso);
 
-  const fechaLegible = new Intl.DateTimeFormat("es-ES", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Madrid" }).format(objetivo);
+  if (cuenta?.fase === "fuera") {
+    return (
+      <div className="reloj reloj--fuera" role="status">
+        <p className="font-grito text-[clamp(3.5rem,12vw,8rem)] leading-[0.9]">Ya ha salido.</p>
+        <p className="mt-6 max-w-md text-lg text-blanco/90">
+          <a href={INSTAGRAM_DM_URL} target="_blank" rel="noopener noreferrer" className="font-semibold underline decoration-acento decoration-2 underline-offset-8 hover:text-acento">
+            Escríbenos por Instagram
+            <span className="sr-only"> (se abre en una pestaña nueva)</span>
+          </a>{" "}
+          antes de que se acabe.
+        </p>
+      </div>
+    );
+  }
 
+  const aviso = cuenta ? AVISO_FASE[cuenta.fase] : null;
   return (
-    <div className="mt-10">
+    <div className="reloj" data-fase={cuenta?.fase ?? "lejos"}>
       <p className="sr-only">
         Sale el <time dateTime={fechaIso}>{fechaLegible}</time>.
       </p>
-      <dl aria-hidden="true" className="grid max-w-3xl grid-cols-4 gap-3 sm:gap-6">
-        {ETIQUETAS.map(([clave, etiqueta]) => (
-          <div key={clave} className="flex flex-col-reverse gap-1 border-t-4 border-acento pt-3">
-            <dt className="text-sm text-gris">{etiqueta}</dt>
-            <dd className="flex text-[clamp(2.25rem,8vw,5.5rem)] font-black leading-none tabular-nums [font-stretch:75%]">
-              {(partes ? String(partes[clave]).padStart(2, "0") : "--").split("").map((d, i) => (
-                <Digito key={i} valor={d} />
-              ))}
-            </dd>
-          </div>
-        ))}
+      {aviso ? (
+        <p className="reloj__aviso" aria-live="polite">
+          <span aria-hidden="true" className="punto-vivo" />
+          {aviso}
+        </p>
+      ) : null}
+      <dl aria-hidden="true" className="reloj__cifras">
+        {UNIDADES.map(([clave, singular, plural]) => {
+          const valor = cuenta ? dosCifras(cuenta.partes[clave]) : "--";
+          return (
+            <div key={clave} className="reloj__unidad">
+              <dt className="reloj__etiqueta">{cuenta?.partes[clave] === 1 ? singular : plural}</dt>
+              <dd className="reloj__numero">
+                {valor.split("").map((d, i) => (
+                  <Digito key={i} valor={d} />
+                ))}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
     </div>
   );
 }
 
-/** Un dígito en su máscara: cuando cambia, el nuevo entra desde abajo (duración rápida). Nada se mueve si no cambia. */
+/** Un dígito en su máscara: cuando cambia, el nuevo entra desde abajo. Nada se mueve si no cambia. */
 function Digito({ valor }: { valor: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const previo = useRef(valor);
   useEffect(() => {
     if (previo.current === valor) return;
+    const venia = previo.current;
     previo.current = valor;
-    if (valor === "-" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (venia === "-" || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     let tween: { kill: () => void } | undefined;
     cargarMotor().then(({ gsap }) => {
       if (ref.current) tween = gsap.fromTo(ref.current, { yPercent: 100 }, { yPercent: 0, duration: DURACION.rapida, ease: CURVA.entrada });
@@ -73,7 +84,7 @@ function Digito({ valor }: { valor: string }) {
     return () => tween?.kill();
   }, [valor]);
   return (
-    <span className="inline-block overflow-hidden">
+    <span className="reloj__mascara">
       <span ref={ref} className="inline-block">
         {valor}
       </span>

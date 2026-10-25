@@ -105,7 +105,9 @@ const DROPS_PRUEBA: Drop[] = [
     id: "prueba-proximo",
     slug: "proximo",
     estado: "proximo",
-    fechaLanzamiento: null,
+    // Confirmada por el cliente: viernes 30 de octubre de 2026 a las 20:00 (hora peninsular, ya en horario de invierno).
+    // La prenda no se enseña hasta ese día.
+    fechaLanzamiento: "2026-10-30T20:00:00+01:00",
     tema: TEMA_CAQUI,
     productos: [],
   },

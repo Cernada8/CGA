@@ -14,7 +14,7 @@ export function DropActual({ drop }: { drop: Drop | null }) {
   return (
     <section aria-labelledby="lo-nuevo" className="scroll-mt-20 border-t border-gris-oscuro bg-carbon">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
-        <Cinta id="lo-nuevo" entradilla="Cada prenda sale una vez. Cuando se acaba, se acaba.">Lo nuevo</Cinta>
+        <Cinta id="lo-nuevo" entradilla="Cada prenda sale una vez. Cuando se acaba, pasa a «Ya no hay» y no vuelve.">Lo nuevo</Cinta>
 
         {drop && drop.productos.length > 0 ? (
           <AnimarTarjetas>

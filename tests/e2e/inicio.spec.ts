@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 const SECCIONES = ["lo-nuevo", "lo-proximo", "ya-no-hay", "como-conseguirlo", "colaboraciones"];
-const PROHIBIDAS = [/drop \d/i, /\[NÚMERO\]/, /carrito/i, /comprar/i, /oferta/i, /descuento/i, /rebajas/i, /\d+\s*unidades/i, /\bstock\b/i];
+const PROHIBIDAS = [/drop \d/i, /\[NÚMERO\]/, /carrito/i, /comprar/i, /oferta/i, /descuento/i, /rebajas/i, /\d+\s*unidades/i, /\bstock\b/i, /últimas unidades/i, /reposición disponible/i, /vuelve pronto/i];
 
 test.describe("inicio", () => {
 
