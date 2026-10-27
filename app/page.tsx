@@ -16,6 +16,10 @@ import { Puerta } from "@/components/laberinto/Puerta";
 import { getArchivo, getDropActivo, getProximoDrop } from "@/lib/drops";
 import { EMAIL_CONTACTO, INSTAGRAM_URL, SITIO_URL } from "@/lib/marca";
 
+// Con Supabase: la página se regenera como mucho cada minuto (y al momento cuando se guarda algo en el panel).
+// Así una prenda programada aparece en «Lo nuevo» en cuanto llega su hora.
+export const revalidate = 60;
+
 export default async function Inicio() {
   const [dropActivo, proximo, archivo] = await Promise.all([getDropActivo(), getProximoDrop(), getArchivo()]);
 
@@ -47,7 +51,7 @@ export default async function Inicio() {
       />
       <main id="contenido">
         <Manifiesto />
-        <DropActual drop={dropActivo} />
+        <DropActual drop={dropActivo} hayArchivo={archivo.length > 0} />
         <AnimarRotura>
           <Rotura
             ancho="min(50vw, 240px)"
@@ -58,7 +62,8 @@ export default async function Inicio() {
           />
         </AnimarRotura>
         <CuentaAtras drop={proximo} />
-        <Archivo prendas={archivo} />
+        {/* «Ya no hay» solo aparece cuando de verdad hay algo agotado: una sección vacía resta, no suma */}
+        {archivo.length > 0 ? <Archivo prendas={archivo} /> : null}
         <ComoConseguirlo />
         <Colaboraciones />
         <Costura

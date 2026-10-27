@@ -1,5 +1,5 @@
 import { Cinta } from "@/components/ui/Cinta";
-import { FotoPendiente } from "@/components/ui/FotoPendiente";
+import { FotoPrenda } from "@/components/ui/FotoPrenda";
 import type { PrendaAgotada } from "@/lib/drops";
 import { variablesDeTema } from "@/lib/tema";
 
@@ -12,12 +12,12 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
           Ya no hay
         </Cinta>
         {prendas.length > 0 ? (
-          <ul className={`mt-12 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 ${prendas.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
+          <ul className={`mt-12 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4`}>
             {prendas.map(({ producto, tema }) => (
               <li key={producto.id} style={variablesDeTema(tema)}>
                 <article className="ficha ficha--agotada">
                   <div className="relative">
-                    <FotoPendiente alt={producto.imagenes[0]?.alt ?? "Prenda de CGA que ya no está disponible"} />
+                    <FotoPrenda imagen={producto.imagenes[0]} alt={producto.nombre ?? "Prenda de CGA que ya no está disponible"} sizes="(min-width: 1024px) 33vw, 50vw" />
                     <span className="sello-agotado" aria-hidden="true">
                       Agotado
                     </span>

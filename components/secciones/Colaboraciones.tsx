@@ -16,7 +16,7 @@ export function Colaboraciones() {
           </p>
           <Link
             href="/colaboraciones"
-            className="mt-10 inline-flex min-h-12 items-center justify-center rounded-full bg-blanco px-7 font-bold text-negro [font-stretch:90%] transition-colors duration-300 ease-out hover:bg-acento hover:text-sobre-acento"
+            className="boton-secundario mt-10"
           >
             Hablemos de colaborar
           </Link>

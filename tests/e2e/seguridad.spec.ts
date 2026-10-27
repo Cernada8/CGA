@@ -35,7 +35,7 @@ test.describe("cabeceras de seguridad", () => {
     for (const d of [
       "object-src 'none'",
       "base-uri 'none'",
-      "form-action 'none'",
+      "form-action 'self'",
       "frame-ancestors 'none'",
       "frame-src 'none'",
       "upgrade-insecure-requests",

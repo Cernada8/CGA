@@ -22,7 +22,8 @@ const csp = [
   "frame-src 'none'",
   "object-src 'none'",
   "base-uri 'none'",
-  "form-action 'none'",
+  // Formularios solo hacia la propia web (el panel envía sus formularios a sí mismo)
+  "form-action 'self'",
   "frame-ancestors 'none'",
   // Ningún atributo on*="..." puede ejecutar código (React no los usa)
   "script-src-attr 'none'",
@@ -78,6 +79,10 @@ const nextConfig: NextConfig = {
   poweredByHeader: false, // no anunciar qué tecnología hay detrás
   productionBrowserSourceMaps: false, // el código fuente no se publica
   reactStrictMode: true,
+  experimental: {
+    // Las fotos del panel se suben de una en una: 10 MB por foto y un margen para el resto del formulario
+    serverActions: { bodySizeLimit: "11mb" },
+  },
   images: {
     // Solo imágenes propias: el optimizador no acepta URLs externas ni SVG.
     remotePatterns: [],

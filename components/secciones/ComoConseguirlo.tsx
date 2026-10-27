@@ -14,14 +14,16 @@ export function ComoConseguirlo() {
         <Cinta id="como-conseguirlo" entradilla="Sin tienda online. Así de fácil.">
           Cómo conseguirlo
         </Cinta>
-        <ol className="pasos mt-14 grid gap-12 md:grid-cols-3 md:gap-8">
+        <ol className="pasos mt-12 grid gap-10 md:mt-14 md:grid-cols-3 md:gap-8">
           {PASOS.map(({ titulo, detalle }, i) => (
             <li key={titulo} className="paso">
               <span aria-hidden="true" className="paso__numero">
                 {i + 1}
               </span>
-              <p className="mt-5 text-2xl font-bold leading-tight [font-stretch:85%]">{titulo}</p>
-              <p className="mt-2 text-base text-gris">{detalle}</p>
+              <div className="paso__texto">
+                <p className="text-2xl font-bold leading-tight [font-stretch:85%]">{titulo}</p>
+                <p className="mt-2 text-base text-gris">{detalle}</p>
+              </div>
             </li>
           ))}
         </ol>
@@ -29,7 +31,7 @@ export function ComoConseguirlo() {
           href={INSTAGRAM_DM_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-14 inline-flex min-h-12 items-center rounded-full border-2 border-acento px-6 font-bold [font-stretch:90%] transition-colors duration-300 ease-out hover:bg-acento hover:text-sobre-acento"
+          className="boton-secundario mt-14"
         >
           Escríbenos por Instagram
           <span className="sr-only"> (se abre en una pestaña nueva)</span>

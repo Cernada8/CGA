@@ -8,7 +8,10 @@ export type EstadoDrop = "proximo" | "activo" | "agotado";
 export type Linea = "general" | "woman" | "kids";
 
 export type ImagenProducto = {
-  ruta: string | null; // null = falta la foto real
+  ruta: string | null; // null = falta la foto real. Si existe: URL propia (/fotos/…)
+  rutaPequena?: string | null;
+  ancho?: number;
+  alto?: number;
   alt: string;
   tipo: "producto" | "campana";
 };
@@ -131,7 +134,107 @@ const DROPS_PRUEBA: Drop[] = [
   },
 ];
 
-export const getDrops = cache(async (): Promise<Drop[]> => DROPS_PRUEBA);
+// ---------- Lectura desde Supabase (si está configurado) ----------
+
+type FilaDrop = { id: string; estado: EstadoDrop; fecha_lanzamiento: string | null; acento: string; orden: number };
+type FilaProducto = {
+  id: string;
+  drop_id: string;
+  nombre: string | null;
+  categoria: string;
+  descripcion: string | null;
+  gramaje_g: number | null;
+  linea: Linea;
+  agotado: boolean;
+  orden: number;
+  imagenes_producto: { ruta_storage: string; ruta_pequena: string; ancho: number; alto: number; alt: string; orden: number }[];
+};
+
+function temaDe(acento: string, slug: string, nombreVisible: string): TemaDrop {
+  return { slug, acento, textoSobreAcento: "#0a0a0a", fondoCampana: acento, nombreVisible };
+}
+
+function aProducto(f: FilaProducto): Producto {
+  const imagenes = [...f.imagenes_producto].sort((a, b) => a.orden - b.orden);
+  return {
+    id: f.id,
+    slug: f.id,
+    nombre: f.nombre,
+    categoria: f.categoria,
+    descripcion: f.descripcion,
+    gramajeG: f.gramaje_g,
+    linea: f.linea,
+    orden: f.orden,
+    imagenes: imagenes.length
+      ? imagenes.map((i) => ({ ruta: `/fotos/${i.ruta_storage}`, rutaPequena: `/fotos/${i.ruta_pequena}`, ancho: i.ancho, alto: i.alto, alt: i.alt, tipo: "producto" as const }))
+      : [{ ruta: null, alt: `${f.nombre ?? "Prenda"} de CGA`, tipo: "producto" as const }],
+  };
+}
+
+/**
+ * Convierte lo que hay en la base en los tres bloques de la web:
+ * - «Lo nuevo»: prendas no agotadas de lanzamientos activos o de próximos cuya fecha ya ha llegado.
+ * - «Lo próximo»: el lanzamiento próximo más cercano que aún no ha llegado (solo su fecha: sus prendas no se leen).
+ * - «Ya no hay»: prendas marcadas como agotadas o de lanzamientos agotados.
+ */
+async function dropsDesdeSupabase(): Promise<Drop[]> {
+  const { clientePublico } = await import("./supabase/publico");
+  const db = clientePublico();
+  const [drops, productos] = await Promise.all([
+    db.from("drops").select("id, estado, fecha_lanzamiento, acento, orden").eq("publicado", true).order("orden"),
+    db
+      .from("productos")
+      .select("id, drop_id, nombre, categoria, descripcion, gramaje_g, linea, agotado, orden, imagenes_producto(ruta_storage, ruta_pequena, ancho, alto, alt, orden)")
+      .eq("publicado", true)
+      .order("orden"),
+  ]);
+  if (drops.error || productos.error) throw new Error("No se han podido leer los datos de la web");
+  const ahora = Date.now();
+  const filas = drops.data as FilaDrop[];
+  const prods = productos.data as FilaProducto[];
+  const lanzado = (d: FilaDrop) => d.estado === "activo" || (d.estado === "proximo" && d.fecha_lanzamiento !== null && new Date(d.fecha_lanzamiento).getTime() <= ahora);
+  const porDrop = (id: string) => prods.filter((p) => p.drop_id === id);
+
+  const activos = filas.filter(lanzado);
+  const nuevo: Drop = {
+    id: "activo",
+    slug: "actual",
+    estado: "activo",
+    fechaLanzamiento: null,
+    tema: temaDe(activos[0]?.acento ?? TEMA_CAQUI.acento, "actual", "Lo nuevo"),
+    productos: activos.flatMap((d) => porDrop(d.id)).filter((p) => !p.agotado).map(aProducto),
+  };
+  const proximo = filas
+    .filter((d) => d.estado === "proximo" && d.fecha_lanzamiento && new Date(d.fecha_lanzamiento).getTime() > ahora)
+    .sort((a, b) => new Date(a.fecha_lanzamiento!).getTime() - new Date(b.fecha_lanzamiento!).getTime())[0];
+  const agotados: Drop[] = filas
+    .map((d) => ({
+      d,
+      prendas: porDrop(d.id).filter((p) => d.estado === "agotado" || (p.agotado && lanzado(d))),
+    }))
+    .filter(({ prendas }) => prendas.length > 0)
+    .map(({ d, prendas }) => ({
+      id: d.id,
+      slug: `agotado-${d.id}`,
+      estado: "agotado" as const,
+      fechaLanzamiento: d.fecha_lanzamiento,
+      tema: temaDe(d.acento, `agotado-${d.id}`, "Ya no hay"),
+      productos: prendas.map(aProducto),
+    }));
+
+  return [
+    nuevo,
+    ...(proximo
+      ? [{ id: proximo.id, slug: "proximo", estado: "proximo" as const, fechaLanzamiento: proximo.fecha_lanzamiento, tema: temaDe(proximo.acento, "proximo", "Lo próximo"), productos: [] }]
+      : []),
+    ...agotados,
+  ];
+}
+
+export const getDrops = cache(async (): Promise<Drop[]> => {
+  const { supabaseConfigurado } = await import("./supabase/config");
+  return supabaseConfigurado ? dropsDesdeSupabase() : DROPS_PRUEBA;
+});
 
 export const getDropActivo = cache(async (): Promise<Drop | null> => {
   const drops = await getDrops();

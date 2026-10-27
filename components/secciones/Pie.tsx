@@ -10,20 +10,20 @@ export function Pie({ bordeSuperior = true }: { bordeSuperior?: boolean }) {
           <MarcaTexto variante="vertical" ancho={64} className="text-blanco" />
           <p className="font-sello text-2xl leading-tight">Siempre humildes, nunca sumisos.</p>
         </div>
-        <ul className="space-y-2 text-base">
+        <ul className="space-y-0.5 text-base">
           <li>
-            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="underline-offset-4 hover:text-acento hover:underline">
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="inline-block py-1.5 underline-offset-4 hover:text-acento hover:underline">
               Instagram: @{INSTAGRAM_USUARIO}
               <span className="sr-only"> (se abre en una pestaña nueva)</span>
             </a>
           </li>
           <li>
-            <a href={`mailto:${EMAIL_CONTACTO}`} className="underline-offset-4 hover:text-acento hover:underline">
+            <a href={`mailto:${EMAIL_CONTACTO}`} className="inline-block py-1.5 underline-offset-4 hover:text-acento hover:underline">
               {EMAIL_CONTACTO}
             </a>
           </li>
           <li>
-            <Link href="/colaboraciones" className="underline-offset-4 hover:text-acento hover:underline">
+            <Link href="/colaboraciones" className="inline-block py-1.5 underline-offset-4 hover:text-acento hover:underline">
               Colaboraciones
             </Link>
           </li>

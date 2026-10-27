@@ -1,6 +1,6 @@
 import { AnimarTarjetas } from "@/components/animacion/AnimarTarjetas";
 import { Cinta } from "@/components/ui/Cinta";
-import { FotoPendiente } from "@/components/ui/FotoPendiente";
+import { FotoPrenda } from "@/components/ui/FotoPrenda";
 import type { Drop, Producto } from "@/lib/drops";
 import { INSTAGRAM_DM_URL } from "@/lib/marca";
 
@@ -10,11 +10,11 @@ const NOMBRE_LINEA: Record<Producto["linea"], string | null> = {
   kids: "CGA Kids",
 };
 
-export function DropActual({ drop }: { drop: Drop | null }) {
+export function DropActual({ drop, hayArchivo = true }: { drop: Drop | null; hayArchivo?: boolean }) {
   return (
     <section aria-labelledby="lo-nuevo" className="scroll-mt-20 border-t border-gris-oscuro bg-carbon">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
-        <Cinta id="lo-nuevo" entradilla="Cada prenda sale una vez. Cuando se acaba, pasa a «Ya no hay» y no vuelve.">Lo nuevo</Cinta>
+        <Cinta id="lo-nuevo" entradilla={hayArchivo ? "Cada prenda sale una vez. Cuando se acaba, pasa a «Ya no hay» y no vuelve." : "Cada prenda sale una vez. Cuando se acaba, se acaba."}>Lo nuevo</Cinta>
 
         {drop && drop.productos.length > 0 ? (
           <AnimarTarjetas>
@@ -50,7 +50,7 @@ function FichaProducto({ producto }: { producto: Producto }) {
     <article className="ficha">
       <div className="ficha__foto">
         <div data-anim-escala>
-          <FotoPendiente alt={imagen?.alt ?? producto.nombre ?? "Prenda de CGA"} />
+          <FotoPrenda imagen={imagen} alt={producto.nombre ?? "Prenda de CGA"} />
         </div>
       </div>
       <h3 className="ficha__nombre mt-4 text-lg font-bold leading-snug [font-stretch:85%] sm:text-xl">
