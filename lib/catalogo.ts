@@ -1,33 +1,18 @@
 import type { ImagenProducto, Producto } from "./drops";
+import { MEDIDAS_FOTOS } from "./medidas-fotos";
 
-// Catálogo real (fotos del cliente, recortadas y optimizadas en public/prendas: WebP 1200×1500 y 600×750).
+// Catálogo real con las fotos del cliente TAL CUAL: sin recortes, sin separar delante y detrás y sin
+// tocar el fondo. Solo se han reducido de tamaño y pasado a WebP (grande: lado mayor 1600 px; pequeña: 800 px).
 // Solo se pone lo que se ve en la foto o en el nombre del archivo: sin descripciones ni datos inventados.
 // Cuando el panel esté en marcha, esto se importa una vez a Supabase y la web pasa a leer de allí.
 
-const ANCHO = 1200;
-const ALTO = 1500;
-
 function foto(carpeta: string, archivo: string, alt: string): ImagenProducto {
-  return {
-    ruta: `/${carpeta}/${archivo}.webp`,
-    rutaPequena: `/${carpeta}/${archivo}-p.webp`,
-    ancho: ANCHO,
-    alto: ALTO,
-    anchoPequena: ANCHO / 2,
-    alt,
-    tipo: "producto",
-  };
+  const base = `/${carpeta}/${archivo}`;
+  const [ancho, alto, anchoPequena] = MEDIDAS_FOTOS[base];
+  return { ruta: `${base}.webp`, rutaPequena: `${base}-p.webp`, ancho, alto, anchoPequena, alt, tipo: "producto" };
 }
 
-type Prenda = {
-  slug: string;
-  nombre: string;
-  categoria: string;
-  gramajeG?: number;
-  /** Texto alternativo de la foto principal; la segunda (si hay) es la otra cara de la prenda */
-  alt: string;
-  altDetras?: string;
-};
+type Prenda = { slug: string; nombre: string; categoria: string; gramajeG?: number; alt: string };
 
 function aProductos(prendas: Prenda[], prefijo: string): Producto[] {
   return prendas.map((p, i) => ({
@@ -39,7 +24,7 @@ function aProductos(prendas: Prenda[], prefijo: string): Producto[] {
     gramajeG: p.gramajeG ?? null,
     linea: "general",
     orden: i + 1,
-    imagenes: [foto("prendas", p.slug, p.alt), ...(p.altDetras ? [foto("prendas", `${p.slug}-2`, p.altDetras)] : [])],
+    imagenes: [foto("prendas", p.slug, p.alt)],
   }));
 }
 
@@ -51,26 +36,26 @@ export const PRENDAS_NUEVAS = aProductos(
       nombre: "Camiseta oversize Gorila",
       categoria: "Camiseta",
       gramajeG: 220,
-      alt: "Camiseta oversize negra con el gorila de CGA y «Siempre humildes, nunca sumisos» a la espalda",
+      alt: "Camiseta oversize negra con el gorila de CGA y «Siempre humildes, nunca sumisos» a la espalda, por delante y por detrás",
     },
     {
       slug: "camiseta-oversize-discos",
       nombre: "Camiseta oversize Discos",
       categoria: "Camiseta",
       gramajeG: 220,
-      alt: "Camiseta oversize negra con una pila de discos y «Siempre humildes, nunca sumisos» a la espalda",
+      alt: "Camiseta oversize negra con una pila de discos y «Siempre humildes, nunca sumisos» a la espalda, por delante y por detrás",
     },
     {
       slug: "camiseta-oversize-negra",
       nombre: "Camiseta oversize negra",
       categoria: "Camiseta",
-      alt: "Camiseta oversize negra con «CGA Training Hard» en letra caligráfica blanca a la espalda",
+      alt: "Camiseta oversize negra con «CGA Training Hard» en letra caligráfica blanca, por delante y por detrás",
     },
     {
       slug: "camiseta-oversize-blanca",
       nombre: "Camiseta oversize blanca",
       categoria: "Camiseta",
-      alt: "Camiseta oversize blanca con «CGA Training Hard» en letra caligráfica negra a la espalda",
+      alt: "Camiseta oversize blanca con «CGA Training Hard» en letra caligráfica negra, por delante y por detrás",
     },
     {
       slug: "sudadera-algodon-negra",
@@ -82,43 +67,37 @@ export const PRENDAS_NUEVAS = aProductos(
       slug: "sudadera-negra",
       nombre: "Sudadera negra",
       categoria: "Sudadera",
-      alt: "Sudadera negra con capucha y el gorila de CGA a la espalda",
-      altDetras: "Sudadera negra con capucha y «CGA» en blanco por delante",
+      alt: "Sudadera negra con capucha: «CGA» por delante y el gorila de CGA a la espalda",
     },
     {
       slug: "chaqueta-softshell",
       nombre: "Chaqueta softshell",
       categoria: "Chaqueta",
-      alt: "Chaqueta softshell negra con capucha y cremallera, con «CGA» pequeño en el pecho",
-      altDetras: "Espalda de la chaqueta softshell negra con el gorila de CGA y el lema",
+      alt: "Chaqueta softshell negra con capucha y cremallera: «CGA» en el pecho y el gorila de CGA a la espalda",
     },
     {
       slug: "camiseta-tecnica-negra",
       nombre: "Camiseta técnica negra",
       categoria: "Camiseta técnica",
-      alt: "Camiseta técnica negra con «CGA» en blanco por delante",
-      altDetras: "Espalda de la camiseta técnica negra con el gorila de CGA y el lema",
+      alt: "Camiseta técnica negra: «CGA» por delante y el gorila de CGA a la espalda",
     },
     {
       slug: "tirantes-negra",
       nombre: "Camiseta de tirantes negra",
       categoria: "Tirantes",
-      alt: "Camiseta de tirantes negra con «CGA Training Hard» en blanco por delante",
-      altDetras: "Espalda de la camiseta de tirantes negra con «CGA Training Hard» en grande",
+      alt: "Camiseta de tirantes negra con «CGA Training Hard», por delante y por detrás",
     },
     {
       slug: "top-negro",
       nombre: "Top negro",
       categoria: "Top",
-      alt: "Top deportivo negro estampado con «CGA Training Hard» en blanco por delante",
-      altDetras: "Espalda del top deportivo negro con tirantes cruzados",
+      alt: "Top deportivo negro estampado con «CGA Training Hard», por delante y por detrás",
     },
     {
       slug: "mallas-negras",
       nombre: "Mallas largas negras",
       categoria: "Mallas",
-      alt: "Mallas largas negras con el estampado del gorila en gris y la cinturilla de CGA",
-      altDetras: "Mallas largas negras vistas por detrás",
+      alt: "Mallas largas negras con el estampado del gorila y la cinturilla de CGA, por delante y por detrás",
     },
     {
       slug: "mallas-blanco-negro",
@@ -130,8 +109,7 @@ export const PRENDAS_NUEVAS = aProductos(
       slug: "mallas-cortas-negras",
       nombre: "Mallas cortas negras",
       categoria: "Mallas",
-      alt: "Mallas cortas negras estampadas con «CGA Training Hard» en la cinturilla",
-      altDetras: "Mallas cortas negras vistas por detrás",
+      alt: "Mallas cortas negras estampadas con «CGA Training Hard» en la cinturilla, por delante y por detrás",
     },
   ],
   "nuevo",
@@ -142,8 +120,7 @@ const sudadera = (slug: string, color: string): Prenda => ({
   slug,
   nombre: `Sudadera ${color}`,
   categoria: "Sudadera",
-  alt: `Sudadera ${color} con capucha y el gorila de CGA a la espalda`,
-  altDetras: `Sudadera ${color} con capucha y «CGA» por delante`,
+  alt: `Sudadera ${color} con capucha: «CGA» por delante y el gorila de CGA a la espalda`,
 });
 const tecnica = (slug: string, color: string): Prenda => ({
   slug,
@@ -158,8 +135,7 @@ export const PRENDAS_AGOTADAS = aProductos(
       slug: "tirantes-abuso-papa",
       nombre: "Camiseta de tirantes Abuso Papa",
       categoria: "Tirantes",
-      alt: "Camiseta de tirantes negra con «CGA Training Hard» en letra caligráfica por delante",
-      altDetras: "Espalda de la camiseta de tirantes con «Abuso Papa» y el número 21",
+      alt: "Camiseta de tirantes negra: «CGA Training Hard» por delante y «Abuso Papa» con el número 21 a la espalda",
     },
     {
       slug: "gorras",
@@ -171,8 +147,7 @@ export const PRENDAS_AGOTADAS = aProductos(
       slug: "tecnica-gorila-camuflaje",
       nombre: "Camiseta técnica Gorila",
       categoria: "Camiseta técnica",
-      alt: "Camiseta técnica de camuflaje gris con la cara del gorila de CGA",
-      altDetras: "Camiseta técnica de camuflaje rojo con la cara del gorila de CGA",
+      alt: "Camisetas técnicas de camuflaje en varios colores con la cara del gorila de CGA",
     },
     sudadera("sudadera-negra-amarilla", "negra y amarilla"),
     sudadera("sudadera-amarilla", "amarilla"),
@@ -183,8 +158,7 @@ export const PRENDAS_AGOTADAS = aProductos(
       slug: "sudadera-negra-letras",
       nombre: "Sudadera negra Training Hard",
       categoria: "Sudadera",
-      alt: "Sudadera negra estampada con «CGA Training Hard» en grande a la espalda",
-      altDetras: "Sudadera negra estampada con «CGA Training Hard» por delante",
+      alt: "Sudadera negra estampada con «CGA Training Hard», por delante y por detrás",
     },
     tecnica("tecnica-negra-amarilla", "negra y amarilla"),
     tecnica("tecnica-verde-amarilla", "verde y amarilla"),
@@ -198,12 +172,11 @@ export const PRENDAS_AGOTADAS = aProductos(
 );
 
 // ---------- Equipaciones hechas con academias (sin nombres: no están confirmados) ----------
-export type Equipacion = { slug: string; delante: ImagenProducto; detras: ImagenProducto };
+export type Equipacion = { slug: string; foto: ImagenProducto };
 
 const equipacion = (slug: string, descripcion: string): Equipacion => ({
   slug,
-  delante: foto("colabs", slug, `Equipación ${descripcion}: rashguard y pantalón por delante`),
-  detras: foto("colabs", `${slug}-2`, `Equipación ${descripcion}: rashguard y pantalón por detrás`),
+  foto: foto("colabs", slug, `Equipación ${descripcion}: rashguard y pantalón, por delante y por detrás`),
 });
 
 export const EQUIPACIONES: Equipacion[] = [

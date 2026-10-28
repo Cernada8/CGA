@@ -43,8 +43,8 @@ export const EMBAJADORES: Embajador[] = [
     slug: "enrique-mourinho",
     nombre: "Enrique Mourinho",
     fotos: [
-      foto("enrique", "Enrique Mourinho de espaldas en una máquina del gimnasio, con camiseta azul de CGA Training Hard"),
-      foto("enrique-2", "Enrique Mourinho entrenando con sudadera negra y amarilla de CGA"),
+      foto("enrique", "Enrique Mourinho con camiseta oversize negra de CGA sobre un fondo rojo"),
+      foto("enrique-2", "Enrique Mourinho espalda con espalda junto a otra persona, los dos con sudadera negra y amarilla y mallas estampadas de CGA"),
     ],
   },
 ];

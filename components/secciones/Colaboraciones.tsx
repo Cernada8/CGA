@@ -40,7 +40,7 @@ export function Colaboraciones() {
         <ul className="equipaciones mt-8" aria-label="Equipaciones hechas para academias" tabIndex={0}>
           {EQUIPACIONES.map((e) => (
             <li key={e.slug} className="equipacion overflow-hidden">
-              <FotoPrenda imagen={e.delante} segunda={e.detras} alt={e.delante.alt} sizes="(min-width: 1024px) 20vw, 62vw" />
+              <FotoPrenda imagen={e.foto} alt={e.foto.alt} sizes="(min-width: 1024px) 20vw, 62vw" />
             </li>
           ))}
         </ul>

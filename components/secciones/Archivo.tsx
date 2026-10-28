@@ -12,16 +12,15 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
           Ya no hay
         </Cinta>
         {prendas.length > 0 ? (
-          <ul className="mt-12 grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 md:grid-cols-4">
+          <ul className="mt-12 columns-2 gap-x-3 sm:gap-x-5 lg:columns-3">
             {prendas.map(({ producto, tema }) => (
-              <li key={producto.id} style={variablesDeTema(tema)}>
+              <li key={producto.id} style={variablesDeTema(tema)} className="mb-8 break-inside-avoid">
                 <article className="ficha ficha--agotada">
                   <div className="ficha__foto relative">
                     <FotoPrenda
                       imagen={producto.imagenes[0]}
-                      segunda={producto.imagenes[1]}
                       alt={producto.nombre ?? "Prenda de CGA que ya no está disponible"}
-                      sizes="(min-width: 768px) 25vw, 50vw"
+                      sizes="(min-width: 1024px) 33vw, 50vw"
                     />
                     <span className="sello-agotado" aria-hidden="true">
                       Agotado

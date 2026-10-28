@@ -18,11 +18,11 @@ export function DropActual({ drop, hayArchivo = true }: { drop: Drop | null; hay
 
         {drop && drop.productos.length > 0 ? (
           <AnimarTarjetas>
-            <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
-              {drop.productos.map((p, i) => (
-                // La primera, en grande: abre la rejilla y la deja cuadrada (1 grande + 12 = 4 filas de 4)
-                <li key={p.id} data-anim="tarjeta" className={i === 0 && drop.productos.length > 4 ? "col-span-2 lg:row-span-2" : undefined}>
-                  <FichaProducto producto={p} destacada={i === 0 && drop.productos.length > 4} />
+            {/* Columnas tipo muro: cada foto con su proporción original, sin recortes */}
+            <ul className="mt-12 columns-2 gap-x-4 sm:gap-x-6 lg:columns-3">
+              {drop.productos.map((p) => (
+                <li key={p.id} data-anim="tarjeta" className="mb-10 break-inside-avoid">
+                  <FichaProducto producto={p} />
                 </li>
               ))}
             </ul>
@@ -44,19 +44,14 @@ export function DropActual({ drop, hayArchivo = true }: { drop: Drop | null; hay
   );
 }
 
-function FichaProducto({ producto, destacada = false }: { producto: Producto; destacada?: boolean }) {
+function FichaProducto({ producto }: { producto: Producto }) {
   const imagen = producto.imagenes[0];
   const linea = NOMBRE_LINEA[producto.linea];
   return (
     <article className="ficha">
       <div className="ficha__foto">
         <div data-anim-escala>
-          <FotoPrenda
-            imagen={imagen}
-            segunda={producto.imagenes[1]}
-            alt={producto.nombre ?? "Prenda de CGA"}
-            sizes={destacada ? "(min-width: 1024px) 50vw, 100vw" : undefined}
-          />
+          <FotoPrenda imagen={imagen} alt={producto.nombre ?? "Prenda de CGA"} sizes="(min-width: 1024px) 33vw, 50vw" />
         </div>
       </div>
       <h3 className="ficha__nombre mt-4 text-lg font-bold leading-snug [font-stretch:85%] sm:text-xl">

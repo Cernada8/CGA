@@ -485,26 +485,13 @@
     -webkit-mask: url("/marca/cga-texto-vertical.svg") center / contain no-repeat;
   }
 
+  /* Fotos de prenda tal cual: cada una con su proporción, sin recortar */
   .foto-prenda {
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    background: var(--cga-gris-foto);
+    background: var(--cga-gris-oscuro);
   }
-  /* Lo que ya no hay: apagado (el color se intuye, el nombre lo dice) y vuelve a la vida al pasar */
-  .ficha--agotada .foto-prenda {
-    filter: saturate(0.35) brightness(0.8);
-    transition: filter var(--mov-media) var(--mov-transicion);
-  }
-  @media (hover: hover) {
-    .ficha--agotada:hover .foto-prenda,
-    .ficha--agotada:focus-within .foto-prenda {
-      filter: none;
-    }
-  }
-
   /* Fichas: respuesta sutil al pasar el ratón */
   .ficha__foto {
     overflow: hidden;
