@@ -23,7 +23,9 @@ export function AnimarTarjetas({ children }: { children: React.ReactNode }) {
       gsap.set(tarjetas, { y: DISTANCIA.corta, opacity: 0 });
     } else {
       gsap.set(tarjetas.map(foto), { yPercent: 100, scale: 1.04 });
-      gsap.set(tarjetas.flatMap((t) => [...textos(t)]), { y: DISTANCIA.corta, opacity: 0 });
+      const todosLosTextos = tarjetas.flatMap((t) => [...textos(t)]);
+      // Hay tarjetas sin textos aparte (p. ej. embajadores): GSAP avisa si recibe una lista vacía
+      if (todosLosTextos.length) gsap.set(todosLosTextos, { y: DISTANCIA.corta, opacity: 0 });
     }
 
     ScrollTrigger.batch(tarjetas, {
@@ -36,10 +38,10 @@ export function AnimarTarjetas({ children }: { children: React.ReactNode }) {
           return;
         }
         gsap.to(lote.map(foto), { yPercent: 0, scale: 1, duration: DURACION.lenta, ease: CURVA.entrada, stagger: cada, clearProps: "transform" });
-        gsap.to(
-          lote.map((t) => [...textos(t)]),
-          { y: 0, opacity: 1, duration: DURACION.media, ease: CURVA.entrada, stagger: cada, delay: 0.25, clearProps: "transform,opacity" },
-        );
+        const textosLote = lote.flatMap((t) => [...textos(t)]);
+        if (textosLote.length) {
+          gsap.to(textosLote, { y: 0, opacity: 1, duration: DURACION.media, ease: CURVA.entrada, stagger: cada, delay: 0.25, clearProps: "transform,opacity" });
+        }
       },
     });
   });

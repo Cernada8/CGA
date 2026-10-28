@@ -60,16 +60,8 @@ const DROPS_ESTATICOS: Drop[] = [
     tema: TEMA_CAQUI,
     productos: PRENDAS_NUEVAS,
   },
-  {
-    id: "estatico-proximo",
-    slug: "proximo",
-    estado: "proximo",
-    // Confirmada por el cliente: viernes 30 de octubre de 2026 a las 20:00 (hora peninsular, ya en horario de invierno).
-    // La prenda no se enseña hasta ese día.
-    fechaLanzamiento: "2026-10-30T20:00:00+01:00",
-    tema: TEMA_CAQUI,
-    productos: [],
-  },
+  // Sin próxima prenda anunciada: no hay cuenta atrás ni avisos. Para anunciar una, se añade aquí un
+  // lanzamiento con estado "proximo" y su fecha (o se crea desde el panel) y todo vuelve a aparecer solo.
   {
     id: "estatico-agotado",
     slug: "agotado",
@@ -203,3 +195,35 @@ export const getArchivo = cache(async (): Promise<PrendaAgotada[]> => {
 });
 
 export const TEMA_POR_DEFECTO = TEMA_CAQUI;
+
+export type FichaPrenda = {
+  producto: Producto;
+  tema: TemaDrop;
+  agotada: boolean;
+  anterior: Producto | null;
+  siguiente: Producto | null;
+};
+
+/** Todas las prendas que se pueden abrir en su propia página: primero lo nuevo y después lo que ya no hay. */
+export const getPrendas = cache(async (): Promise<{ producto: Producto; tema: TemaDrop; agotada: boolean }[]> => {
+  const [activo, archivo] = await Promise.all([getDropActivo(), getArchivo()]);
+  return [
+    ...(activo?.productos ?? []).map((producto) => ({ producto, tema: activo!.tema, agotada: false })),
+    ...archivo.map(({ producto, tema }) => ({ producto, tema, agotada: true })),
+  ];
+});
+
+/** Una prenda por su slug, con la anterior y la siguiente de su mismo grupo (nuevo o agotado). */
+export const getPrenda = cache(async (slug: string): Promise<FichaPrenda | null> => {
+  const todas = await getPrendas();
+  const i = todas.findIndex((p) => p.producto.slug === slug);
+  if (i === -1) return null;
+  const actual = todas[i];
+  const grupo = todas.filter((p) => p.agotada === actual.agotada);
+  const j = grupo.findIndex((p) => p.producto.slug === slug);
+  return {
+    ...actual,
+    anterior: grupo[j - 1]?.producto ?? null,
+    siguiente: grupo[j + 1]?.producto ?? null,
+  };
+});

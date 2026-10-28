@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AnimarTarjetas } from "@/components/animacion/AnimarTarjetas";
 import { Cinta } from "@/components/ui/Cinta";
 import { FotoPrenda } from "@/components/ui/FotoPrenda";
@@ -21,7 +22,7 @@ export function DropActual({ drop, hayArchivo = true }: { drop: Drop | null; hay
             {/* Columnas tipo muro: cada foto con su proporción original, sin recortes */}
             <ul className="mt-12 columns-2 gap-x-4 sm:gap-x-6 lg:columns-3">
               {drop.productos.map((p) => (
-                <li key={p.id} data-anim="tarjeta" className="mb-10 break-inside-avoid">
+                <li key={p.id} id={p.slug} data-anim="tarjeta" className="mb-10 scroll-mt-24 break-inside-avoid">
                   <FichaProducto producto={p} />
                 </li>
               ))}
@@ -49,13 +50,15 @@ function FichaProducto({ producto }: { producto: Producto }) {
   const linea = NOMBRE_LINEA[producto.linea];
   return (
     <article className="ficha">
-      <div className="ficha__foto">
+      <Link href={`/prenda/${producto.slug}`} tabIndex={-1} aria-hidden="true" className="ficha__foto-enlace ficha__foto">
         <div data-anim-escala>
           <FotoPrenda imagen={imagen} alt={producto.nombre ?? "Prenda de CGA"} sizes="(min-width: 1024px) 33vw, 50vw" />
         </div>
-      </div>
+      </Link>
       <h3 className="ficha__nombre mt-4 text-lg font-bold leading-snug [font-stretch:85%] sm:text-xl">
-        {producto.nombre ?? <span className="pendiente">[NOMBRE PRENDA]</span>}
+        <Link href={`/prenda/${producto.slug}`} className="ficha__enlace">
+          {producto.nombre ?? <span className="pendiente">[NOMBRE PRENDA]</span>}
+        </Link>
       </h3>
       {producto.gramajeG || linea ? (
         <p className="mt-1 text-sm text-gris">{[producto.gramajeG ? `${producto.gramajeG} g` : null, linea].filter(Boolean).join(", ")}</p>

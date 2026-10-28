@@ -52,16 +52,21 @@ export default async function Inicio() {
       <main id="contenido">
         <Manifiesto />
         <DropActual drop={dropActivo} hayArchivo={archivo.length > 0} />
-        <AnimarRotura>
-          <Rotura
-            ancho="min(50vw, 240px)"
-            sizes="(max-width: 480px) 50vw, 240px"
-            arriba="bg-carbon"
-            abajo="bg-negro grano"
-            margen="-mt-12 -mb-12 lg:-mt-16 lg:-mb-16"
-          />
-        </AnimarRotura>
-        <CuentaAtras drop={proximo} />
+        {/* La cuenta atrás solo aparece cuando hay una próxima prenda con fecha anunciada */}
+        {proximo?.fechaLanzamiento ? (
+          <>
+            <AnimarRotura>
+              <Rotura
+                ancho="min(50vw, 240px)"
+                sizes="(max-width: 480px) 50vw, 240px"
+                arriba="bg-carbon"
+                abajo="bg-negro grano"
+                margen="-mt-12 -mb-12 lg:-mt-16 lg:-mb-16"
+              />
+            </AnimarRotura>
+            <CuentaAtras drop={proximo} />
+          </>
+        ) : null}
         {/* «Ya no hay» solo aparece cuando de verdad hay algo agotado: una sección vacía resta, no suma */}
         {archivo.length > 0 ? <Archivo prendas={archivo} /> : null}
         <Historia />

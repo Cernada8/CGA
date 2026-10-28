@@ -46,6 +46,7 @@ function Img({ imagen, sizes, prioridad = false, decorativa = false }: { imagen:
       alt={decorativa ? "" : imagen.alt}
       aria-hidden={decorativa || undefined}
       loading={prioridad ? "eager" : "lazy"}
+      fetchPriority={prioridad ? "high" : undefined}
       decoding="async"
       className={decorativa ? "foto-prenda foto-prenda--detras" : "foto-prenda"}
     />

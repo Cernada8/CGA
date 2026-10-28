@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Cinta } from "@/components/ui/Cinta";
 import { FotoPrenda } from "@/components/ui/FotoPrenda";
 import type { PrendaAgotada } from "@/lib/drops";
@@ -14,9 +15,9 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
         {prendas.length > 0 ? (
           <ul className="mt-12 columns-2 gap-x-3 sm:gap-x-5 lg:columns-3">
             {prendas.map(({ producto, tema }) => (
-              <li key={producto.id} style={variablesDeTema(tema)} className="mb-8 break-inside-avoid">
+              <li key={producto.id} id={producto.slug} style={variablesDeTema(tema)} className="mb-8 scroll-mt-24 break-inside-avoid">
                 <article className="ficha ficha--agotada">
-                  <div className="ficha__foto relative">
+                  <Link href={`/prenda/${producto.slug}`} tabIndex={-1} aria-hidden="true" className="ficha__foto-enlace ficha__foto relative">
                     <FotoPrenda
                       imagen={producto.imagenes[0]}
                       alt={producto.nombre ?? "Prenda de CGA que ya no está disponible"}
@@ -25,9 +26,11 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
                     <span className="sello-agotado" aria-hidden="true">
                       Agotado
                     </span>
-                  </div>
+                  </Link>
                   <h3 className="ficha__nombre mt-3 text-base font-bold leading-snug [font-stretch:85%] sm:text-lg">
-                    {producto.nombre ?? <span className="pendiente">[NOMBRE PRENDA]</span>}
+                    <Link href={`/prenda/${producto.slug}`} className="ficha__enlace">
+                      {producto.nombre ?? <span className="pendiente">[NOMBRE PRENDA]</span>}
+                    </Link>
                   </h3>
                   <p className="mt-1 text-sm text-gris">No vuelve.</p>
                 </article>

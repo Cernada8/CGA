@@ -542,6 +542,164 @@
     }
   }
 
+  /* Ficha entera clicable: el enlace «de verdad» es el nombre (lo que lee el lector de pantalla y donde para
+     el tabulador); la foto lleva otro enlace igual, oculto para ambos, para que se pueda pulsar la foto */
+  .ficha {
+    position: relative;
+  }
+  .ficha__enlace:focus-visible {
+    outline: none;
+  }
+  .ficha__foto-enlace {
+    display: block;
+  }
+  .ficha:has(.ficha__enlace:focus-visible) {
+    outline: 3px solid var(--cga-acento);
+    outline-offset: 6px;
+  }
+  @media (hover: hover) {
+    .ficha:has(.ficha__enlace:hover, .ficha__foto-enlace:hover) .ficha__nombre {
+      text-decoration-color: var(--cga-acento);
+    }
+  }
+
+  /* ---------- Página de cada prenda ---------- */
+  .volver {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: -0.35rem;
+    padding-right: 0.5rem;
+    font-weight: 600;
+    color: var(--cga-blanco);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 2px;
+  }
+  .volver:hover {
+    text-decoration-color: var(--cga-acento);
+  }
+  .prenda__foto {
+    position: relative;
+    margin: 0;
+    background: var(--cga-gris-oscuro);
+  }
+  .prenda__datos {
+    display: grid;
+    border-top: 1px solid var(--cga-gris-oscuro);
+  }
+  .prenda__datos > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--cga-gris-oscuro);
+  }
+  .prenda__datos dt {
+    color: var(--cga-gris);
+  }
+  .prenda__datos dd {
+    font-weight: 700;
+    text-align: right;
+  }
+  /* Botón de pedir: barra fija abajo en el móvil (a mano del pulgar), en su sitio en escritorio */
+  .prenda__pedir {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 20;
+    padding: 1.5rem 1rem calc(0.9rem + env(safe-area-inset-bottom));
+    background: linear-gradient(to bottom, rgb(10 10 10 / 0), var(--cga-negro) 30%);
+  }
+  @media (min-width: 640px) {
+    .prenda__pedir {
+      padding-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .prenda__pedir {
+      position: static;
+      margin-top: 2.5rem;
+      padding: 0;
+      background: none;
+    }
+  }
+  /* En escritorio la foto entera cabe en pantalla, sin recortar */
+  @media (min-width: 1024px) {
+    .prenda__foto {
+      background: none;
+    }
+    .prenda__foto .foto-prenda {
+      width: auto;
+      max-width: 100%;
+      max-height: calc(100svh - 8rem);
+      margin-inline: auto;
+      background: none;
+    }
+  }
+  .boton-pedir {
+    display: flex;
+    width: 100%;
+    min-height: 3.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--cga-acento);
+    color: var(--cga-texto-sobre-acento);
+    font-size: 1.125rem;
+    font-weight: 800;
+    font-stretch: 90%;
+    transition: background-color var(--mov-rapida) var(--mov-transicion);
+  }
+  .boton-pedir:hover {
+    background: var(--cga-blanco);
+  }
+  @media (min-width: 1024px) {
+    .boton-pedir {
+      width: auto;
+      display: inline-flex;
+      padding-inline: 2.25rem;
+    }
+  }
+  .prenda__mas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 3rem;
+    padding: 1.5rem 0 3rem;
+    border-top: 1px solid var(--cga-gris-oscuro);
+  }
+  .prenda__vecina {
+    display: flex;
+    min-height: 4.5rem;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 0.75rem;
+    transition: border-color var(--mov-rapida) var(--mov-transicion);
+  }
+  .prenda__vecina:hover {
+    border-color: var(--cga-acento);
+  }
+  .prenda__vecina--siguiente {
+    grid-column: 2;
+    text-align: right;
+  }
+  .prenda__vecina-etiqueta {
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cga-gris);
+  }
+  .prenda__vecina-nombre {
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
   /* Sello de agotado: tinta estampada, en gótica */
   .sello-agotado {
     position: absolute;
