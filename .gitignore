@@ -44,3 +44,6 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /tests/e2e/capturas/
+
+# Originales de fotos y vídeos (pesados): no se suben al repositorio ni a la web
+/originales/

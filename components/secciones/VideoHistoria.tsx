@@ -5,6 +5,7 @@ import { useRef } from "react";
 
 // Portada del vídeo de la historia de CGA + reproductor en una ventana modal (<dialog> nativo:
 // foco atrapado, Esc para cerrar). El vídeo no descarga nada hasta que se pulsa (preload="none").
+// Vídeo de 1024×576 recodificado: WebM 7,9 MB y MP4 9,9 MB (el original pesaba 13 MB).
 const DURACION = "1:47";
 
 export function VideoHistoria() {
@@ -90,12 +91,15 @@ export function VideoHistoria() {
           </button>
           <video
             ref={video}
-            src="/video/historia-cga.mp4"
             controls
             playsInline
             preload="none"
             className="aspect-video w-full bg-negro"
-          />
+          >
+            {/* WebM (VP9) pesa un 20 % menos; Safari antiguo tira del MP4 (H.264) */}
+            <source src="/video/historia-cga.webm" type="video/webm" />
+            <source src="/video/historia-cga.mp4" type="video/mp4" />
+          </video>
         </div>
       </dialog>
     </>

@@ -4,8 +4,8 @@ import { ComoConseguirlo } from "@/components/secciones/ComoConseguirlo";
 import { Costura } from "@/components/secciones/Costura";
 import { CuentaAtras } from "@/components/secciones/CuentaAtras";
 import { DropActual } from "@/components/secciones/DropActual";
-// Historia («Un chico. Un tatami.») retirada de momento a petición del cliente: el componente sigue en
-// components/secciones/Historia.tsx para volver a ponerla con una línea.
+import { Embajadores } from "@/components/secciones/Embajadores";
+import { Historia } from "@/components/secciones/Historia";
 import { Manifiesto } from "@/components/secciones/Manifiesto";
 import { Pie } from "@/components/secciones/Pie";
 import { Rotura } from "@/components/secciones/Rotura";
@@ -64,6 +64,8 @@ export default async function Inicio() {
         <CuentaAtras drop={proximo} />
         {/* «Ya no hay» solo aparece cuando de verdad hay algo agotado: una sección vacía resta, no suma */}
         {archivo.length > 0 ? <Archivo prendas={archivo} /> : null}
+        <Historia />
+        <Embajadores />
         <ComoConseguirlo />
         <Colaboraciones />
         <Costura

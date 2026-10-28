@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const SECCIONES = ["lo-nuevo", "lo-proximo", "ya-no-hay", "como-conseguirlo", "colaboraciones"];
+const SECCIONES = ["lo-nuevo", "lo-proximo", "ya-no-hay", "historia", "embajadores", "como-conseguirlo", "colaboraciones"];
 const PROHIBIDAS = [/drop \d/i, /\[NÚMERO\]/, /carrito/i, /comprar/i, /oferta/i, /descuento/i, /rebajas/i, /\d+\s*unidades/i, /\bstock\b/i, /últimas unidades/i, /reposición disponible/i, /vuelve pronto/i];
 
 test.describe("inicio", () => {
@@ -42,32 +42,59 @@ test("colaboraciones: accesible y sin laberinto", async ({ page }) => {
   expect(violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
 });
 
-test("la historia está retirada: ni la sección ni el vídeo aparecen", async ({ page }) => {
-  const mp4: string[] = [];
-  page.on("request", (r) => r.url().includes(".mp4") && mp4.push(r.url()));
+test("historia: vuelve solo el vídeo, sin el texto largo retirado", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("#historia")).toHaveCount(0);
+  await expect(page.locator("#historia")).toHaveText("De dónde venimos");
   await expect(page.getByText(/Un chico/)).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Mira la historia de CGA/ })).toHaveCount(0);
-  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-  await page.waitForTimeout(500);
-  expect(mp4).toHaveLength(0);
 });
 
-// Se recupera cuando el cliente quiera contar su historia (volver a montar <Historia /> en app/page.tsx)
-test.skip("vídeo de la historia: no descarga nada hasta pulsar y se abre y cierra en una ventana", async ({ page }) => {
-  const mp4: string[] = [];
-  page.on("request", (r) => r.url().includes(".mp4") && mp4.push(r.url()));
+test("vídeo de la historia: no descarga nada hasta pulsar y se abre y cierra en una ventana", async ({ page }) => {
+  const video: string[] = [];
+  page.on("request", (r) => /\.(mp4|webm)(\?|$)/.test(r.url()) && video.push(r.url()));
   await page.goto("/");
   const portada = page.getByRole("button", { name: /Mira la historia de CGA/ });
   await portada.scrollIntoViewIfNeeded();
-  expect(mp4).toHaveLength(0);
+  await page.waitForTimeout(300);
+  expect(video).toHaveLength(0);
   await portada.click();
   const dialogo = page.getByRole("dialog", { name: "Vídeo: la historia de CGA" });
   await expect(dialogo).toBeVisible();
+  // WebM primero (pesa menos); el MP4 queda de respaldo
+  await expect(dialogo.locator("source").first()).toHaveAttribute("src", "/video/historia-cga.webm");
   await page.keyboard.press("Escape");
   await expect(dialogo).toBeHidden();
   await expect(portada).toBeFocused(); // el foco vuelve al botón
+});
+
+test("catálogo real: fotos en todas las fichas, sin huecos ni marcadores", async ({ page }) => {
+  await page.goto("/");
+  const nuevo = page.locator("section[aria-labelledby='lo-nuevo'] .ficha");
+  const agotado = page.locator("section[aria-labelledby='ya-no-hay'] .ficha");
+  await expect(nuevo).toHaveCount(13);
+  await expect(agotado).toHaveCount(16);
+  await expect(page.locator(".foto-pendiente")).toHaveCount(0);
+  await expect(page.locator(".pendiente")).toHaveCount(0);
+  await expect(page.locator(".embajador")).toHaveCount(4);
+  await expect(page.locator(".equipacion")).toHaveCount(5);
+  // Todas las fotos cargan de verdad (ninguna rota)
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += 600) {
+      window.scrollTo(0, y);
+      await new Promise((r) => setTimeout(r, 40));
+    }
+  });
+  const rotas = await page.evaluate(async () => {
+    const imgs = [...document.querySelectorAll<HTMLImageElement>("#contenido img")].filter((i) => getComputedStyle(i).display !== "none");
+    // Las diferidas que no han entrado en pantalla (p. ej. la tira horizontal en móvil) no cuentan
+    const espera = (i: HTMLImageElement) =>
+      Promise.race([new Promise((r) => { i.addEventListener("load", r, { once: true }); i.addEventListener("error", r, { once: true }); }), new Promise((r) => setTimeout(r, 3000))]);
+    await Promise.all(imgs.map((i) => (i.complete ? null : espera(i))));
+    return imgs.filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.currentSrc || i.src);
+  });
+  expect(rotas).toEqual([]);
+  // Ningún rótulo de terceros en los textos alternativos
+  const alts = await page.locator("#contenido img").evaluateAll((l) => l.map((i) => i.getAttribute("alt") ?? ""));
+  for (const a of alts) expect(a).not.toMatch(/patch\s*4\s*gi|soto|infames|arganda|aranda/i);
 });
 
 test("404: página propia con código 404 y salida al inicio", async ({ page }) => {

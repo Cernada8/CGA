@@ -493,8 +493,16 @@
     object-fit: cover;
     background: var(--cga-gris-foto);
   }
+  /* Lo que ya no hay: apagado (el color se intuye, el nombre lo dice) y vuelve a la vida al pasar */
   .ficha--agotada .foto-prenda {
-    filter: grayscale(1);
+    filter: saturate(0.35) brightness(0.8);
+    transition: filter var(--mov-media) var(--mov-transicion);
+  }
+  @media (hover: hover) {
+    .ficha--agotada:hover .foto-prenda,
+    .ficha--agotada:focus-within .foto-prenda {
+      filter: none;
+    }
   }
 
   /* Fichas: respuesta sutil al pasar el ratón */
@@ -522,19 +530,45 @@
     }
   }
 
+  /* Segunda foto de la ficha (la otra cara de la prenda): solo con ratón, encima de la primera.
+     En pantallas táctiles no se pinta y, al ir con loading="lazy", ni se descarga. */
+  .foto-doble {
+    position: relative;
+  }
+  .foto-prenda--detras {
+    display: none;
+  }
+  @media (hover: hover) {
+    .foto-prenda--detras {
+      display: block;
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition:
+        opacity var(--mov-media) var(--mov-transicion),
+        transform var(--mov-media) var(--mov-entrada);
+    }
+    .ficha:hover .foto-prenda--detras,
+    .ficha:focus-within .foto-prenda--detras,
+    .equipacion:hover .foto-prenda--detras {
+      opacity: 1;
+    }
+  }
+
   /* Sello de agotado: tinta estampada, en gótica */
   .sello-agotado {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    padding: 0.15em 0.6em 0.25em;
+    top: 0.9rem;
+    right: 0.7rem;
+    z-index: 1;
+    padding: 0.15em 0.55em 0.25em;
     border: 3px solid var(--cga-acento);
     border-radius: 6px;
     color: var(--cga-acento);
     font-family: var(--font-pirata), serif;
-    font-size: clamp(1.4rem, 3.4vw, 2.1rem);
+    font-size: clamp(1rem, 2vw, 1.35rem);
     line-height: 1;
-    transform: translate(-50%, -50%) rotate(-12deg);
+    transform: rotate(8deg);
     mix-blend-mode: screen;
     opacity: 0.9;
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -631,6 +665,96 @@
       left: 4.5rem;
       right: -2rem;
       border-top: 2px dashed var(--cga-gris-oscuro);
+    }
+  }
+
+  /* Embajadores: retrato grande con el nombre en grafiti encima; al pasar el ratón, la segunda foto */
+  .embajador {
+    position: relative;
+    overflow: hidden;
+    background: var(--cga-gris-foto);
+  }
+  .embajador img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition:
+      opacity var(--mov-media) var(--mov-transicion),
+      transform var(--mov-lenta, 0.9s) var(--mov-entrada);
+  }
+  .embajador__segunda {
+    display: none;
+  }
+  .embajador::after {
+    content: "";
+    position: absolute;
+    inset: 45% 0 0;
+    background: linear-gradient(to bottom, transparent, rgb(10 10 10 / 0.92));
+    pointer-events: none;
+  }
+  .embajador__nombre {
+    position: absolute;
+    z-index: 1;
+    left: 0.9rem;
+    right: 0.9rem;
+    bottom: 0.8rem;
+    font-family: var(--font-sedgwick), sans-serif;
+    font-size: clamp(1.6rem, 3.6vw, 2.6rem);
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+  .embajador__nombre span {
+    display: block;
+    margin-top: 0.35rem;
+    font-family: var(--font-archivo), system-ui, sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cga-acento);
+  }
+  @media (hover: hover) {
+    .embajador__segunda {
+      display: block;
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+    }
+    .embajador:hover .embajador__segunda {
+      opacity: 1;
+    }
+    .embajador:hover img {
+      transform: scale(1.03);
+    }
+  }
+  @media (min-width: 1024px) {
+    /* Escalonado: rompe la rejilla como un muro de fotos pegadas */
+    .embajadores > li:nth-child(even) {
+      transform: translateY(3rem);
+    }
+  }
+
+  /* Equipaciones hechas con academias: tira con desplazamiento en móvil, rejilla en escritorio */
+  .equipaciones {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(62vw, 260px);
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    padding-bottom: 0.75rem;
+    scrollbar-width: thin;
+  }
+  .equipaciones > li {
+    scroll-snap-align: start;
+  }
+  @media (min-width: 1024px) {
+    .equipaciones {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      overflow: visible;
     }
   }
 

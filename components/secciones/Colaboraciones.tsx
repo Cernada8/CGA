@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Cinta } from "@/components/ui/Cinta";
+import { FotoPrenda } from "@/components/ui/FotoPrenda";
+import { EQUIPACIONES } from "@/lib/catalogo";
 
 export function Colaboraciones() {
   return (
@@ -31,6 +33,17 @@ export function Colaboraciones() {
             className="mx-auto h-auto w-full max-w-[520px]"
           />
         </div>
+      </div>
+      <div className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:pb-28">
+        <h3 className="font-sello text-3xl leading-none sm:text-4xl">Equipaciones que ya hemos hecho</h3>
+        {/* En móvil la tira se desplaza en horizontal: enfocable para poder moverla con el teclado */}
+        <ul className="equipaciones mt-8" aria-label="Equipaciones hechas para academias" tabIndex={0}>
+          {EQUIPACIONES.map((e) => (
+            <li key={e.slug} className="equipacion overflow-hidden">
+              <FotoPrenda imagen={e.delante} segunda={e.detras} alt={e.delante.alt} sizes="(min-width: 1024px) 20vw, 62vw" />
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

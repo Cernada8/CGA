@@ -1,16 +1,18 @@
 import { cache } from "react";
+import { PRENDAS_AGOTADAS, PRENDAS_NUEVAS } from "./catalogo";
 import type { TemaDrop } from "./tema";
 
 // Tipos alineados con el modelo de datos del CLAUDE.md.
-// Fase 2: datos de prueba. Fase 4: estas funciones leerán de Supabase sin cambiar su firma.
+// Sin Supabase configurado se usa el catálogo estático (lib/catalogo.ts); con Supabase, la base.
 
 export type EstadoDrop = "proximo" | "activo" | "agotado";
 export type Linea = "general" | "woman" | "kids";
 
 export type ImagenProducto = {
-  ruta: string | null; // null = falta la foto real. Si existe: URL propia (/fotos/…)
+  ruta: string | null; // null = falta la foto real. Si existe: URL propia (/fotos/… o /prendas/…)
   rutaPequena?: string | null;
   ancho?: number;
+  anchoPequena?: number; // ancho de la versión pequeña (por defecto 640, lo que genera el panel)
   alto?: number;
   alt: string;
   tipo: "producto" | "campana";
@@ -47,65 +49,19 @@ const TEMA_CAQUI: TemaDrop = {
   nombreVisible: "Lo nuevo",
 };
 
-// DATOS DE PRUEBA. Los acentos reales de cada lanzamiento están pendientes: todos usan el caqui de base.
-// Las prendas existen (vistas en @cga.training.hard); fechas, fotos y las prendas que ya no hay
-// están pendientes y se muestran como marcadores.
-const DROPS_PRUEBA: Drop[] = [
+// Datos sin Supabase: el catálogo real de lib/catalogo.ts. Los acentos de cada lanzamiento están
+// pendientes: todos usan el caqui de base.
+const DROPS_ESTATICOS: Drop[] = [
   {
-    id: "prueba-activo",
+    id: "estatico-activo",
     slug: "actual",
     estado: "activo",
     fechaLanzamiento: null,
     tema: TEMA_CAQUI,
-    productos: [
-      {
-        id: "p1",
-        slug: "camiseta-oversize-negra",
-        nombre: "Camiseta oversize",
-        categoria: "Camiseta",
-        descripcion: "Algodón. Corte amplio. Hecha para entrenar y para la calle.",
-        gramajeG: 220,
-        linea: "general",
-        orden: 1,
-        imagenes: [{ ruta: null, alt: "Camiseta oversize negra de CGA sobre fondo gris", tipo: "producto" }],
-      },
-      {
-        id: "p2",
-        slug: "sudadera-oversize",
-        nombre: "Sudadera oversize",
-        categoria: "Sudadera",
-        descripcion: "Pesa lo que tiene que pesar.",
-        gramajeG: 350,
-        linea: "general",
-        orden: 2,
-        imagenes: [{ ruta: null, alt: "Sudadera oversize de CGA con el gorila a la espalda, sobre fondo gris", tipo: "producto" }],
-      },
-      {
-        id: "p3",
-        slug: "rashguard",
-        nombre: "Rashguard",
-        categoria: "Rash",
-        descripcion: "Para rodar sin pensar en la ropa.",
-        gramajeG: null,
-        linea: "general",
-        orden: 3,
-        imagenes: [{ ruta: null, alt: "Rashguard de CGA sobre fondo gris", tipo: "producto" }],
-      },
-      {
-        id: "p4",
-        slug: "shorts-grappling",
-        nombre: "Shorts de grappling",
-        categoria: "Shorts",
-        descripcion: null,
-        gramajeG: null,
-        linea: "general",
-        orden: 4,
-        imagenes: [{ ruta: null, alt: "Shorts de grappling de CGA sobre fondo gris", tipo: "producto" }],
-      },
-    ],
+    productos: PRENDAS_NUEVAS,
   },
   {
-    id: "prueba-proximo",
+    id: "estatico-proximo",
     slug: "proximo",
     estado: "proximo",
     // Confirmada por el cliente: viernes 30 de octubre de 2026 a las 20:00 (hora peninsular, ya en horario de invierno).
@@ -115,22 +71,12 @@ const DROPS_PRUEBA: Drop[] = [
     productos: [],
   },
   {
-    id: "prueba-agotado",
+    id: "estatico-agotado",
     slug: "agotado",
     estado: "agotado",
     fechaLanzamiento: null,
     tema: { ...TEMA_CAQUI, slug: "agotado", nombreVisible: "Ya no hay" },
-    productos: [1, 2, 3].map((n) => ({
-      id: `agotado-${n}`,
-      slug: `agotado-${n}`,
-      nombre: null,
-      categoria: "",
-      descripcion: null,
-      gramajeG: null,
-      linea: "general" as const,
-      orden: n,
-      imagenes: [{ ruta: null, alt: "Prenda de CGA que ya no está disponible", tipo: "producto" as const }],
-    })),
+    productos: PRENDAS_AGOTADAS,
   },
 ];
 
@@ -233,7 +179,7 @@ async function dropsDesdeSupabase(): Promise<Drop[]> {
 
 export const getDrops = cache(async (): Promise<Drop[]> => {
   const { supabaseConfigurado } = await import("./supabase/config");
-  return supabaseConfigurado ? dropsDesdeSupabase() : DROPS_PRUEBA;
+  return supabaseConfigurado ? dropsDesdeSupabase() : DROPS_ESTATICOS;
 });
 
 export const getDropActivo = cache(async (): Promise<Drop | null> => {
