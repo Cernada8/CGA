@@ -30,9 +30,4 @@ export const MEDIDAS_FOTOS: Record<string, [number, number, number]> = {
   "/prendas/tecnica-blanca": [1600, 1600, 800],
   "/prendas/tecnica-blanca-negra": [1600, 1600, 800],
   "/prendas/tecnica-negra-blanca": [1600, 1600, 800],
-  "/colabs/equipacion-corona-negra": [1600, 1600, 800],
-  "/colabs/equipacion-corona-roja": [1600, 1600, 800],
-  "/colabs/equipacion-negra": [1600, 1600, 800],
-  "/colabs/equipacion-blanca": [1600, 1600, 800],
-  "/colabs/equipacion-guerrero": [1600, 1600, 800],
 };

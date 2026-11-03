@@ -2,16 +2,17 @@
    Cada prenda colgada es una caja de 1200×1800 unidades (la imagen de 1200×1500 empieza en y=300).
    --w es el ancho de esa caja; la barra pasa por y=60 de la caja. */
 
-@property --amplitud {
-  syntax: "<angle>";
-  inherits: true;
-  initial-value: 1.5deg;
-}
-
 .perchero {
   --w: min(92vw, 380px);
   --holgura: 14px;
+  /* Margen lateral = el del contenido de la página. La página puede fijar --ancho-contenido (80rem por defecto) */
+  --margen: 1rem;
   position: relative;
+}
+@media (min-width: 640px) {
+  .perchero {
+    --margen: 1.5rem;
+  }
 }
 @media (min-width: 768px) {
   .perchero {
@@ -21,6 +22,7 @@
 @media (min-width: 1024px) {
   .perchero {
     --w: 460px;
+    --margen: max(1.5rem, calc((100% - var(--ancho-contenido, 80rem)) / 2 + 1.5rem));
   }
 }
 
@@ -57,8 +59,10 @@
   z-index: 1;
   display: flex;
   margin: 0;
-  /* Hueco arriba para el balanceo y el «subir» del hover; abajo, para que nada se corte */
-  padding: var(--holgura) calc(50% - var(--w) / 2) 24px;
+  /* Hueco arriba para el balanceo y el «subir» del hover; abajo, para que nada se corte.
+     A los lados, el mismo margen que el texto de la página (ver --margen) */
+  padding: var(--holgura) var(--margen) 24px;
+  scroll-padding-inline: var(--margen);
   list-style: none;
   overflow-x: auto;
   overflow-y: hidden;
@@ -68,15 +72,9 @@
   cursor: grab;
   -webkit-overflow-scrolling: touch;
 }
-/* Escritorio: la fila arranca alineada con el texto de la página (no con la primera prenda en el centro) */
 @media (min-width: 1024px) {
   .perchero__fila {
-    padding-inline: max(1.5rem, calc((100% - 56rem) / 2)) max(1.5rem, calc((100% - 56rem) / 2 + var(--w) * 0.25));
     scroll-snap-type: x proximity;
-    scroll-padding-inline: max(1.5rem, calc((100% - 56rem) / 2));
-  }
-  .colgada {
-    scroll-snap-align: start;
   }
 }
 .perchero__fila::-webkit-scrollbar {
@@ -95,6 +93,22 @@
   /* La caja entera no recibe el ratón (se solapa con las vecinas): solo .colgada__zona */
   pointer-events: none;
 }
+/* La caja de cada prenda es más ancha que la prenda (bordes transparentes): la primera y la última se meten
+   en el margen para que la ropa, y no la caja, quede alineada con el texto. Sin huecos vacíos a los lados. */
+.colgada:first-child {
+  margin-left: calc(var(--w) * var(--ropa-izquierda, 0.2) * -1);
+}
+/* Si la primera lleva etiqueta (cuelga hacia la izquierda), se le deja su sitio para que no se corte */
+.colgada:first-child[data-con-etiqueta] {
+  margin-left: calc(var(--w) * -0.04);
+}
+/* Al final no vale un margen negativo (el scroll llega hasta el borde de la caja): la última caja se estrecha y
+   se recorta solo su franja transparente de la derecha, sin tocar la prenda ni el balanceo vertical */
+.colgada:last-child {
+  flex-basis: calc(var(--w) * var(--ropa-derecha, 0.8));
+  min-width: 0;
+  overflow-x: clip;
+}
 .colgada + .colgada {
   margin-left: calc(var(--w) * -0.5);
 }
@@ -111,7 +125,7 @@
 .colgada__boton {
   position: relative;
   display: block;
-  width: 100%;
+  width: var(--w);
   /* Solo el alto que ocupan las prendas: lo de debajo de la imagen es transparente */
   aspect-ratio: 1200 / var(--alto-caja, 1800);
   padding: 0;
@@ -132,38 +146,49 @@
 .perchero__fila[data-arrastrando] .colgada__zona {
   cursor: grabbing;
 }
+/* Recuadro de foco solo con teclado: al tocar o pinchar no queda marcado */
+.colgada__boton:focus {
+  outline: none;
+}
 .colgada__boton:focus-visible {
   outline: 3px solid var(--cga-acento);
   outline-offset: -8%;
 }
 
-/* Balanceo de reposo: pivota en el gancho; cada prenda con su ritmo y su desfase */
-.colgada__balanceo {
+/* Balanceo de reposo: pivota en el gancho; cada prenda con su ritmo y su desfase.
+   Solo rotate y translate con valores fijos: el navegador lo anima en la GPU, sin pasar por JavaScript.
+   Al pasar el ratón, el «empujón» (un vaivén que se va apagando) lo hace GSAP en la capa de dentro. */
+.colgada__balanceo,
+.colgada__empujon {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   aspect-ratio: 1200 / 1800;
   transform-origin: 50% calc(100% * 60 / 1800);
-  animation: balanceo var(--balanceo-duracion, 4.6s) ease-in-out var(--balanceo-desfase, 0s) infinite alternate;
-  transition:
-    translate var(--mov-media) var(--mov-entrada),
-    --amplitud var(--mov-media) var(--mov-transicion);
+}
+.colgada__balanceo {
+  animation: balanceo var(--balanceo-duracion, 4.6s) cubic-bezier(0.37, 0, 0.63, 1) var(--balanceo-desfase, 0s) infinite alternate;
+  transition: translate var(--mov-media) var(--mov-entrada);
+  will-change: rotate;
+}
+/* Fuera de la pantalla no se mueve nada (batería y fluidez del resto) */
+.colgada[data-quieta] .colgada__balanceo {
+  animation-play-state: paused;
 }
 .colgada__balanceo[data-oculta] {
   opacity: 0;
 }
 @keyframes balanceo {
   from {
-    rotate: calc(var(--amplitud) * -1);
+    rotate: -1.5deg;
   }
   to {
-    rotate: var(--amplitud);
+    rotate: 1.5deg;
   }
 }
 @media (hover: hover) {
   .colgada__boton:has(.colgada__zona:hover) .colgada__balanceo {
-    --amplitud: 3deg;
     translate: 0 -8px;
   }
 }
@@ -259,13 +284,15 @@
     color: var(--cga-blanco);
     transition:
       border-color var(--mov-rapida) var(--mov-transicion),
-      opacity var(--mov-rapida) var(--mov-transicion);
+      color var(--mov-rapida) var(--mov-transicion);
   }
   .perchero__flechas button:hover:not(:disabled) {
     border-color: var(--cga-acento);
   }
+  /* Desactivada: atenuada con color, no con opacidad (el botón sigue «presente» para quien lo busca) */
   .perchero__flechas button:disabled {
-    opacity: 0.35;
+    color: var(--cga-gris-oscuro);
+    cursor: default;
   }
 }
 
@@ -287,15 +314,27 @@
 .vista::backdrop {
   background: transparent;
 }
+/* En el móvil, fondo opaco: desenfocar toda la pantalla mientras se funde da tirones en teléfonos normales */
 .vista__fondo {
   position: absolute;
   inset: 0;
-  background: rgb(10 10 10 / 0.84);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  background: rgb(10 10 10 / 0.94);
+  will-change: opacity;
+}
+@media (min-width: 1024px) {
+  .vista__fondo {
+    background: rgb(10 10 10 / 0.82);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+}
+.vista:focus,
+.vista:focus-visible {
+  outline: none;
 }
 .vista__contenido {
   position: relative;
+  will-change: transform;
   display: flex;
   height: 100%;
   flex-direction: column;
@@ -341,12 +380,17 @@
   position: absolute;
   inset: 0;
 }
+/* El cambio de cara es instantáneo (lo tapa el volteo); solo con movimiento reducido se funden */
 .vista__cara {
   position: absolute;
   width: 100%;
   height: 100%;
   opacity: 0;
-  transition: opacity var(--mov-media) var(--mov-transicion);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vista__cara {
+    transition: opacity var(--mov-media) var(--mov-transicion);
+  }
 }
 .vista__cara[data-visible] {
   opacity: 1;

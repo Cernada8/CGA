@@ -75,7 +75,7 @@ test("catálogo real: fotos en todas las fichas, sin huecos ni marcadores", asyn
   await expect(page.locator(".foto-pendiente")).toHaveCount(0);
   await expect(page.locator(".pendiente")).toHaveCount(0);
   await expect(page.locator(".embajador")).toHaveCount(4);
-  await expect(page.locator(".equipacion")).toHaveCount(5);
+  await expect(page.locator("section[aria-labelledby='colaboraciones'] .colgada")).toHaveCount(10);
   // Todas las fotos cargan de verdad (ninguna rota)
   await page.evaluate(async () => {
     for (let y = 0; y < document.body.scrollHeight; y += 600) {
@@ -115,4 +115,24 @@ test("las prendas salen ordenadas por familias, con atajos a cada una", async ({
   expect(nombres.every((n) => /Sudadera|Chaqueta/.test(n))).toBe(true);
   await nuevo.getByRole("link", { name: "Sudaderas y chaquetas" }).click();
   await expect(page.locator("#lo-nuevo-sudaderas")).toBeInViewport();
+});
+
+test("portada: el perchero de colaboraciones abre las equipaciones sin tocar la URL", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const seccion = page.locator("section[aria-labelledby='colaboraciones']");
+  await seccion.locator(".colgada__zona").first().scrollIntoViewIfNeeded();
+  await seccion.locator(".colgada__zona").first().click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  expect(new URL(page.url()).search).toBe("");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toBeHidden();
+  // Sin huecos: lo primero que cuelga (la etiqueta o la ropa) empieza alineado con el texto de la sección
+  const desfase = await page.evaluate(() => {
+    const titulo = document.querySelector("#colaboraciones")!.getBoundingClientRect().left;
+    const primera = document.querySelector("section[aria-labelledby='colaboraciones'] .colgada")!;
+    const izquierdas = [...primera.querySelectorAll(".colgada__zona, .colgada__carton")].map((e) => e.getBoundingClientRect().left);
+    return Math.abs(Math.min(...izquierdas) - titulo);
+  });
+  expect(desfase).toBeLessThan(40);
 });

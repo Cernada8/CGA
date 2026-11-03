@@ -62,7 +62,8 @@ export default function PaginaColaboraciones() {
               </h2>
               <p className="mt-4 max-w-prose text-lg text-blanco/85">Toca una para verla de cerca, por delante y por detrás.</p>
             </div>
-            <div className="mt-8 md:mt-10">
+            {/* El perchero se alinea con el texto de esta página, más estrecho que la portada */}
+            <div className="mt-8 md:mt-10" style={{ "--ancho-contenido": "56rem" } as React.CSSProperties}>
               <Perchero prendas={COLECCION} />
             </div>
           </section>

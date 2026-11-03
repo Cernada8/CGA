@@ -32,6 +32,9 @@ export type PrendaColeccion = {
   detras: CaraPrenda;
 };
 
+/** `sizes` de la prenda en la vista ampliada (lo comparten la vista y la precarga, para pedir el mismo archivo) */
+export const SIZES_VISTA = "(min-width: 1024px) 1000px, 180vw";
+
 export const ANCHO_IMAGEN = 1200;
 export const ALTO_IMAGEN = 1500;
 

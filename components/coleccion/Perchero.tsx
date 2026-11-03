@@ -28,11 +28,18 @@ const PRIMERAS = 3;
  * Móvil: deslizar. Escritorio: arrastrar con el ratón, flechas en pantalla o teclado (←/→, Inicio/Fin).
  * La prenda abierta va en la URL (?prenda=slug) para poder compartirla.
  */
-export function Perchero({ prendas }: { prendas: PrendaColeccion[] }) {
+export function Perchero({
+  prendas,
+  sincronizarUrl = true,
+}: {
+  prendas: PrendaColeccion[];
+  /** false en la portada: allí manda la puerta del laberinto y los enlaces para compartir van a /colaboraciones */
+  sincronizarUrl?: boolean;
+}) {
   const fila = useRef<HTMLUListElement>(null);
   const botones = useRef<(HTMLButtonElement | null)[]>([]);
   const [activa, setActiva] = useState(0);
-  const [abierta, setAbierta] = useState<{ indice: number; desdeEnlace: boolean; cambio?: boolean } | null>(null);
+  const [abierta, setAbierta] = useState<{ indice: number; desdeEnlace: boolean; cambio?: boolean; conTeclado?: boolean } | null>(null);
   const [oculta, setOculta] = useState<number | null>(null);
   const [bordes, setBordes] = useState({ inicio: true, fin: true });
 
@@ -55,6 +62,20 @@ export function Perchero({ prendas }: { prendas: PrendaColeccion[] }) {
     const paso = botones.current[0]?.parentElement?.getBoundingClientRect().width ?? 300;
     f?.scrollBy({ left: sentido * paso * 0.7, behavior: reducido() ? "auto" : "smooth" });
   }
+
+  // ---------- Las prendas que no se ven no se balancean (menos trabajo para el móvil) ----------
+  useEffect(() => {
+    const f = fila.current;
+    if (!f || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      (entradas) => {
+        for (const e of entradas) (e.target as HTMLElement).toggleAttribute("data-quieta", !e.isIntersecting);
+      },
+      { rootMargin: "120px" },
+    );
+    f.querySelectorAll(".colgada").forEach((li) => io.observe(li));
+    return () => io.disconnect();
+  }, [prendas]);
 
   // ---------- Arrastrar con el ratón (en táctil ya desliza el navegador) ----------
   const arrastre = useRef<{ x: number; scroll: number; movido: boolean } | null>(null);
@@ -99,15 +120,16 @@ export function Perchero({ prendas }: { prendas: PrendaColeccion[] }) {
 
   // ---------- Abrir / cerrar y la URL ----------
   const abrir = useCallback(
-    (indice: number, desdeEnlace = false) => {
+    (indice: number, desdeEnlace = false, conTeclado = false) => {
       setActiva(indice);
-      setAbierta({ indice, desdeEnlace });
+      setAbierta({ indice, desdeEnlace, conTeclado });
+      if (!sincronizarUrl) return;
       const url = new URL(location.href);
       url.searchParams.set("prenda", prendas[indice].slug);
       if (desdeEnlace) history.replaceState({ prenda: true }, "", url);
       else history.pushState({ prenda: true }, "", url);
     },
-    [prendas],
+    [prendas, sincronizarUrl],
   );
 
   /** De una pieza a la otra de su equipación sin cerrar la vista: la URL cambia y el perchero se coloca detrás */
@@ -117,20 +139,21 @@ export function Perchero({ prendas }: { prendas: PrendaColeccion[] }) {
       if (indice < 0) return;
       setActiva(indice);
       setOculta(null);
-      setAbierta((a) => ({ indice, desdeEnlace: a?.desdeEnlace ?? false, cambio: true }));
+      setAbierta((a) => ({ indice, desdeEnlace: a?.desdeEnlace ?? false, cambio: true, conTeclado: a?.conTeclado }));
       botones.current[indice]?.scrollIntoView({ inline: "center", block: "nearest" });
+      if (!sincronizarUrl) return;
       const url = new URL(location.href);
       url.searchParams.set("prenda", slug);
       history.replaceState(history.state, "", url);
     },
-    [prendas],
+    [prendas, sincronizarUrl],
   );
 
   const alCerrar = useCallback(() => {
     const indice = abierta?.indice;
     setAbierta(null);
     const url = new URL(location.href);
-    if (url.searchParams.has("prenda")) {
+    if (sincronizarUrl && url.searchParams.has("prenda")) {
       // Abierta desde la barra: se deshace la entrada del historial. Desde un enlace: se limpia la URL.
       if (history.state?.prenda && !abierta?.desdeEnlace) history.back();
       else {
@@ -138,11 +161,13 @@ export function Perchero({ prendas }: { prendas: PrendaColeccion[] }) {
         history.replaceState(null, "", url);
       }
     }
-    if (indice !== undefined) botones.current[indice]?.focus({ preventScroll: true });
-  }, [abierta]);
+    // El foco vuelve a la percha; el recuadro solo se ve si se abrió con el teclado (con el dedo queda fatal)
+    if (indice !== undefined) botones.current[indice]?.focus({ preventScroll: true, focusVisible: !!abierta?.conTeclado } as FocusOptions);
+  }, [abierta, sincronizarUrl]);
 
   // Enlace compartido: ?prenda=slug abre esa prenda al cargar
   useEffect(() => {
+    if (!sincronizarUrl) return;
     const slug = new URLSearchParams(location.search).get("prenda");
     const i = prendas.findIndex((p) => p.slug === slug);
     if (i >= 0) {
@@ -150,17 +175,18 @@ export function Perchero({ prendas }: { prendas: PrendaColeccion[] }) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- la URL solo existe en el cliente
       abrir(i, true);
     }
-  }, [prendas, abrir]);
+  }, [prendas, abrir, sincronizarUrl]);
 
   // Atrás del navegador con la prenda abierta: se cierra
   const cerrarDesdeHistorial = useRef<() => void>(() => {});
   useEffect(() => {
+    if (!sincronizarUrl) return;
     const alVolver = () => {
       if (!new URLSearchParams(location.search).has("prenda")) cerrarDesdeHistorial.current();
     };
     addEventListener("popstate", alVolver);
     return () => removeEventListener("popstate", alVolver);
-  }, []);
+  }, [sincronizarUrl]);
 
   return (
     <div className="perchero" style={{ "--alto-caja": altoCaja(prendas) } as React.CSSProperties}>
@@ -202,7 +228,7 @@ export function Perchero({ prendas }: { prendas: PrendaColeccion[] }) {
             oculta={oculta === i}
             prioridad={i < PRIMERAS}
             inicioEquipo={i === 0 || !p.equipacion || prendas[i - 1].equipacion !== p.equipacion}
-            onAbrir={() => abrir(i)}
+            onAbrir={(conTeclado) => abrir(i, false, conTeclado)}
             onKeyDown={(e) => alTeclear(i, e)}
           />
         ))}
@@ -227,6 +253,7 @@ export function Perchero({ prendas }: { prendas: PrendaColeccion[] }) {
           prenda={prendas[abierta.indice]}
           origen={abierta.desdeEnlace && !abierta.cambio ? null : () => botones.current[abierta.indice]?.querySelector<HTMLElement>("[data-imagen-origen]") ?? null}
           cambio={abierta.cambio ?? false}
+          conTeclado={abierta.conTeclado ?? false}
           pareja={parejaDe(prendas[abierta.indice], prendas)}
           onVerPieza={verPieza}
           onOcultarOrigen={(o) => setOculta(o ? abierta.indice : null)}

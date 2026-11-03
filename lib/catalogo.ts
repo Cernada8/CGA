@@ -170,19 +170,3 @@ export const PRENDAS_AGOTADAS = aProductos(
   ],
   "agotado",
 );
-
-// ---------- Equipaciones hechas con academias (sin nombres: no están confirmados) ----------
-export type Equipacion = { slug: string; foto: ImagenProducto };
-
-const equipacion = (slug: string, descripcion: string): Equipacion => ({
-  slug,
-  foto: foto("colabs", slug, `Equipación ${descripcion}: rashguard y pantalón, por delante y por detrás`),
-});
-
-export const EQUIPACIONES: Equipacion[] = [
-  equipacion("equipacion-corona-negra", "negra y dorada con corona"),
-  equipacion("equipacion-corona-roja", "roja y dorada con corona"),
-  equipacion("equipacion-negra", "negra de CGA"),
-  equipacion("equipacion-blanca", "blanca de CGA"),
-  equipacion("equipacion-guerrero", "negra con guerrero"),
-];

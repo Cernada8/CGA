@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ALTO_IMAGEN, ANCHO_IMAGEN, type CaraPrenda, type PrendaColeccion } from "@/lib/coleccion";
+import { ALTO_IMAGEN, ANCHO_IMAGEN, SIZES_VISTA, type CaraPrenda, type PrendaColeccion } from "@/lib/coleccion";
 import { cargarMotor } from "@/lib/gsap-cliente";
 import { INSTAGRAM_DM_URL } from "@/lib/marca";
 import { CURVA, DURACION } from "@/lib/motion";
@@ -15,6 +15,8 @@ type Props = {
   onCerrada: () => void;
   /** Se llega desde la otra pieza de la equipación: sin viaje desde la percha, solo cambia la prenda */
   cambio: boolean;
+  /** Abierta con el teclado: el foco va al botón de cerrar (visible). Con el dedo, a la vista entera (sin recuadros) */
+  conTeclado: boolean;
   /** La otra pieza de la misma equipación (rashguard ↔ short) */
   pareja: PrendaColeccion | null;
   onVerPieza: (slug: string) => void;
@@ -33,7 +35,7 @@ const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
  * Animación compartida hecha a mano (FLIP con GSAP): la imagen sale del rectángulo de la percha y crece
  * hasta su sitio; al cerrar hace el camino inverso. Solo se anima transform y opacity.
  */
-export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOcultarOrigen, onCerrada, registrarCierre }: Props) {
+export function VistaAmpliada({ prenda, origen, cambio, conTeclado, pareja, onVerPieza, onOcultarOrigen, onCerrada, registrarCierre }: Props) {
   const dialogo = useRef<HTMLDialogElement>(null);
   const lienzo = useRef<HTMLDivElement>(null);
   const caras = useRef<HTMLDivElement>(null);
@@ -62,6 +64,7 @@ export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOc
     const d = dialogo.current;
     if (!d) return;
     d.showModal();
+    if (!conTeclado) d.focus({ preventScroll: true });
     document.documentElement.classList.add("sin-scroll");
     let cancelado = false;
     const img = lienzo.current?.querySelector("img");
@@ -69,7 +72,8 @@ export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOc
       const { gsap } = await cargarMotor();
       // La imagen grande tiene que estar lista antes de salir de la percha (si no, viajaría vacía)
       // (al cambiar de pieza el fondo ya está puesto, así que se puede esperar algo más)
-      await Promise.race([img?.decode().catch(() => {}), new Promise((r) => setTimeout(r, cambio ? 1500 : 400))]);
+      // (normalmente ya está precargada al acercar el dedo o el ratón; si no, se espera un poco más antes de salir)
+      await Promise.race([img?.decode().catch(() => {}), new Promise((r) => setTimeout(r, cambio ? 1500 : 1000))]);
       if (cancelado) return;
       gsap.set(lienzo.current, { transformOrigin: "0 0" });
       // A partir de aquí GSAP pone cada estado inicial: ya se puede quitar el «oculto mientras carga» del CSS
@@ -85,7 +89,7 @@ export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOc
       const desde = reducido() ? null : desdeOrigen();
       if (desde) {
         onOcultarOrigen(true);
-        gsap.fromTo(lienzo.current, desde, { x: 0, y: 0, scale: 1, duration: 0.65, ease: CURVA.entrada });
+        gsap.fromTo(lienzo.current, { ...desde, force3D: true }, { x: 0, y: 0, scale: 1, duration: 0.65, ease: CURVA.entrada, force3D: true });
       } else {
         gsap.fromTo(lienzo.current, { opacity: 0 }, { opacity: 1, duration: DURACION.media, ease: CURVA.entrada });
       }
@@ -163,8 +167,8 @@ export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOc
     const { gsap } = await cargarMotor();
     gsap
       .timeline({ onComplete: () => setGirando(false) })
-      .to(caras.current, { scaleX: 0, duration: 0.18, ease: CURVA.salida, onComplete: () => setCara(nueva) })
-      .to(caras.current, { scaleX: 1, duration: 0.26, ease: CURVA.entrada });
+      .to(caras.current, { scaleX: 0, duration: 0.2, ease: "power2.in", force3D: true, onComplete: () => setCara(nueva) })
+      .to(caras.current, { scaleX: 1, duration: 0.32, ease: "power3.out", force3D: true });
   }
 
   // Deslizar hacia abajo para cerrar (sobre todo en el móvil)
@@ -175,14 +179,23 @@ export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOc
     arrastre.current = { y: e.clientY, id: e.pointerId };
     deslizado.current = false;
   }
-  async function alMover(e: React.PointerEvent) {
+  // El arrastre va a ritmo del dedo: un solo fotograma por movimiento, sin esperas ni promesas por medio
+  const motor = useRef<Awaited<ReturnType<typeof cargarMotor>> | null>(null);
+  useEffect(() => {
+    void cargarMotor().then((m) => {
+      motor.current = m;
+    });
+  }, []);
+  function alMover(e: React.PointerEvent) {
     const a = arrastre.current;
-    if (!a || a.id !== e.pointerId) return;
+    const gsap = motor.current?.gsap;
+    if (!a || a.id !== e.pointerId || !gsap) return;
     const dy = Math.max(0, e.clientY - a.y);
     if (dy > 8) deslizado.current = true;
-    const { gsap } = await cargarMotor();
-    gsap.set(contenido.current, { y: dy });
-    gsap.set(fondo.current, { opacity: Math.max(0.25, 1 - dy / 450) });
+    // Resistencia suave: cuanto más bajas, menos se mueve (como una hoja que tira)
+    const y = dy < 160 ? dy : 160 + (dy - 160) * 0.5;
+    gsap.set(contenido.current, { y, force3D: true });
+    gsap.set(fondo.current, { opacity: Math.max(0.3, 1 - dy / 420) });
   }
   async function alSoltar(e: React.PointerEvent) {
     const a = arrastre.current;
@@ -191,8 +204,8 @@ export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOc
     const dy = e.clientY - a.y;
     if (dy > UMBRAL_CIERRE) return void cerrar(true);
     const { gsap } = await cargarMotor();
-    gsap.to(contenido.current, { y: 0, duration: DURACION.rapida, ease: CURVA.entrada });
-    gsap.to(fondo.current, { opacity: 1, duration: DURACION.rapida });
+    gsap.to(contenido.current, { y: 0, duration: 0.35, ease: "back.out(1.4)" });
+    gsap.to(fondo.current, { opacity: 1, duration: 0.3, ease: CURVA.entrada });
   }
 
   const estiloCara = (c: CaraPrenda): React.CSSProperties => ({
@@ -204,6 +217,7 @@ export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOc
     <dialog
       ref={dialogo}
       className="vista"
+      tabIndex={-1}
       data-preparando=""
       data-cambio={cambio || undefined}
       aria-labelledby={idTitulo}
@@ -248,7 +262,7 @@ export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOc
                       aria-hidden={cara !== c || undefined}
                       width={ANCHO_IMAGEN}
                       height={ALTO_IMAGEN}
-                      sizes="(min-width: 1024px) 1000px, 180vw"
+                      sizes={SIZES_VISTA}
                       loading="eager"
                       draggable={false}
                     />
@@ -262,7 +276,7 @@ export function VistaAmpliada({ prenda, origen, cambio, pareja, onVerPieza, onOc
         {pareja ? (
           // Precarga de la otra pieza (mismo tamaño que se usará): al pulsar «Va con» aparece sin esperar
           <div className="vista__precarga" aria-hidden="true">
-            <Image src={pareja.delante.src} alt="" width={ANCHO_IMAGEN} height={ALTO_IMAGEN} sizes="(min-width: 1024px) 1000px, 180vw" loading="eager" />
+            <Image src={pareja.delante.src} alt="" width={ANCHO_IMAGEN} height={ALTO_IMAGEN} sizes={SIZES_VISTA} loading="eager" />
           </div>
         ) : null}
         <div ref={info} className="vista__info">

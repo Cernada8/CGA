@@ -536,8 +536,7 @@
         transform var(--mov-media) var(--mov-entrada);
     }
     .ficha:hover .foto-prenda--detras,
-    .ficha:focus-within .foto-prenda--detras,
-    .equipacion:hover .foto-prenda--detras {
+    .ficha:focus-within .foto-prenda--detras {
       opacity: 1;
     }
   }
@@ -956,29 +955,6 @@
     /* Escalonado: rompe la rejilla como un muro de fotos pegadas */
     .embajadores > li:nth-child(even) {
       transform: translateY(3rem);
-    }
-  }
-
-  /* Equipaciones hechas con academias: tira con desplazamiento en móvil, rejilla en escritorio */
-  .equipaciones {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: min(62vw, 260px);
-    gap: 0.75rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    overscroll-behavior-x: contain;
-    padding-bottom: 0.75rem;
-    scrollbar-width: thin;
-  }
-  .equipaciones > li {
-    scroll-snap-align: start;
-  }
-  @media (min-width: 1024px) {
-    .equipaciones {
-      grid-auto-flow: row;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      overflow: visible;
     }
   }
 
