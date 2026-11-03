@@ -23,7 +23,7 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
               {grupos.map(({ grupo, items }) => (
                 <section key={grupo.id} aria-labelledby={`ya-no-hay-${grupo.id}`} className="grupo-prendas">
                   <TituloGrupo seccion="ya-no-hay" grupo={grupo} />
-                  <ul className={clasesRejilla(grupo)}>
+                  <ul className={clasesRejilla(grupo, { carril: true })}>
                     {items.map(({ producto, tema }) => (
                       <li key={producto.id} id={producto.slug} style={variablesDeTema(tema)} className="scroll-mt-24">
                         <article className="ficha ficha--agotada">
@@ -31,7 +31,7 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
                             <FotoPrenda
                               imagen={producto.imagenes[0]}
                               alt={producto.nombre ?? "Prenda de CGA que ya no está disponible"}
-                              sizes={grupo.apaisado ? "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" : "(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"}
+                              sizes={grupo.apaisado ? "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 80vw" : "(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 45vw"}
                             />
                             <span className="sello-agotado" aria-hidden="true">
                               Agotado

@@ -699,11 +699,130 @@
     line-height: 1.2;
   }
 
+  /* ---------- Navegación: atajos de la cabecera (escritorio) y menú (móvil) ---------- */
+  .nav-cabecera {
+    display: flex;
+    gap: 0.25rem;
+  }
+  .nav-cabecera a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    padding-inline: 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: rgb(244 244 241 / 0.85);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 8px;
+    transition:
+      color var(--mov-rapida) var(--mov-transicion),
+      text-decoration-color var(--mov-rapida) var(--mov-transicion);
+  }
+  .nav-cabecera a:hover {
+    color: var(--cga-blanco);
+    text-decoration-color: var(--cga-acento);
+  }
+  .menu-boton {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 999px;
+    color: var(--cga-blanco);
+  }
+  .menu-movil {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgb(10 10 10 / 0.97);
+    color: var(--cga-blanco);
+  }
+  .menu-movil::backdrop {
+    background: transparent;
+  }
+  .menu-movil[open] .menu-movil__panel {
+    animation: menu-entra var(--mov-media) var(--mov-entrada);
+  }
+  @keyframes menu-entra {
+    from {
+      opacity: 0;
+      translate: 0 -1rem;
+    }
+  }
+  .menu-movil__panel {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    padding: 1rem 1rem calc(2rem + env(safe-area-inset-bottom));
+  }
+  .menu-movil__cerrar {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    align-self: flex-end;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 999px;
+  }
+  .menu-movil__lista {
+    display: grid;
+    margin-top: 2rem;
+  }
+  .menu-movil__lista a {
+    display: flex;
+    min-height: 3.5rem;
+    align-items: center;
+    border-bottom: 1px solid var(--cga-gris-oscuro);
+    font-size: clamp(1.75rem, 8vw, 2.25rem);
+    font-weight: 900;
+    font-stretch: 80%;
+    line-height: 1;
+  }
+  .menu-movil__lista a:active {
+    color: var(--cga-acento);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .menu-movil[open] .menu-movil__panel {
+      animation: none;
+    }
+  }
+  /* Los títulos de sección son destino de los atajos: que no queden debajo de la cabecera fija */
+  .cinta {
+    scroll-margin-top: 6rem;
+  }
+
   /* ---------- Prendas por familias (Lo nuevo / Ya no hay) ---------- */
+  /* Móvil: una sola fila que se desliza (antes ocupaba tres líneas); desde 640 px, en varias líneas */
   .atajos-grupos {
     display: flex;
-    flex-wrap: wrap;
     gap: 0.5rem;
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .atajos-grupos::-webkit-scrollbar {
+    display: none;
+  }
+  .atajos-grupos li {
+    flex: none;
+  }
+  @media (min-width: 640px) {
+    .atajos-grupos {
+      flex-wrap: wrap;
+      margin-inline: 0;
+      padding-inline: 0;
+      overflow: visible;
+    }
   }
   .atajos-grupos a {
     display: inline-flex;
@@ -720,6 +839,8 @@
   }
   .grupos-prendas {
     display: grid;
+    /* minmax(0, 1fr): las filas deslizables del móvil no pueden ensanchar la página */
+    grid-template-columns: minmax(0, 1fr);
     gap: 4rem;
     margin-top: 3rem;
   }
@@ -761,6 +882,31 @@
   @media (min-width: 1024px) {
     .grupo-prendas__rejilla {
       grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  /* «Ya no hay» en el móvil: cada familia es una fila que se desliza (asoma la siguiente prenda para que se
+     entienda). Lo que ya no está no necesita ocupar media página; desde 640 px vuelve a ser rejilla */
+  @media (max-width: 639.98px) {
+    .grupo-prendas__rejilla--carril {
+      display: flex;
+      gap: 0.75rem;
+      margin-inline: -1rem;
+      padding: 0 1rem 0.5rem;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 1rem;
+      scrollbar-width: none;
+    }
+    .grupo-prendas__rejilla--carril::-webkit-scrollbar {
+      display: none;
+    }
+    .grupo-prendas__rejilla--carril > li {
+      flex: 0 0 44%;
+      scroll-snap-align: start;
+    }
+    .grupo-prendas__rejilla--carril.grupo-prendas__rejilla--apaisada > li {
+      flex-basis: 78%;
     }
   }
   /* Fotos apaisadas (delante y detrás lado a lado): una por fila en el móvil, tres en escritorio */

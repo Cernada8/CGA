@@ -26,6 +26,6 @@ export function TituloGrupo({ seccion, grupo }: { seccion: string; grupo: Grupo 
 }
 
 /** Columnas según la forma de las fotos: las apaisadas (delante y detrás lado a lado) piden más ancho */
-export function clasesRejilla(grupo: Grupo) {
-  return grupo.apaisado ? "grupo-prendas__rejilla grupo-prendas__rejilla--apaisada" : "grupo-prendas__rejilla";
+export function clasesRejilla(grupo: Grupo, { carril = false }: { carril?: boolean } = {}) {
+  return ["grupo-prendas__rejilla", grupo.apaisado && "grupo-prendas__rejilla--apaisada", carril && "grupo-prendas__rejilla--carril"].filter(Boolean).join(" ");
 }

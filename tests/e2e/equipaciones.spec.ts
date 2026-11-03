@@ -73,7 +73,7 @@ test.describe("perchero de equipaciones", () => {
     await page.goto("/colaboraciones");
     const { violations } = await new AxeBuilder({ page }).analyze();
     expect(violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect(await page.evaluate((ancho) => document.documentElement.scrollWidth <= ancho && window.innerWidth <= ancho, page.viewportSize()!.width)).toBe(true);
     // Lista para publicar: ni marcadores de datos pendientes ni etiquetas de prueba
     await expect(page.locator(".pendiente")).toHaveCount(0);
     for (const nombre of await page.locator(".colgada__boton").evaluateAll((b) => b.map((e) => e.getAttribute("aria-label") ?? ""))) {

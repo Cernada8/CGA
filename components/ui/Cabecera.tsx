@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { BotonInstagram } from "./BotonInstagram";
 import { Insignia, MarcaTexto } from "./Logo";
+import { MenuMovil, NavEscritorio } from "./MenuSecciones";
 
 /** Cabecera fija con el CTA de Instagram siempre visible, también en móvil.
- *  `centro`: hueco central opcional (desde 1024 px), p. ej. el recordatorio de la próxima prenda. */
+ *  `centro`: hueco central opcional (desde 1024 px), p. ej. el recordatorio de la próxima prenda; si no lo hay,
+ *  ahí van los atajos a las secciones. En el móvil, los atajos van en el menú. */
 export function Cabecera({ centro }: { centro?: React.ReactNode } = {}) {
   return (
     <header className="fixed inset-x-0 top-0 z-30 border-b border-gris-oscuro/60 bg-negro/85 backdrop-blur-sm">
@@ -19,7 +21,11 @@ export function Cabecera({ centro }: { centro?: React.ReactNode } = {}) {
             <MarcaTexto variante="horizontal" ancho={60} />
           </span>
         </Link>
-        <BotonInstagram direccion="abajo" className="boton-ig--cabecera" />
+        {centro ? null : <NavEscritorio />}
+        <div className="flex items-center gap-2">
+          <MenuMovil />
+          <BotonInstagram direccion="abajo" className="boton-ig--cabecera" />
+        </div>
       </div>
     </header>
   );

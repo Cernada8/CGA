@@ -1,7 +1,9 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
 
-const sinDesbordeHorizontal = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+// En el móvil, si algo se sale, el navegador ensancha la página entera (innerWidth crece): se compara con el viewport real
+const sinDesbordeHorizontal = (page: Page) =>
+  page.evaluate((ancho) => document.documentElement.scrollWidth <= ancho && window.innerWidth <= ancho, page.viewportSize()!.width);
 
 test.describe("página de cada prenda", () => {
   test("desde «Lo nuevo» se entra a la prenda y se vuelve justo a su ficha", async ({ page }) => {

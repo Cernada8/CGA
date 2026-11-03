@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const SECCIONES = ["lo-nuevo", "ya-no-hay", "historia", "embajadores", "como-conseguirlo", "colaboraciones"];
+const SECCIONES = ["lo-nuevo", "colaboraciones", "ya-no-hay", "historia", "embajadores", "como-conseguirlo"];
 const PROHIBIDAS = [/drop \d/i, /\[NÚMERO\]/, /carrito/i, /comprar/i, /oferta/i, /descuento/i, /rebajas/i, /\d+\s*unidades/i, /\bstock\b/i, /últimas unidades/i, /reposición disponible/i, /vuelve pronto/i];
 
 test.describe("inicio", () => {
@@ -135,4 +135,19 @@ test("portada: el perchero de colaboraciones abre las equipaciones sin tocar la 
     return Math.abs(Math.min(...izquierdas) - titulo);
   });
   expect(desfase).toBeLessThan(40);
+});
+
+test("menú de secciones: en el móvil se abre, lleva a la sección y se cierra; en escritorio los atajos van en la cabecera", async ({ page }, info) => {
+  await page.goto("/");
+  if (info.project.name === "movil") {
+    await page.getByRole("button", { name: "Menú" }).click();
+    const menu = page.getByRole("dialog", { name: "Menú" });
+    await expect(menu).toBeVisible();
+    await menu.getByRole("link", { name: "Colaboraciones" }).click();
+    await expect(menu).toBeHidden();
+  } else {
+    await expect(page.getByRole("button", { name: "Menú" })).toBeHidden();
+    await page.getByRole("banner").getByRole("link", { name: "Colaboraciones" }).click();
+  }
+  await expect(page.locator("#colaboraciones")).toBeInViewport();
 });

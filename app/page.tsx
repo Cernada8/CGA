@@ -67,12 +67,13 @@ export default async function Inicio() {
             <CuentaAtras drop={proximo} />
           </>
         ) : null}
+        {/* Colaboraciones justo después de lo nuevo: la prueba de lo que hacemos con academias, antes del archivo */}
+        <Colaboraciones />
         {/* «Ya no hay» solo aparece cuando de verdad hay algo agotado: una sección vacía resta, no suma */}
         {archivo.length > 0 ? <Archivo prendas={archivo} /> : null}
         <Historia />
         <Embajadores />
         <ComoConseguirlo />
-        <Colaboraciones />
         <Costura
           src="/grafiti/abuso-papa.webp"
           alt="Grafiti con las palabras «Abuso Papa» en letras blancas con contorno rojo"
@@ -80,7 +81,7 @@ export default async function Inicio() {
           height={980}
           ancho="min(88vw, 680px)"
           sizes="(max-width: 773px) 88vw, 680px"
-          arriba="bg-carbon grano"
+          arriba="bg-negro"
           abajo="bg-negro"
         />
         {/* Barra fija de móvil: dentro de <main> para que quede inert mientras la puerta está cerrada */}

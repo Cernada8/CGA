@@ -52,11 +52,11 @@
       "descripcion": null,
       "tallas": [],
       "etiqueta": "Equipación completa",
-      "caja": [265, 119, 936, 932],
+      "caja": [266, 119, 937, 932],
       "delante": {
         "src": "/coleccion/s23-machine-rojo-camiseta-delante.webp",
         "engancheX": 600,
-        "engancheY": 121,
+        "engancheY": 120,
         "alt": "Rashguard rojo y negro con franja tribal y «$23 machine» con corona, por delante"
       },
       "detras": {
@@ -74,11 +74,11 @@
       "descripcion": null,
       "tallas": [],
       "etiqueta": "Equipación completa",
-      "caja": [328, 159, 873, 722],
+      "caja": [329, 159, 872, 721],
       "delante": {
         "src": "/coleccion/s23-machine-rojo-short-delante.webp",
         "engancheX": 600,
-        "engancheY": 161,
+        "engancheY": 160,
         "alt": "Pantalón corto rojo y negro con corona y «$23» en dorado, por delante"
       },
       "detras": {
