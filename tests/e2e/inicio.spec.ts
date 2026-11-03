@@ -103,3 +103,16 @@ test("404: página propia con código 404 y salida al inicio", async ({ page }) 
   await expect(page.locator("h1")).toHaveText("No hay nada");
   await expect(page.getByRole("link", { name: "Volver al inicio" })).toBeVisible();
 });
+
+test("las prendas salen ordenadas por familias, con atajos a cada una", async ({ page }) => {
+  await page.goto("/");
+  const nuevo = page.locator("section[aria-labelledby='lo-nuevo']");
+  await expect(nuevo.locator(".grupo-prendas__titulo")).toHaveText(["Camisetas y tirantes", "Sudaderas y chaquetas", "Mallas, shorts y tops"]);
+  const agotado = page.locator("section[aria-labelledby='ya-no-hay']");
+  await expect(agotado.locator(".grupo-prendas__titulo")).toHaveText(["Camisetas y tirantes", "Sudaderas y chaquetas", "Gorras y gorros"]);
+  // Dentro de cada familia no se mezclan: todas las sudaderas juntas
+  const nombres = await agotado.locator("#ya-no-hay-sudaderas ~ ul .ficha__nombre").allTextContents();
+  expect(nombres.every((n) => /Sudadera|Chaqueta/.test(n))).toBe(true);
+  await nuevo.getByRole("link", { name: "Sudaderas y chaquetas" }).click();
+  await expect(page.locator("#lo-nuevo-sudaderas")).toBeInViewport();
+});

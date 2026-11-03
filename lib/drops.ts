@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { agrupar } from "./categorias";
 import { PRENDAS_AGOTADAS, PRENDAS_NUEVAS } from "./catalogo";
 import type { TemaDrop } from "./tema";
 
@@ -207,9 +208,12 @@ export type FichaPrenda = {
 /** Todas las prendas que se pueden abrir en su propia página: primero lo nuevo y después lo que ya no hay. */
 export const getPrendas = cache(async (): Promise<{ producto: Producto; tema: TemaDrop; agotada: boolean }[]> => {
   const [activo, archivo] = await Promise.all([getDropActivo(), getArchivo()]);
+  // Mismo orden que en la portada (por familias): así «anterior» y «siguiente» siguen lo que se ve
+  const nuevas = agrupar(activo?.productos ?? [], (p) => p).flatMap((g) => g.items);
+  const agotadas = agrupar(archivo, (p) => p.producto).flatMap((g) => g.items);
   return [
-    ...(activo?.productos ?? []).map((producto) => ({ producto, tema: activo!.tema, agotada: false })),
-    ...archivo.map(({ producto, tema }) => ({ producto, tema, agotada: true })),
+    ...nuevas.map((producto) => ({ producto, tema: activo!.tema, agotada: false })),
+    ...agotadas.map(({ producto, tema }) => ({ producto, tema, agotada: true })),
   ];
 });
 

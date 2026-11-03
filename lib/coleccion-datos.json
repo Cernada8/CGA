@@ -1,0 +1,224 @@
+{
+  "prendas": [
+    {
+      "slug": "s23-machine-camiseta",
+      "nombre": "Rashguard S23 Machine negro",
+      "tipo": "camiseta",
+      "equipacion": "s23-machine",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [264, 119, 938, 933],
+      "delante": {
+        "src": "/coleccion/s23-machine-camiseta-delante.webp",
+        "engancheX": 600,
+        "engancheY": 120,
+        "alt": "Rashguard negro y dorado con corona y «$23 machine», por delante"
+      },
+      "detras": {
+        "src": "/coleccion/s23-machine-camiseta-detras.webp",
+        "engancheX": 600,
+        "engancheY": 121,
+        "alt": "Rashguard negro y dorado con corona, por detrás"
+      }
+    },
+    {
+      "slug": "s23-machine-short",
+      "nombre": "Short S23 Machine negro",
+      "tipo": "short",
+      "equipacion": "s23-machine",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [328, 159, 872, 724],
+      "delante": {
+        "src": "/coleccion/s23-machine-short-delante.webp",
+        "engancheX": 602,
+        "engancheY": 160,
+        "alt": "Pantalón corto negro con franja dorada y «$23», por delante"
+      },
+      "detras": {
+        "src": "/coleccion/s23-machine-short-detras.webp",
+        "engancheX": 598,
+        "engancheY": 167,
+        "alt": "Pantalón corto negro con franja dorada, por detrás"
+      }
+    },
+    {
+      "slug": "s23-machine-rojo-camiseta",
+      "nombre": "Rashguard S23 Machine rojo",
+      "tipo": "camiseta",
+      "equipacion": "s23-machine-rojo",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [265, 119, 936, 932],
+      "delante": {
+        "src": "/coleccion/s23-machine-rojo-camiseta-delante.webp",
+        "engancheX": 600,
+        "engancheY": 121,
+        "alt": "Rashguard rojo y negro con franja tribal y «$23 machine» con corona, por delante"
+      },
+      "detras": {
+        "src": "/coleccion/s23-machine-rojo-camiseta-detras.webp",
+        "engancheX": 600,
+        "engancheY": 121,
+        "alt": "Rashguard rojo y negro con una gran corona y «$23 machine» a la espalda"
+      }
+    },
+    {
+      "slug": "s23-machine-rojo-short",
+      "nombre": "Short S23 Machine rojo",
+      "tipo": "short",
+      "equipacion": "s23-machine-rojo",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [328, 159, 873, 722],
+      "delante": {
+        "src": "/coleccion/s23-machine-rojo-short-delante.webp",
+        "engancheX": 600,
+        "engancheY": 161,
+        "alt": "Pantalón corto rojo y negro con corona y «$23» en dorado, por delante"
+      },
+      "detras": {
+        "src": "/coleccion/s23-machine-rojo-short-detras.webp",
+        "engancheX": 600,
+        "engancheY": 168,
+        "alt": "Pantalón corto rojo y negro con franja tribal, por detrás"
+      }
+    },
+    {
+      "slug": "infames-blanco-camiseta",
+      "nombre": "Rashguard Infames blanco",
+      "tipo": "camiseta",
+      "equipacion": "infames-blanco",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [278, 119, 928, 953],
+      "delante": {
+        "src": "/coleccion/infames-blanco-camiseta-delante.webp",
+        "engancheX": 600,
+        "engancheY": 122,
+        "alt": "Rashguard blanco con «CGA Training Hard» en negro, por delante"
+      },
+      "detras": {
+        "src": "/coleccion/infames-blanco-camiseta-detras.webp",
+        "engancheX": 600,
+        "engancheY": 127,
+        "alt": "Rashguard blanco con «CGA Training Hard» en grande a la espalda"
+      }
+    },
+    {
+      "slug": "infames-blanco-short",
+      "nombre": "Short Infames blanco",
+      "tipo": "short",
+      "equipacion": "infames-blanco",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [323, 159, 877, 719],
+      "delante": {
+        "src": "/coleccion/infames-blanco-short-delante.webp",
+        "engancheX": 600,
+        "engancheY": 161,
+        "alt": "Pantalón corto blanco con el escudo de Infames y «CGA», por delante"
+      },
+      "detras": {
+        "src": "/coleccion/infames-blanco-short-detras.webp",
+        "engancheX": 600,
+        "engancheY": 169,
+        "alt": "Pantalón corto blanco con el escudo de Infames y «CGA Training Hard», por detrás"
+      }
+    },
+    {
+      "slug": "infames-negro-camiseta",
+      "nombre": "Rashguard Infames negro",
+      "tipo": "camiseta",
+      "equipacion": "infames-negro",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [279, 119, 926, 953],
+      "delante": {
+        "src": "/coleccion/infames-negro-camiseta-delante.webp",
+        "engancheX": 600,
+        "engancheY": 123,
+        "alt": "Rashguard negro con «CGA Training Hard» en blanco, por delante"
+      },
+      "detras": {
+        "src": "/coleccion/infames-negro-camiseta-detras.webp",
+        "engancheX": 600,
+        "engancheY": 127,
+        "alt": "Rashguard negro con «CGA Training Hard» en grande a la espalda"
+      }
+    },
+    {
+      "slug": "infames-negro-short",
+      "nombre": "Short Infames negro",
+      "tipo": "short",
+      "equipacion": "infames-negro",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [323, 159, 877, 720],
+      "delante": {
+        "src": "/coleccion/infames-negro-short-delante.webp",
+        "engancheX": 600,
+        "engancheY": 161,
+        "alt": "Pantalón corto negro con el escudo de Infames y «CGA», por delante"
+      },
+      "detras": {
+        "src": "/coleccion/infames-negro-short-detras.webp",
+        "engancheX": 600,
+        "engancheY": 169,
+        "alt": "Pantalón corto negro con el escudo de Infames y «CGA Training Hard», por detrás"
+      }
+    },
+    {
+      "slug": "fight-club-aranda-camiseta",
+      "nombre": "Rashguard Fight Club Aranda",
+      "tipo": "camiseta",
+      "equipacion": "fight-club-aranda",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [263, 119, 936, 930],
+      "delante": {
+        "src": "/coleccion/fight-club-aranda-camiseta-delante.webp",
+        "engancheX": 600,
+        "engancheY": 121,
+        "alt": "Rashguard negro con un guerrero espartano y «CGA Training Hard», por delante"
+      },
+      "detras": {
+        "src": "/coleccion/fight-club-aranda-camiseta-detras.webp",
+        "engancheX": 600,
+        "engancheY": 120,
+        "alt": "Rashguard negro con el escudo de Fight Club Aranda y «CGA Training Hard» a la espalda"
+      }
+    },
+    {
+      "slug": "fight-club-aranda-short",
+      "nombre": "Short Fight Club Aranda",
+      "tipo": "short",
+      "equipacion": "fight-club-aranda",
+      "descripcion": null,
+      "tallas": [],
+      "etiqueta": "Equipación completa",
+      "caja": [329, 159, 873, 719],
+      "delante": {
+        "src": "/coleccion/fight-club-aranda-short-delante.webp",
+        "engancheX": 600,
+        "engancheY": 162,
+        "alt": "Pantalón corto negro con un guerrero espartano, por delante"
+      },
+      "detras": {
+        "src": "/coleccion/fight-club-aranda-short-detras.webp",
+        "engancheX": 600,
+        "engancheY": 169,
+        "alt": "Pantalón corto negro con el escudo de Fight Club Aranda, por detrás"
+      }
+    }
+  ]
+}

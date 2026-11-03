@@ -1,0 +1,509 @@
+/* ---------- Perchero de equipaciones (/colaboraciones) ----------
+   Cada prenda colgada es una caja de 1200×1800 unidades (la imagen de 1200×1500 empieza en y=300).
+   --w es el ancho de esa caja; la barra pasa por y=60 de la caja. */
+
+@property --amplitud {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 1.5deg;
+}
+
+.perchero {
+  --w: min(92vw, 380px);
+  --holgura: 14px;
+  position: relative;
+}
+@media (min-width: 768px) {
+  .perchero {
+    --w: 440px;
+  }
+}
+@media (min-width: 1024px) {
+  .perchero {
+    --w: 460px;
+  }
+}
+
+/* Barra: tubo metálico de lado a lado, fijo; las prendas se deslizan colgadas de él */
+.perchero__barra {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(var(--holgura) + var(--w) * 60 / 1800);
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  height: 12px;
+  translate: 0 -50%;
+  pointer-events: none;
+}
+.perchero__tubo {
+  flex: 1;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #f1f1ed 0%, #b4b4af 30%, #6a6a67 65%, #2c2c2b 100%);
+  box-shadow: 0 8px 14px -6px rgb(0 0 0 / 0.85);
+}
+.perchero__soporte {
+  flex: none;
+  width: 14px;
+  height: 44px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #353533, #c4c4bf 45%, #4a4a48);
+  box-shadow: 0 6px 10px -4px rgb(0 0 0 / 0.8);
+}
+
+.perchero__fila {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  margin: 0;
+  /* Hueco arriba para el balanceo y el «subir» del hover; abajo, para que nada se corte */
+  padding: var(--holgura) calc(50% - var(--w) / 2) 24px;
+  list-style: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+}
+/* Escritorio: la fila arranca alineada con el texto de la página (no con la primera prenda en el centro) */
+@media (min-width: 1024px) {
+  .perchero__fila {
+    padding-inline: max(1.5rem, calc((100% - 56rem) / 2)) max(1.5rem, calc((100% - 56rem) / 2 + var(--w) * 0.25));
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: max(1.5rem, calc((100% - 56rem) / 2));
+  }
+  .colgada {
+    scroll-snap-align: start;
+  }
+}
+.perchero__fila::-webkit-scrollbar {
+  display: none;
+}
+.perchero__fila[data-arrastrando] {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+/* Prendas: se solapan un poco, como en un perchero de verdad */
+.colgada {
+  position: relative;
+  flex: 0 0 var(--w);
+  scroll-snap-align: center;
+  /* La caja entera no recibe el ratón (se solapa con las vecinas): solo .colgada__zona */
+  pointer-events: none;
+}
+.colgada + .colgada {
+  margin-left: calc(var(--w) * -0.5);
+}
+/* Cada equipación (rashguard + short) cuelga junta; entre una y otra queda un hueco en la barra */
+.colgada + .colgada[data-inicio-equipo] {
+  /* El hueco deja sitio a la etiqueta del conjunto, que cuelga hacia la izquierda */
+  margin-left: calc(var(--w) * -0.5 + var(--w) * 0.26);
+}
+.colgada:has(.colgada__zona:hover),
+.colgada:focus-within {
+  z-index: 2;
+}
+
+.colgada__boton {
+  position: relative;
+  display: block;
+  width: 100%;
+  /* Solo el alto que ocupan las prendas: lo de debajo de la imagen es transparente */
+  aspect-ratio: 1200 / var(--alto-caja, 1800);
+  padding: 0;
+  border: 0;
+  border-radius: 1.5rem;
+  background: none;
+  color: inherit;
+  cursor: inherit;
+  -webkit-tap-highlight-color: transparent;
+  /* Las cajas se solapan: solo la zona de la prenda recibe el clic (ver .colgada__zona) */
+  pointer-events: none;
+}
+.colgada__zona {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.perchero__fila[data-arrastrando] .colgada__zona {
+  cursor: grabbing;
+}
+.colgada__boton:focus-visible {
+  outline: 3px solid var(--cga-acento);
+  outline-offset: -8%;
+}
+
+/* Balanceo de reposo: pivota en el gancho; cada prenda con su ritmo y su desfase */
+.colgada__balanceo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 1200 / 1800;
+  transform-origin: 50% calc(100% * 60 / 1800);
+  animation: balanceo var(--balanceo-duracion, 4.6s) ease-in-out var(--balanceo-desfase, 0s) infinite alternate;
+  transition:
+    translate var(--mov-media) var(--mov-entrada),
+    --amplitud var(--mov-media) var(--mov-transicion);
+}
+.colgada__balanceo[data-oculta] {
+  opacity: 0;
+}
+@keyframes balanceo {
+  from {
+    rotate: calc(var(--amplitud) * -1);
+  }
+  to {
+    rotate: var(--amplitud);
+  }
+}
+@media (hover: hover) {
+  .colgada__boton:has(.colgada__zona:hover) .colgada__balanceo {
+    --amplitud: 3deg;
+    translate: 0 -8px;
+  }
+}
+.colgada__boton:focus-visible .colgada__balanceo {
+  translate: 0 -8px;
+}
+
+.colgada__imagen {
+  position: absolute;
+}
+.colgada__imagen img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.percha {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Etiqueta de tienda colgando del cuello de la percha, hacia la izquierda */
+.colgada__etiqueta {
+  position: absolute;
+  right: 50%;
+  top: calc(100% * 330 / 1800);
+  width: calc(var(--w) * 0.1);
+  transform-origin: 100% 0;
+  rotate: 24deg;
+  pointer-events: none;
+}
+.colgada__hilo {
+  display: block;
+  width: 100%;
+  height: 1.5px;
+  background: var(--cga-gris);
+}
+.colgada__carton {
+  position: absolute;
+  top: -2px;
+  right: calc(100% - 4px);
+  transform-origin: calc(100% - 4px) 50%;
+  rotate: -58deg;
+  padding: 0.35em 1.25em 0.35em 0.7em;
+  border-radius: 6px 3px 3px 6px;
+  background: var(--cga-blanco);
+  color: var(--cga-negro);
+  font-size: clamp(0.62rem, 1.6vw, 0.75rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 6px 12px -6px rgb(0 0 0 / 0.7);
+}
+/* Agujero del hilo */
+.colgada__carton::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0.45em;
+  width: 0.4em;
+  height: 0.4em;
+  border-radius: 50%;
+  background: var(--cga-negro);
+  translate: 0 -50%;
+}
+
+.perchero__flechas {
+  display: none;
+}
+@media (min-width: 768px) {
+  .perchero__flechas {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .perchero__flechas button {
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 999px;
+    color: var(--cga-blanco);
+    transition:
+      border-color var(--mov-rapida) var(--mov-transicion),
+      opacity var(--mov-rapida) var(--mov-transicion);
+  }
+  .perchero__flechas button:hover:not(:disabled) {
+    border-color: var(--cga-acento);
+  }
+  .perchero__flechas button:disabled {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- Vista ampliada ---------- */
+.vista {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: transparent;
+  color: var(--cga-blanco);
+}
+.vista::backdrop {
+  background: transparent;
+}
+.vista__fondo {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 10 10 / 0.84);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.vista__contenido {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+.vista__cerrar {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: 0.75rem;
+  z-index: 3;
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border: 1px solid var(--cga-gris-oscuro);
+  border-radius: 999px;
+  background: rgb(22 22 22 / 0.85);
+  color: var(--cga-blanco);
+  transition: border-color var(--mov-rapida) var(--mov-transicion);
+}
+.vista__cerrar:hover {
+  border-color: var(--cga-acento);
+}
+.vista__escena {
+  display: grid;
+  flex: 1 1 auto;
+  min-height: 0;
+  place-items: center;
+  padding: 4.25rem 1.25rem 1rem;
+  container-type: size;
+  /* El deslizamiento vertical lo gestiona la vista (para cerrar); se mantiene el zoom con dos dedos */
+  touch-action: pan-x pinch-zoom;
+}
+.vista__prenda {
+  position: relative;
+  width: min(100cqw, 100cqh * var(--aspecto));
+  aspect-ratio: var(--aspecto);
+}
+.vista__lienzo {
+  position: absolute;
+  will-change: transform;
+}
+.vista__caras {
+  position: absolute;
+  inset: 0;
+}
+.vista__cara {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity var(--mov-media) var(--mov-transicion);
+}
+.vista__cara[data-visible] {
+  opacity: 1;
+}
+.vista__cara img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.vista__info {
+  position: relative;
+  flex: none;
+  max-height: 46dvh;
+  overflow-y: auto;
+  padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--cga-gris-oscuro);
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: var(--cga-carbon);
+}
+.vista__asa {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  width: 2.5rem;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--cga-gris-oscuro);
+  translate: -50% 0;
+}
+.vista__antetitulo {
+  font-family: var(--font-pirata), serif;
+  font-size: 1.15rem;
+  color: var(--cga-acento);
+}
+.vista__nombre {
+  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  font-weight: 900;
+  font-stretch: 80%;
+  line-height: 0.95;
+}
+/* Mientras se prepara la entrada (imagen decodificándose) no se pinta nada a medias */
+.vista[data-preparando] :is(.vista__lienzo, .vista__info),
+.vista[data-preparando]:not([data-cambio]) .vista__fondo {
+  opacity: 0;
+}
+.vista__precarga {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+.vista__pareja {
+  margin-top: 0.6rem;
+  color: rgb(244 244 241 / 0.85);
+}
+.vista__pareja button {
+  min-height: 2.75rem;
+  font-weight: 700;
+  color: var(--cga-blanco);
+  text-decoration: underline;
+  text-decoration-color: var(--cga-acento);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+.vista__pareja button:hover {
+  color: var(--cga-acento);
+}
+.vista__descripcion {
+  margin-top: 0.6rem;
+  max-width: 60ch;
+  color: rgb(244 244 241 / 0.85);
+}
+.vista__tallas {
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+.vista__caras-selector {
+  display: inline-flex;
+  margin-top: 1rem;
+  padding: 3px;
+  border: 1px solid var(--cga-gris-oscuro);
+  border-radius: 999px;
+}
+.vista__caras-selector button {
+  min-width: 6.5rem;
+  min-height: 2.75rem;
+  padding-inline: 1.1rem;
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--cga-blanco);
+  transition:
+    background-color var(--mov-rapida) var(--mov-transicion),
+    color var(--mov-rapida) var(--mov-transicion);
+}
+.vista__caras-selector button[aria-pressed="true"] {
+  background: var(--cga-blanco);
+  color: var(--cga-negro);
+}
+.vista__cta {
+  margin-top: 1rem;
+}
+.vista__nota {
+  margin-top: 0.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: rgb(244 244 241 / 0.75);
+}
+@media (min-width: 1024px) {
+  .vista__escena {
+    padding: 4rem 2rem 1.5rem;
+  }
+  .vista__info {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 2.5rem;
+    align-items: end;
+    width: min(56rem, calc(100% - 4rem));
+    margin: 0 auto 2rem;
+    padding: 1.5rem 1.75rem;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 1.25rem;
+    background: rgb(22 22 22 / 0.9);
+  }
+  .vista__asa {
+    display: none;
+  }
+  .vista__info > :is(.vista__antetitulo, h2, .vista__pareja, .vista__descripcion, .vista__tallas) {
+    grid-column: 1;
+  }
+  .vista__caras-selector {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    margin-top: 0;
+  }
+  .vista__cta {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    align-self: end;
+  }
+  .vista__nota {
+    grid-column: 2;
+    text-align: right;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .colgada__balanceo {
+    animation: none;
+    transition: none;
+  }
+  .colgada__boton:has(.colgada__zona:hover) .colgada__balanceo,
+  .colgada__boton:focus-visible .colgada__balanceo {
+    translate: none;
+  }
+}

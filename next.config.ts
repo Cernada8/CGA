@@ -88,7 +88,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [],
     dangerouslyAllowSVG: false,
     // Solo carpetas de imágenes propias y sin parámetros: nadie puede usar el optimizador para otra cosa
-    localPatterns: ["hero", "grafiti", "instagram", "marca", "video"].map((carpeta) => ({ pathname: `/${carpeta}/**`, search: "" })),
+    localPatterns: ["hero", "grafiti", "instagram", "marca", "video", "coleccion"].map((carpeta) => ({ pathname: `/${carpeta}/**`, search: "" })),
     // Una sola calidad y anchos acotados: no se puede reventar la caché pidiendo mil variantes
     qualities: [75],
     formats: ["image/avif", "image/webp"],

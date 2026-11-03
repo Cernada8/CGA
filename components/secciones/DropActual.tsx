@@ -2,6 +2,8 @@ import Link from "next/link";
 import { AnimarTarjetas } from "@/components/animacion/AnimarTarjetas";
 import { Cinta } from "@/components/ui/Cinta";
 import { FotoPrenda } from "@/components/ui/FotoPrenda";
+import { AtajosGrupos, clasesRejilla, TituloGrupo } from "@/components/ui/GruposPrendas";
+import { agrupar } from "@/lib/categorias";
 import type { Drop, Producto } from "@/lib/drops";
 import { INSTAGRAM_DM_URL } from "@/lib/marca";
 
@@ -18,17 +20,7 @@ export function DropActual({ drop, hayArchivo = true }: { drop: Drop | null; hay
         <Cinta id="lo-nuevo" entradilla={hayArchivo ? "Cada prenda sale una vez. Cuando se acaba, pasa a «Ya no hay» y no vuelve." : "Cada prenda sale una vez. Cuando se acaba, se acaba."}>Lo nuevo</Cinta>
 
         {drop && drop.productos.length > 0 ? (
-          <AnimarTarjetas>
-            {/* Columnas tipo muro: cada foto con su proporción original, sin recortes */}
-            <ul className="mt-12 columns-2 gap-x-4 sm:gap-x-6 lg:columns-3">
-              {drop.productos.map((p) => (
-                <li key={p.id} id={p.slug} data-anim="tarjeta" className="mb-10 scroll-mt-24 break-inside-avoid">
-                  <FichaProducto producto={p} />
-                </li>
-              ))}
-            </ul>
-          </AnimarTarjetas>
-        ) : (
+          <GruposNuevo productos={drop.productos} />        ) : (
           <p className="mt-12 text-lg text-gris">Ahora mismo no hay nada nuevo. Lo próximo se anuncia en Instagram.</p>
         )}
 
@@ -45,21 +37,47 @@ export function DropActual({ drop, hayArchivo = true }: { drop: Drop | null; hay
   );
 }
 
-function FichaProducto({ producto }: { producto: Producto }) {
+/** Prendas nuevas ordenadas por familias (camisetas, técnicas, sudaderas…), cada familia con su título */
+function GruposNuevo({ productos }: { productos: Producto[] }) {
+  const grupos = agrupar(productos, (p) => p);
+  return (
+    <>
+      <AtajosGrupos seccion="lo-nuevo" nombreSeccion="Lo nuevo" grupos={grupos.map((g) => g.grupo)} />
+      <AnimarTarjetas>
+        <div className="grupos-prendas">
+          {grupos.map(({ grupo, items }) => (
+            <section key={grupo.id} aria-labelledby={`lo-nuevo-${grupo.id}`} className="grupo-prendas">
+              <TituloGrupo seccion="lo-nuevo" grupo={grupo} />
+              <ul className={clasesRejilla(grupo)}>
+                {items.map((p) => (
+                  <li key={p.id} id={p.slug} data-anim="tarjeta" className="scroll-mt-24">
+                    <FichaProducto producto={p} apaisado={grupo.apaisado} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </AnimarTarjetas>
+    </>
+  );
+}
+
+function FichaProducto({ producto, apaisado }: { producto: Producto; apaisado: boolean }) {
   const imagen = producto.imagenes[0];
   const linea = NOMBRE_LINEA[producto.linea];
   return (
     <article className="ficha">
       <Link href={`/prenda/${producto.slug}`} tabIndex={-1} aria-hidden="true" className="ficha__foto-enlace ficha__foto">
         <div data-anim-escala>
-          <FotoPrenda imagen={imagen} alt={producto.nombre ?? "Prenda de CGA"} sizes="(min-width: 1024px) 33vw, 50vw" />
+          <FotoPrenda imagen={imagen} alt={producto.nombre ?? "Prenda de CGA"} sizes={apaisado ? "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" : "(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"} />
         </div>
       </Link>
-      <h3 className="ficha__nombre mt-4 text-lg font-bold leading-snug [font-stretch:85%] sm:text-xl">
+      <h4 className="ficha__nombre mt-4 text-lg font-bold leading-snug [font-stretch:85%] sm:text-xl">
         <Link href={`/prenda/${producto.slug}`} className="ficha__enlace">
           {producto.nombre ?? <span className="pendiente">[NOMBRE PRENDA]</span>}
         </Link>
-      </h3>
+      </h4>
       {producto.gramajeG || linea ? (
         <p className="mt-1 text-sm text-gris">{[producto.gramajeG ? `${producto.gramajeG} g` : null, linea].filter(Boolean).join(", ")}</p>
       ) : null}

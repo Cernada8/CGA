@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Perchero } from "@/components/coleccion/Perchero";
 import { Pie } from "@/components/secciones/Pie";
 import { Cabecera } from "@/components/ui/Cabecera";
+import { COLECCION } from "@/lib/coleccion";
 import { EMAIL_CONTACTO, INSTAGRAM_DM_URL } from "@/lib/marca";
 
 export const metadata: Metadata = {
@@ -15,8 +17,8 @@ export default function PaginaColaboraciones() {
   return (
     <>
       <Cabecera />
-      <main id="contenido" className="grano">
-        <div className="mx-auto max-w-4xl px-4 pt-32 pb-24 sm:px-6 md:pt-40">
+      <main id="contenido" className="grano overflow-x-clip">
+        <div className="mx-auto max-w-4xl px-4 pt-32 pb-16 sm:px-6 md:pt-40">
           <h1 className="font-grito text-[clamp(3rem,10vw,6.5rem)] leading-[0.9]">Hagamos algo juntos</h1>
           <div className="mt-10 max-w-prose space-y-5 text-lg text-blanco/90">
             <p>CGA nace en el tatami y vuelve a él. Si tienes una academia, un equipo o una marca, hablemos.</p>
@@ -49,7 +51,25 @@ export default function PaginaColaboraciones() {
               </dd>
             </div>
           </dl>
-          <p className="mt-16">
+        </div>
+
+        {/* Perchero: equipaciones hechas con academias. Un enlace con ?prenda=slug abre una directamente. */}
+        {COLECCION.length > 0 ? (
+          <section aria-labelledby="equipaciones" className="pb-8">
+            <div className="mx-auto max-w-4xl px-4 sm:px-6">
+              <h2 id="equipaciones" className="font-sello text-3xl leading-none sm:text-4xl">
+                Equipaciones que ya hemos hecho
+              </h2>
+              <p className="mt-4 max-w-prose text-lg text-blanco/85">Toca una para verla de cerca, por delante y por detrás.</p>
+            </div>
+            <div className="mt-8 md:mt-10">
+              <Perchero prendas={COLECCION} />
+            </div>
+          </section>
+        ) : null}
+
+        <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 sm:px-6">
+          <p>
             <Link href="/" className="font-semibold underline decoration-acento decoration-2 underline-offset-8 hover:text-acento">
               Ver la web de CGA
             </Link>

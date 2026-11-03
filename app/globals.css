@@ -700,6 +700,85 @@
     line-height: 1.2;
   }
 
+  /* ---------- Prendas por familias (Lo nuevo / Ya no hay) ---------- */
+  .atajos-grupos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .atajos-grupos a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    padding-inline: 1rem;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 999px;
+    font-weight: 600;
+    transition: border-color var(--mov-rapida) var(--mov-transicion);
+  }
+  .atajos-grupos a:hover {
+    border-color: var(--cga-acento);
+  }
+  .grupos-prendas {
+    display: grid;
+    gap: 4rem;
+    margin-top: 3rem;
+  }
+  @media (min-width: 1024px) {
+    .grupos-prendas {
+      gap: 5.5rem;
+    }
+  }
+  /* Nombre de la familia con una línea que llega hasta el borde: separa sin necesidad de cajas */
+  .grupo-prendas__titulo {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    scroll-margin-top: 6rem;
+    font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+    font-weight: 900;
+    font-stretch: 80%;
+    line-height: 1;
+  }
+  .grupo-prendas__titulo::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--cga-gris-oscuro);
+  }
+  .grupo-prendas__rejilla {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.25rem 1rem;
+    align-items: start;
+    margin-top: 1.75rem;
+  }
+  @media (min-width: 640px) {
+    .grupo-prendas__rejilla {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2.5rem 1.5rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .grupo-prendas__rejilla {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  /* Fotos apaisadas (delante y detrás lado a lado): una por fila en el móvil, tres en escritorio */
+  .grupo-prendas__rejilla--apaisada {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (min-width: 640px) {
+    .grupo-prendas__rejilla--apaisada {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .grupo-prendas__rejilla--apaisada {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
   /* Sello de agotado: tinta estampada, en gótica */
   .sello-agotado {
     position: absolute;
