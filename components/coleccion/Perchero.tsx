@@ -111,6 +111,7 @@ export function Perchero({
     b?.scrollIntoView({ inline: "center", block: "nearest", behavior: reducido() ? "auto" : "smooth" });
   }
   function alTeclear(i: number, e: React.KeyboardEvent<HTMLButtonElement>) {
+    delete e.currentTarget.dataset.sinAnillo; // vuelve el teclado: el foco se ve otra vez
     const mapa: Record<string, number> = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: prendas.length - 1 };
     if (e.key in mapa) {
       e.preventDefault();
@@ -119,8 +120,11 @@ export function Perchero({
   }
 
   // ---------- Abrir / cerrar y la URL ----------
+  const conTecladoRef = useRef(false);
   const abrir = useCallback(
     (indice: number, desdeEnlace = false, conTeclado = false) => {
+      conTecladoRef.current = conTeclado;
+      marcarSinAnillo(botones.current[indice], !conTeclado);
       setActiva(indice);
       setAbierta({ indice, desdeEnlace, conTeclado });
       if (!sincronizarUrl) return;
@@ -137,6 +141,7 @@ export function Perchero({
     (slug: string) => {
       const indice = prendas.findIndex((p) => p.slug === slug);
       if (indice < 0) return;
+      marcarSinAnillo(botones.current[indice], !conTecladoRef.current);
       setActiva(indice);
       setOculta(null);
       setAbierta((a) => ({ indice, desdeEnlace: a?.desdeEnlace ?? false, cambio: true, conTeclado: a?.conTeclado }));
@@ -162,7 +167,12 @@ export function Perchero({
       }
     }
     // El foco vuelve a la percha; el recuadro solo se ve si se abrió con el teclado (con el dedo queda fatal)
-    if (indice !== undefined) botones.current[indice]?.focus({ preventScroll: true, focusVisible: !!abierta?.conTeclado } as FocusOptions);
+    const boton = indice !== undefined ? botones.current[indice] : null;
+    if (boton) {
+      boton.focus({ preventScroll: true, focusVisible: !!abierta?.conTeclado } as FocusOptions);
+      // Safari (iPhone) no hace caso a focusVisible y pinta el recuadro: lo quita data-sin-anillo hasta que el foco se va
+      if (boton.dataset.sinAnillo !== undefined) boton.addEventListener("blur", () => delete boton.dataset.sinAnillo, { once: true });
+    }
   }, [abierta, sincronizarUrl]);
 
   // Enlace compartido: ?prenda=slug abre esa prenda al cargar
@@ -265,6 +275,14 @@ export function Perchero({
       ) : null}
     </div>
   );
+}
+
+/** Abierta con el dedo o el ratón: al volver, el botón recibe el foco (accesibilidad) pero sin recuadro.
+ *  Se marca antes de abrir porque el propio <dialog> devuelve el foco al cerrarse, antes que nosotros. */
+function marcarSinAnillo(boton: HTMLButtonElement | null | undefined, sinAnillo: boolean) {
+  if (!boton) return;
+  if (sinAnillo) boton.dataset.sinAnillo = "";
+  else delete boton.dataset.sinAnillo;
 }
 
 function reducido() {

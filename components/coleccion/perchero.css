@@ -154,6 +154,11 @@
   outline: 3px solid var(--cga-acento);
   outline-offset: -8%;
 }
+/* Vuelta de la vista abierta con el dedo: el foco vuelve a la prenda, pero sin recuadro ni levantarla
+   (Safari en iPhone marca como «visible» el foco que devuelve el diálogo) */
+.colgada__boton[data-sin-anillo]:focus-visible {
+  outline: none;
+}
 
 /* Balanceo de reposo: pivota en el gancho; cada prenda con su ritmo y su desfase.
    Solo rotate y translate con valores fijos: el navegador lo anima en la GPU, sin pasar por JavaScript.
@@ -192,7 +197,7 @@
     translate: 0 -8px;
   }
 }
-.colgada__boton:focus-visible .colgada__balanceo {
+.colgada__boton:focus-visible:not([data-sin-anillo]) .colgada__balanceo {
   translate: 0 -8px;
 }
 

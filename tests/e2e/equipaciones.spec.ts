@@ -31,6 +31,26 @@ test.describe("perchero de equipaciones", () => {
     expect(avisos).toEqual([]);
   });
 
+  test("abierta con el dedo: al cerrar, el foco vuelve a la percha sin recuadro; con el teclado, sí se ve", async ({ page }) => {
+    await page.goto("/colaboraciones");
+    const primera = page.locator(".colgada__boton").first();
+    await page.locator(".colgada__zona").first().click();
+    const vista = page.getByRole("dialog");
+    await expect(vista).toBeVisible();
+    await vista.getByRole("button", { name: "Cerrar" }).click();
+    await expect(vista).toBeHidden();
+    await expect(primera).toBeFocused();
+    // Aunque el navegador (Safari en iPhone) lo diera por foco visible, no se pinta nada
+    await expect(primera).toHaveAttribute("data-sin-anillo", "");
+    expect(await primera.evaluate((b) => getComputedStyle(b).outlineStyle)).toBe("none");
+    // Una tecla sobre la percha devuelve el recuadro de foco
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("ArrowLeft");
+    await expect(primera).toBeFocused();
+    await expect(primera).not.toHaveAttribute("data-sin-anillo");
+    expect(await primera.evaluate((b) => getComputedStyle(b).outlineStyle)).toBe("solid");
+  });
+
   test("cada equipación cuelga junta y desde una pieza se salta a la otra sin cerrar", async ({ page }) => {
     await page.goto("/colaboraciones");
     // Camiseta y short seguidos; la etiqueta del conjunto solo en la primera pieza
