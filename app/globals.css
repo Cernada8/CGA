@@ -1083,7 +1083,71 @@
     text-transform: uppercase;
     color: var(--cga-acento);
   }
-  @media (hover: hover) {
+  /* Móvil: cada embajador en su fila, alternando lado. El retrato ocupa 3/4 y la segunda foto se pega encima,
+     un poco girada, en la esquina contraria al nombre: como fotos pegadas en la pared del gimnasio */
+  @media (max-width: 639px) {
+    .embajador {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      overflow: visible;
+      background: none;
+      padding-bottom: 2.75rem;
+    }
+    .embajador > [data-anim-escala] {
+      display: contents;
+    }
+    .embajador img,
+    .embajador::after,
+    .embajador__nombre {
+      grid-row: 1;
+    }
+    .embajador img:not(.embajador__segunda),
+    .embajador::after {
+      grid-column: 1 / 10;
+    }
+    .embajador img:not(.embajador__segunda) {
+      background: var(--cga-gris-foto);
+    }
+    .embajador::after {
+      position: static;
+      align-self: end;
+      height: 60%;
+      z-index: 1;
+    }
+    .embajador__nombre {
+      position: static;
+      z-index: 2;
+      grid-column: 1 / 8;
+      align-self: end;
+      padding: 0 0 1rem 1rem;
+      font-size: clamp(2rem, 9vw, 2.6rem);
+    }
+    .embajador__segunda {
+      display: block;
+      z-index: 3;
+      grid-column: 8 / 13;
+      align-self: end;
+      margin-bottom: -2.75rem;
+      border: 4px solid var(--cga-negro);
+      rotate: 3deg;
+      box-shadow: 0 1rem 2rem rgb(0 0 0 / 0.55);
+    }
+    /* Pares: al revés, el retrato a la derecha y la foto pegada a la izquierda */
+    .embajadores > li:nth-child(even) .embajador img:not(.embajador__segunda),
+    .embajadores > li:nth-child(even) .embajador::after {
+      grid-column: 4 / 13;
+    }
+    .embajadores > li:nth-child(even) .embajador__nombre {
+      grid-column: 6 / 13;
+      padding: 0 1rem 1rem 0;
+      text-align: right;
+    }
+    .embajadores > li:nth-child(even) .embajador__segunda {
+      grid-column: 1 / 6;
+      rotate: -3deg;
+    }
+  }
+  @media (hover: hover) and (min-width: 640px) {
     .embajador__segunda {
       display: block;
       position: absolute;

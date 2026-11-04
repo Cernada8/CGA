@@ -2,9 +2,13 @@ import { AnimarTarjetas } from "@/components/animacion/AnimarTarjetas";
 import { Cinta } from "@/components/ui/Cinta";
 import { ALTO_EMBAJADOR, ANCHO_EMBAJADOR, EMBAJADORES, type FotoEmbajador } from "@/lib/embajadores";
 
-const SIZES = "(min-width: 1024px) 25vw, 50vw";
+// Móvil: retrato principal al 75 % del ancho y la segunda foto, pegada encima, al 42 %
+const SIZES = "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 75vw";
+const SIZES_SEGUNDA = "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 42vw";
 
-/** Gente que entrena con CGA y la lleva puesta. Retratos grandes, nombre en grafiti, sin adornos. */
+/** Gente que entrena con CGA y la lleva puesta. Retratos grandes, nombre en grafiti, sin adornos.
+ *  Escritorio: muro de 4 retratos escalonados; la segunda foto aparece al pasar el ratón.
+ *  Móvil: uno por fila, alternando lado, con la segunda foto pegada encima como en un muro (allí no hay ratón). */
 export function Embajadores() {
   return (
     <section aria-labelledby="embajadores" className="grano relative border-t border-gris-oscuro bg-negro">
@@ -13,7 +17,7 @@ export function Embajadores() {
           Embajadores
         </Cinta>
         <AnimarTarjetas>
-          <ul className="embajadores mt-12 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+          <ul className="embajadores mt-12 grid grid-cols-1 gap-16 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {EMBAJADORES.map((e) => (
               <li key={e.slug} data-anim="tarjeta">
                 <figure className="embajador">
@@ -39,11 +43,10 @@ function Foto({ foto, segunda = false }: { foto: FotoEmbajador; segunda?: boolea
     <img
       src={foto.rutaPequena}
       srcSet={`${foto.rutaPequena} ${ANCHO_EMBAJADOR / 2}w, ${foto.ruta} ${ANCHO_EMBAJADOR}w`}
-      sizes={SIZES}
+      sizes={segunda ? SIZES_SEGUNDA : SIZES}
       width={ANCHO_EMBAJADOR}
       height={ALTO_EMBAJADOR}
-      alt={segunda ? "" : foto.alt}
-      aria-hidden={segunda || undefined}
+      alt={foto.alt}
       loading="lazy"
       decoding="async"
       className={segunda ? "embajador__segunda" : undefined}
