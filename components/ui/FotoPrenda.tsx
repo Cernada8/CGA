@@ -39,7 +39,13 @@ function Img({ imagen, sizes, prioridad = false, decorativa = false }: { imagen:
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={pequena}
-      srcSet={pequena === grande ? undefined : `${pequena} ${imagen.anchoPequena ?? 640}w, ${grande} ${anchoGrande}w`}
+      srcSet={
+        pequena === grande
+          ? undefined
+          : [imagen.rutaMini ? `${imagen.rutaMini} ${Math.min(400, anchoGrande)}w` : null, `${pequena} ${imagen.anchoPequena ?? 640}w`, `${grande} ${anchoGrande}w`]
+              .filter(Boolean)
+              .join(", ")
+      }
       sizes={sizes}
       width={anchoGrande}
       height={imagen.alto ?? 1000}

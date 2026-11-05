@@ -11,6 +11,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITIO_URL}/prenda/${producto.slug}`,
       changeFrequency: "weekly" as const,
       priority: agotada ? 0.4 : 0.8,
+      // Las fotos de cada prenda, para que salgan en Google Imágenes
+      images: producto.imagenes.filter((i) => i.ruta).map((i) => `${SITIO_URL}${i.ruta}`),
     })),
   ];
 }

@@ -28,7 +28,7 @@ export function BotonInstagram({ texto = "Síguenos en Instagram", direccion = "
       <span aria-hidden="true" className="boton-ig__posts">
         {POSTS.map((post) => (
           <span key={post.src} className="post-ig" data-lado={post.lado}>
-            <Image src={post.src} alt="" width={56} height={60} unoptimized className="post-ig__foto" />
+            <Image src={post.src} alt="" width={56} height={60} unoptimized loading="lazy" className="post-ig__foto" />
             <span className="post-ig__iconos">
               <IconoCorazon />
               <IconoComentario />

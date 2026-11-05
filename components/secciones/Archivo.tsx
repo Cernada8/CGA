@@ -21,7 +21,8 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
             <AtajosGrupos seccion="ya-no-hay" nombreSeccion="Ya no hay" grupos={grupos.map((g) => g.grupo)} />
             <div className="grupos-prendas">
               {grupos.map(({ grupo, items }) => (
-                <section key={grupo.id} aria-labelledby={`ya-no-hay-${grupo.id}`} className="grupo-prendas">
+                <div key={grupo.id} className="grupo-prendas">
+                  {/* Familia: bloque con su título, sin ser otra región (los títulos se repiten en «Lo nuevo» y «Ya no hay») */}
                   <TituloGrupo seccion="ya-no-hay" grupo={grupo} />
                   <ul className={clasesRejilla(grupo, { carril: true })}>
                     {items.map(({ producto, tema }) => (
@@ -47,7 +48,7 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
                       </li>
                     ))}
                   </ul>
-                </section>
+                </div>
               ))}
             </div>
           </>

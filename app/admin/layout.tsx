@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "./panel.css";
 
 // Todo el panel es privado: ni buscadores ni caché.
 export const metadata: Metadata = {

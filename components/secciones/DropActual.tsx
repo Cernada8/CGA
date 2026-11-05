@@ -46,7 +46,8 @@ function GruposNuevo({ productos }: { productos: Producto[] }) {
       <AnimarTarjetas>
         <div className="grupos-prendas">
           {grupos.map(({ grupo, items }) => (
-            <section key={grupo.id} aria-labelledby={`lo-nuevo-${grupo.id}`} className="grupo-prendas">
+            <div key={grupo.id} className="grupo-prendas">
+              {/* Familia: bloque con su título, sin ser otra región (los títulos se repiten en «Lo nuevo» y «Ya no hay») */}
               <TituloGrupo seccion="lo-nuevo" grupo={grupo} />
               <ul className={clasesRejilla(grupo)}>
                 {items.map((p) => (
@@ -55,7 +56,7 @@ function GruposNuevo({ productos }: { productos: Producto[] }) {
                   </li>
                 ))}
               </ul>
-            </section>
+            </div>
           ))}
         </div>
       </AnimarTarjetas>

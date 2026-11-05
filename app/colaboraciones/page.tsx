@@ -5,11 +5,13 @@ import { Pie } from "@/components/secciones/Pie";
 import { Cabecera } from "@/components/ui/Cabecera";
 import { COLECCION } from "@/lib/coleccion";
 import { EMAIL_CONTACTO, INSTAGRAM_DM_URL } from "@/lib/marca";
+import { OG_BASE } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Colaboraciones",
   description: "Academias, equipos y marcas: equipaciones, ropa para tu academia o un proyecto juntos con CGA Training Hard.",
   alternates: { canonical: "/colaboraciones" },
+  openGraph: { ...OG_BASE, url: "/colaboraciones" },
 };
 
 // Esta ruta nunca muestra el laberinto (CLAUDE.md): es la entrada directa para patrocinadores y academias.

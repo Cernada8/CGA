@@ -3,6 +3,7 @@ import { getDropActivo, TEMA_POR_DEFECTO } from "@/lib/drops";
 import { clasesFuentes } from "@/lib/fuentes";
 import { SITIO_URL } from "@/lib/marca";
 import { scriptInicio } from "@/lib/puerta";
+import { OG_BASE } from "@/lib/seo";
 import { scriptTrustedTypes } from "@/lib/seguridad";
 import { variablesDeTema } from "@/lib/tema";
 import "./globals.css";
@@ -16,11 +17,7 @@ export const metadata: Metadata = {
   description:
     "Ropa de jiu-jitsu y streetwear en ediciones limitadas, sin reposiciones. Constancia, Ganas y Actitud. Siempre humildes, nunca sumisos.",
   alternates: { canonical: "/" },
-  openGraph: {
-    type: "website",
-    locale: "es_ES",
-    siteName: "CGA Training Hard",
-  },
+  openGraph: { ...OG_BASE, url: "/" },
   twitter: { card: "summary_large_image" },
 };
 

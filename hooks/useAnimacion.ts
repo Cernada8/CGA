@@ -17,8 +17,10 @@ export function useAnimacion(scope: RefObject<HTMLElement | null>, montaje: Mont
     if (process.env.NEXT_PUBLIC_SIN_ANIMACIONES === "1") return;
     let cancelado = false;
     let revertir: (() => void) | undefined;
+    // GSAP no es urgente (todo lo que anima está más abajo de la primera pantalla): se descarga y arranca
+    // después de la carga, con el navegador libre. Así no compite con la foto de la portada ni con la hidratación.
     // Se espera también a las fuentes: así SplitText mide bien y todo se crea de forma síncrona dentro del contexto
-    Promise.all([cargarMotor(), document.fonts.ready]).then(([motor]) => {
+    cuandoLibre().then(() => Promise.all([cargarMotor(), document.fonts.ready])).then(([motor]) => {
       const raiz = scope.current;
       if (cancelado || !raiz) return;
       const mm = motor.gsap.matchMedia(raiz);
@@ -36,4 +38,18 @@ export function useAnimacion(scope: RefObject<HTMLElement | null>, montaje: Mont
     // El montaje se define una vez por componente
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+}
+
+/** Promesa que se cumple tras el evento load y un hueco libre del navegador (o 1,5 s como mucho) */
+let libre: Promise<void> | null = null;
+function cuandoLibre(): Promise<void> {
+  if (!libre) {
+    libre = new Promise<void>((resolver) => {
+      const enReposo = () =>
+        "requestIdleCallback" in window ? requestIdleCallback(() => resolver(), { timeout: 1500 }) : setTimeout(resolver, 200);
+      if (document.readyState === "complete") enReposo();
+      else addEventListener("load", enReposo, { once: true });
+    });
+  }
+  return libre;
 }

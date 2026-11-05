@@ -14,6 +14,7 @@ export type ImagenProducto = {
   rutaPequena?: string | null;
   ancho?: number;
   anchoPequena?: number; // ancho de la versión pequeña (por defecto 640, lo que genera el panel)
+  rutaMini?: string | null; // versión de 400 px para las rejillas del móvil (solo catálogo propio)
   alto?: number;
   alt: string;
   tipo: "producto" | "campana";

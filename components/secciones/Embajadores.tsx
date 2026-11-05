@@ -6,6 +6,9 @@ import { ALTO_EMBAJADOR, ANCHO_EMBAJADOR, EMBAJADORES, type FotoEmbajador } from
 const SIZES = "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 75vw";
 const SIZES_SEGUNDA = "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 42vw";
 
+/** Orden en móvil (en escritorio, el de lib/embajadores.ts) */
+const ORDEN_MOVIL = ["shido-boris-esperanca", "enrique-mourinho", "chamo", "nayanesh-ayman"];
+
 /** Gente que entrena con CGA y la lleva puesta. Retratos grandes, nombre en grafiti, sin adornos.
  *  Escritorio: muro de 4 retratos escalonados; la segunda foto aparece al pasar el ratón.
  *  Móvil: uno por fila, alternando lado, con la segunda foto pegada encima como en un muro (allí no hay ratón). */
@@ -19,7 +22,13 @@ export function Embajadores() {
         <AnimarTarjetas>
           <ul className="embajadores mt-12 grid grid-cols-1 gap-16 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {EMBAJADORES.map((e) => (
-              <li key={e.slug} data-anim="tarjeta">
+              <li
+                key={e.slug}
+                data-anim="tarjeta"
+                // Móvil: su puesto y su lado (alterna: retrato a la izquierda, a la derecha…)
+                data-lado-movil={ORDEN_MOVIL.indexOf(e.slug) % 2 ? "derecha" : undefined}
+                style={{ "--orden-movil": ORDEN_MOVIL.indexOf(e.slug) } as React.CSSProperties}
+              >
                 <figure className="embajador">
                   <div data-anim-escala>
                     <Foto foto={e.fotos[0]} />

@@ -98,6 +98,13 @@ const nextConfig: NextConfig = {
     return [
       { source: "/:path*", headers: cabecerasSeguridad },
       {
+        // Fotos y gráficos propios: el navegador los guarda un día (antes se volvían a pedir en cada visita)
+        // y la CDN los sirve mientras revalida. Nombres sin huella: por eso no es «para siempre» (si se cambia
+        // una foto con el mismo nombre, en un día como mucho todo el mundo ve la nueva).
+        source: "/:carpeta(prendas|coleccion|embajadores|hero|grafiti|instagram|marca|video)/:archivo*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+      {
         // Las rutas de pruebas nunca deben indexarse aunque alguien las active.
         source: "/dev/:path*",
         headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],

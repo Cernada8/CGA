@@ -119,7 +119,8 @@ export const PrendaColgada = forwardRef<HTMLButtonElement, Props>(function Prend
         ref={ref}
         type="button"
         className="colgada__boton"
-        aria-label={`${nombre}. Ver de cerca, por delante y por detrás`}
+        // La etiqueta que se ve («Equipación completa») también va en el nombre accesible (WCAG 2.5.3)
+        aria-label={`${nombre}.${prenda.etiqueta && inicioEquipo ? ` ${prenda.etiqueta}.` : ""} Ver de cerca, por delante y por detrás`}
         aria-haspopup="dialog"
         tabIndex={activa ? 0 : -1}
         // detail === 0: activado con teclado (Enter/Espacio), no con un toque o un clic

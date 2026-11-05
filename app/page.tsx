@@ -15,6 +15,7 @@ import { Cabecera } from "@/components/ui/Cabecera";
 import { Puerta } from "@/components/laberinto/Puerta";
 import { getArchivo, getDropActivo, getProximoDrop } from "@/lib/drops";
 import { EMAIL_CONTACTO, INSTAGRAM_URL, SITIO_URL } from "@/lib/marca";
+import { jsonLd as jsonLdHtml } from "@/lib/seo";
 
 // Con Supabase: la página se regenera como mucho cada minuto (y al momento cuando se guarda algo en el panel).
 // Así una prenda programada aparece en «Lo nuevo» en cuanto llega su hora.
@@ -40,12 +41,14 @@ export default async function Inicio() {
     slogan: "Siempre humildes, nunca sumisos",
     description: "Ropa de jiu-jitsu y streetwear en ediciones limitadas, sin reposiciones. Constancia, Ganas y Actitud.",
     email: EMAIL_CONTACTO,
+    logo: `${SITIO_URL}/marca/cga-insignia.svg`,
+    image: `${SITIO_URL}/opengraph-image.jpg`,
     sameAs: [INSTAGRAM_URL],
   };
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(jsonLd)} />
       <Cabecera
         centro={aviso ? <AvisoDrop variante="cabecera" fechaIso={aviso.fecha} textoInicial={aviso.texto} /> : null}
       />

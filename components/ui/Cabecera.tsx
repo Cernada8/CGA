@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BotonInstagram } from "./BotonInstagram";
-import { Insignia, MarcaTexto } from "./Logo";
+import { MarcaTexto } from "./Logo";
 import { MenuMovil, NavEscritorio } from "./MenuSecciones";
 
 /** Cabecera fija con el CTA de Instagram siempre visible, también en móvil.
@@ -9,15 +9,19 @@ import { MenuMovil, NavEscritorio } from "./MenuSecciones";
 export function Cabecera({ centro }: { centro?: React.ReactNode } = {}) {
   return (
     <header className="fixed inset-x-0 top-0 z-30 border-b border-gris-oscuro/60 bg-negro/85 backdrop-blur-sm">
+      {/* Lo primero al tabular: saltar la cabecera e ir directo al contenido (solo se ve con el foco) */}
+      <a href="#contenido" className="saltar">
+        Saltar al contenido
+      </a>
       <div className="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {centro ? <div className="absolute left-1/2 hidden -translate-x-1/2 lg:block">{centro}</div> : null}
         <Link
           href="/"
-          className="flex items-center gap-3"
+          className="flex min-h-11 items-center"
           aria-label="CGA Training Hard, inicio"
         >
-          <Insignia tamano={44} alt="" prioridad />
-          <span className="hidden text-blanco sm:block">
+          {/* Solo el logotipo de texto (CGA Training Hard), en móvil y en escritorio */}
+          <span className="block text-blanco">
             <MarcaTexto variante="horizontal" ancho={60} />
           </span>
         </Link>

@@ -1,185 +1,46 @@
-import { getImageProps } from "next/image";
-import { preload } from "react-dom";
+import Image from "next/image";
 import { AnimarPortada } from "@/components/animacion/AnimarPortada";
-import { BotonInstagram } from "@/components/ui/BotonInstagram";
-import { INSTAGRAM_URL } from "@/lib/marca";
+import { PolvoPortada } from "@/components/portada/PolvoPortada";
 
-const PALABRAS = [
-  { palabra: "Constancia", para: "para seguir." },
-  { palabra: "Ganas", para: "para luchar." },
-  { palabra: "Actitud", para: "para afrontar lo que venga." },
-] as const;
+const PALABRAS = ["Constancia", "Ganas", "Actitud"] as const;
 
-const ESCRITORIO = "(min-width: 1024px)";
-const SIZES_ESCRITORIO = "640px";
-const SIZES_MOVIL = "(min-width: 640px) 640px, 100vw";
-const GIF_VACIO =
-  "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
-
-// Dirección de arte: en móvil y tableta, la foto de los dos luchadores; en escritorio, el luchador solo
-// y más grande. Cada dispositivo descarga solo su foto.
-function fuentesPortada() {
-  const escritorio = getImageProps({
-    alt: "Luchador con ropa de CGA lanzando un puñetazo con guantes de MMA",
-    src: "/hero/cga-luchador.webp",
-    width: 1032,
-    height: 1441,
-    sizes: SIZES_ESCRITORIO,
-    priority: true,
-  }).props;
-  const movil = getImageProps({
-    alt: "Dos luchadores con ropa de CGA entre una nube de polvo: uno grita con la camiseta del gorila y el otro lanza un puñetazo con guantes de MMA",
-    src: "/hero/cga-luchadores.webp",
-    width: 1122,
-    height: 1402,
-    sizes: SIZES_MOVIL,
-    priority: true,
-  }).props;
-  return { escritorio, movil };
-}
-
-function FotoPortada({
-  srcSetEscritorio,
-  movil,
-}: {
-  srcSetEscritorio: string;
-  movil: ReturnType<typeof fuentesPortada>["movil"];
-}) {
-  return (
-    <picture className="contents">
-      <source
-        media={ESCRITORIO}
-        srcSet={srcSetEscritorio}
-        sizes={SIZES_ESCRITORIO}
-        width={1032}
-        height={1441}
-      />
-      {/* <picture> con dirección de arte: URLs optimizadas por getImageProps */}
-      <img
-        {...movil}
-        alt={movil.alt}
-        className="portada-foto mx-auto h-auto w-full max-w-[640px] lg:mx-0 lg:h-[115%] lg:w-auto lg:max-w-none lg:object-contain lg:object-top"
-      />
-    </picture>
-  );
-}
-
-/** Fondo de escritorio: el luchador muy difuminado, como luz de escenario. Por debajo de 1024 px no descarga nada. */
-function FondoDifuminado() {
-  // Versión ya difuminada en el archivo (9 KB): sin filter: blur en CSS, que costaba fotogramas al hacer scroll.
-  return (
-    <div aria-hidden="true" className="portada-fondo">
-      <picture>
-        <source media={ESCRITORIO} srcSet="/hero/cga-luchador-fondo.webp" />
-        <img src={GIF_VACIO} alt="" className="portada-fondo__foto" />
-      </picture>
-    </div>
-  );
-}
-
-// Portada. En móvil la foto va arriba y las tres palabras se montan sobre su parte baja.
-// En escritorio ocupa exactamente una pantalla: palabras a la izquierda y el luchador a la derecha,
-// un 15 % más alto que el hueco, de modo que el borde de la sección lo corta por los muslos.
+// Portada: una pantalla, el luchador y las tres palabras. Nada más.
+// Las iniciales van más grandes: leídas de arriba abajo, forman CGA.
+// Fondo: polvo de tatami que vaga solo (lámpara de lava) y se levanta al pasar el ratón o el dedo.
+// En móvil, la misma foto que en escritorio: arriba a la derecha, con las palabras montadas sobre su parte baja.
 export function Manifiesto() {
-  const { escritorio, movil } = fuentesPortada();
-  const srcSetEscritorio = escritorio.srcSet!;
-
-  // Precarga la foto que toca según el ancho (es el LCP)
-  preload(escritorio.src, {
-    as: "image",
-    imageSrcSet: srcSetEscritorio,
-    imageSizes: SIZES_ESCRITORIO,
-    media: ESCRITORIO,
-    fetchPriority: "high",
-  });
-  preload(movil.src, {
-    as: "image",
-    imageSrcSet: movil.srcSet,
-    imageSizes: SIZES_MOVIL,
-    media: "(max-width: 1023px)",
-    fetchPriority: "high",
-  });
-
   return (
-    <section
-      aria-labelledby="manifiesto-titulo"
-      className="grano relative overflow-hidden lg:h-svh lg:min-h-[620px]"
-    >
-      <FondoDifuminado />
+    <section aria-labelledby="manifiesto-titulo" className="portada grano relative h-svh min-h-[560px] overflow-hidden lg:min-h-[620px]">
+      {/* Fondo vivo (solo cliente, en diferido) */}
+      <PolvoPortada />
       <AnimarPortada>
-        <div className="relative mx-auto grid h-full max-w-7xl px-4 pt-16 sm:px-6 lg:grid-cols-2 lg:items-center">
-          <figure
-            data-anim="foto"
-            className="relative -mx-4 sm:-mx-6 lg:absolute lg:inset-y-0 lg:right-0 lg:mx-0 lg:flex lg:w-[58%] lg:items-start lg:justify-end lg:pt-[4.5rem] lg:pr-2"
-          >
-            <FotoPortada srcSetEscritorio={srcSetEscritorio} movil={movil} />
+        <div className="relative mx-auto h-full max-w-7xl px-4 sm:px-6">
+          <figure data-anim="foto" className="portada-figura">
+            <Image
+              src="/hero/cga-luchador.webp"
+              alt="Luchador con ropa de CGA lanzando un puñetazo con guantes de MMA"
+              width={1032}
+              height={1441}
+              sizes="(min-width: 1024px) 680px, (min-width: 640px) 82vw, 108vw"
+              priority
+              className="portada-foto"
+            />
           </figure>
 
-          <div className="relative z-10 -mt-[30vw] pb-16 sm:-mt-40 lg:mt-0 lg:pt-6 lg:pb-0">
-            <h1
-              id="manifiesto-titulo"
-              className="portada-titulo font-grito leading-[0.88] tracking-tight"
-            >
-              {PALABRAS.map(({ palabra, para }) => (
-                <span key={palabra} className="block">
-                  {/* El tamaño va en la máscara para que su holgura (en em) crezca con la letra:
-                      las mayúsculas de la brush suben por encima de la caja de línea. */}
-                  <span className="portada-mascara block text-[clamp(3.6rem,15vw,9.5rem)] lg:text-[clamp(4rem,min(12svh,9vw),9.5rem)]">
-                    <span data-anim="palabra" className="block">
-                      {palabra}
-                    </span>
-                  </span>
-                  <span
-                    data-anim="despues"
-                    className="-mt-1 mb-3 block font-texto text-base font-medium tracking-normal text-gris [font-stretch:100%] sm:text-lg lg:mb-[1.2svh]"
-                  >
-                    {para}
+          <div className="portada-texto">
+            <h1 id="manifiesto-titulo" className="portada-titulo font-grito leading-[0.86] tracking-tight">
+              {PALABRAS.map((palabra) => (
+                // El tamaño va en la máscara para que su holgura (en em) crezca con la letra
+                <span key={palabra} className="portada-mascara block text-[clamp(4.1rem,19vw,9rem)] lg:text-[clamp(5rem,min(16.5svh,10.5vw),13rem)]">
+                  {/* Lector de pantalla: la palabra entera (partida en dos se leería «C onstancia») */}
+                  <span className="sr-only">{`${palabra} `}</span>
+                  <span data-anim="palabra" className="portada-linea" aria-hidden="true">
+                    <span className="portada-inicial">{palabra[0]}</span>
+                    <span>{palabra.slice(1)}</span>
                   </span>
                 </span>
               ))}
             </h1>
-            <div
-              data-anim="despues"
-              className="mt-8 max-w-xl space-y-3 text-lg text-blanco/90 sm:text-xl lg:mt-[3svh] lg:max-w-lg lg:space-y-[1.2svh] lg:text-[clamp(1rem,2.4svh,1.25rem)]"
-            >
-              <p>
-                Ropa de jiu-jitsu y streetwear para quien vuelve al tatami al
-                día siguiente.
-              </p>
-              <p className="font-bold text-blanco [font-stretch:90%]">
-                Ediciones limitadas.
-                <br />
-                Pocas unidades. Sin reposiciones.
-              </p>
-              <p>
-                Sigue nuestros{" "}
-                <a
-                  href={`${INSTAGRAM_URL}reels/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold underline decoration-acento decoration-2 underline-offset-4 hover:text-acento"
-                >
-                  Reels
-                  <span className="sr-only"> (se abre en Instagram)</span>
-                </a>{" "}
-                y no te pierdas el próximo drop.
-              </p>
-            </div>
-            <div
-              data-anim="despues"
-              className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4 lg:mt-[4svh]"
-            >
-              {/* En móvil el CTA ya está en la cabecera; aquí solo en escritorio para no repetirlo en la misma pantalla */}
-              <div className="hidden md:block">
-                <BotonInstagram />
-              </div>
-              <a
-                href="#lo-nuevo"
-                className="font-semibold underline decoration-acento decoration-2 underline-offset-8 hover:text-acento"
-              >
-                Ver lo nuevo
-              </a>
-            </div>
           </div>
         </div>
       </AnimarPortada>

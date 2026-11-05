@@ -31,8 +31,11 @@ const PRIMERAS = 3;
 export function Perchero({
   prendas,
   sincronizarUrl = true,
+  prioridad = false,
 }: {
   prendas: PrendaColeccion[];
+  /** true solo si el perchero abre la página: si no, sus fotos no deben competir con lo de arriba (LCP) */
+  prioridad?: boolean;
   /** false en la portada: allí manda la puerta del laberinto y los enlaces para compartir van a /colaboraciones */
   sincronizarUrl?: boolean;
 }) {
@@ -236,7 +239,7 @@ export function Perchero({
             indice={i}
             activa={i === activa}
             oculta={oculta === i}
-            prioridad={i < PRIMERAS}
+            prioridad={prioridad && i < PRIMERAS}
             inicioEquipo={i === 0 || !p.equipacion || prendas[i - 1].equipacion !== p.equipacion}
             onAbrir={(conTeclado) => abrir(i, false, conTeclado)}
             onKeyDown={(e) => alTeclear(i, e)}

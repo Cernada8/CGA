@@ -6,7 +6,8 @@ import { BotonInstagram } from "@/components/ui/BotonInstagram";
 import { Cabecera } from "@/components/ui/Cabecera";
 import { FotoPrenda } from "@/components/ui/FotoPrenda";
 import { getPrenda, getPrendas, type Producto } from "@/lib/drops";
-import { INSTAGRAM_DM_URL } from "@/lib/marca";
+import { INSTAGRAM_DM_URL, SITIO_URL } from "@/lib/marca";
+import { jsonLd, OG_BASE } from "@/lib/seo";
 import { variablesDeTema } from "@/lib/tema";
 
 // Una página por prenda: se generan todas al publicar y, con Supabase, se refrescan como mucho cada minuto.
@@ -30,7 +31,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       ? `${nombre} de CGA Training Hard. Ya no hay: salió una vez y no vuelve.`
       : `${nombre} de CGA Training Hard. Edición limitada, sin reposiciones. Escríbenos por Instagram con el modelo y la talla.`,
     alternates: { canonical: `/prenda/${producto.slug}` },
-    openGraph: foto?.ruta ? { images: [{ url: foto.ruta, width: foto.ancho, height: foto.alto, alt: foto.alt }] } : undefined,
+    openGraph: {
+      ...OG_BASE,
+      url: `/prenda/${producto.slug}`,
+      ...(foto?.ruta ? { images: [{ url: foto.ruta, width: foto.ancho, height: foto.alto, alt: foto.alt }] } : {}),
+    },
   };
 }
 
@@ -52,6 +57,33 @@ export default async function PaginaPrenda({ params }: Props) {
   return (
     <>
       <Cabecera />
+      {/* Datos estructurados: Product SIN offers (no hay venta online, CLAUDE.md) y migas de pan */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLd({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Product",
+              name: nombre,
+              url: `${SITIO_URL}/prenda/${producto.slug}`,
+              brand: { "@type": "Brand", name: "CGA Training Hard" },
+              ...(producto.categoria ? { category: producto.categoria } : {}),
+              ...(producto.imagenes.length ? { image: producto.imagenes.filter((i) => i.ruta).map((i) => `${SITIO_URL}${i.ruta}`) } : {}),
+              ...(producto.descripcion ? { description: producto.descripcion } : {}),
+              ...(producto.gramajeG ? { weight: { "@type": "QuantitativeValue", value: producto.gramajeG, unitCode: "GRM" } } : {}),
+            },
+            {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Inicio", item: SITIO_URL },
+                { "@type": "ListItem", position: 2, name: seccion.nombre, item: `${SITIO_URL}/#${seccion.id}` },
+                { "@type": "ListItem", position: 3, name: nombre, item: `${SITIO_URL}/prenda/${producto.slug}` },
+              ],
+            },
+          ],
+        })}
+      />
       <main id="contenido" style={variablesDeTema(tema)} className="pt-16">
         <article className="mx-auto max-w-7xl lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14 lg:px-6 lg:pt-10">
           {/* Volver: lleva justo a la ficha de la que se vino */}

@@ -2,14 +2,16 @@ import type { ImagenProducto, Producto } from "./drops";
 import { MEDIDAS_FOTOS } from "./medidas-fotos";
 
 // Catálogo real con las fotos del cliente TAL CUAL: sin recortes, sin separar delante y detrás y sin
-// tocar el fondo. Solo se han reducido de tamaño y pasado a WebP (grande: lado mayor 1600 px; pequeña: 800 px).
+// tocar el fondo. Solo se han reducido de tamaño y pasado a WebP (grande: lado mayor 1600 px; pequeña: 800 px;
+// mini: 400 px de ancho).
 // Solo se pone lo que se ve en la foto o en el nombre del archivo: sin descripciones ni datos inventados.
 // Cuando el panel esté en marcha, esto se importa una vez a Supabase y la web pasa a leer de allí.
 
 function foto(carpeta: string, archivo: string, alt: string): ImagenProducto {
   const base = `/${carpeta}/${archivo}`;
   const [ancho, alto, anchoPequena] = MEDIDAS_FOTOS[base];
-  return { ruta: `${base}.webp`, rutaPequena: `${base}-p.webp`, ancho, alto, anchoPequena, alt, tipo: "producto" };
+  // Tres tamaños: 400 px (rejillas en móvil), la pequeña y la grande. El navegador elige con srcset.
+  return { ruta: `${base}.webp`, rutaPequena: `${base}-p.webp`, rutaMini: `${base}-m.webp`, ancho, alto, anchoPequena, alt, tipo: "producto" };
 }
 
 type Prenda = { slug: string; nombre: string; categoria: string; gramajeG?: number; alt: string };
