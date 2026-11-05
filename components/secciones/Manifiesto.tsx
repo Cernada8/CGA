@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { preload } from "react-dom";
 import { AnimarPortada } from "@/components/animacion/AnimarPortada";
 import { PolvoPortada } from "@/components/portada/PolvoPortada";
 
@@ -9,6 +10,9 @@ const PALABRAS = ["Constancia", "Ganas", "Actitud"] as const;
 // Fondo: polvo de tatami que vaga solo (lámpara de lava) y se levanta al pasar el ratón o el dedo.
 // En móvil, la misma foto que en escritorio: arriba a la derecha, con las palabras montadas sobre su parte baja.
 export function Manifiesto() {
+  // Imagen fija del polvo (6 KB): se pide desde el principio para que el fondo esté desde el primer pintado
+  preload("/hero/polvo-movil.webp", { as: "image", media: "(max-width: 1023px) and (orientation: portrait)" });
+  preload("/hero/polvo-escritorio.webp", { as: "image", media: "(min-width: 1024px), (orientation: landscape)" });
   return (
     <section aria-labelledby="manifiesto-titulo" className="portada grano relative h-svh min-h-[560px] overflow-hidden lg:min-h-[620px]">
       {/* Fondo vivo (solo cliente, en diferido) */}

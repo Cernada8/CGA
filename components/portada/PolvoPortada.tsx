@@ -6,7 +6,7 @@ import { CONSULTAS } from "@/lib/motion";
 
 /**
  * Fondo de la portada: polvo de tatami que se levanta al pasar el ratón o el dedo y se posa solo.
- * El motor (WebGL, unos pocos KB) se descarga cuando el navegador está libre: no toca el LCP ni el JS inicial.
+ * El motor (WebGL, unos pocos KB) va en un trozo aparte que se pide al montar y arranca nada más hidratar.
  * Con movimiento reducido o sin WebGL no se pinta nada: queda el negro con grano de siempre.
  */
 export function PolvoPortada() {
@@ -17,31 +17,33 @@ export function PolvoPortada() {
     if (!canvas || !seccion || matchMedia(CONSULTAS.reducido).matches) return;
     let parar: (() => void) | undefined;
     let cancelado = false;
+    // El motor (3,5 KB) se pide ya, en paralelo con todo lo demás: cuando toque arrancar estará descargado
+    const motor = import("./motor-polvo");
     const arrancar = () =>
-      import("./motor-polvo").then(({ iniciarPolvo }) => {
-        if (cancelado) return;
+      motor.then(({ iniciarPolvo }) => {
+        if (cancelado || parar) return;
+        performance.mark("polvo:arranque"); // medible en DevTools (Rendimiento) y en las pruebas
         try {
           parar = iniciarPolvo(canvas, seccion, { esperarA: EVENTO_PUERTA_ABIERTA });
         } catch {
           // Sin WebGL o con el sombreador rechazado: la portada se queda como estaba
         }
       });
-    // Después de la carga completa (la foto de la portada, que es el LCP, ya está pintada) y con el navegador libre
-    // Safari antiguo no tiene requestIdleCallback: plan B con un temporizador corto
-    const enReposo = window.requestIdleCallback?.bind(window) ?? ((fn: () => void) => window.setTimeout(fn, 300));
-    const cancelar = window.cancelIdleCallback?.bind(window) ?? window.clearTimeout.bind(window);
-    let id = 0;
-    const cuandoLibre = () => {
-      id = enReposo(arrancar, { timeout: 2000 });
-    };
-    if (document.readyState === "complete") cuandoLibre();
-    else addEventListener("load", cuandoLibre, { once: true });
+    // Arranca en cuanto la página está hidratada (dos fotogramas de margen para no coincidir con el primer
+    // pintado). No espera a la foto ni a que cargue el resto de la página: en un móvil eso eran segundos.
+    let raf = requestAnimationFrame(() => (raf = requestAnimationFrame(arrancar)));
     return () => {
       cancelado = true;
-      removeEventListener("load", cuandoLibre);
-      cancelar(id);
+      cancelAnimationFrame(raf);
       parar?.();
     };
   }, []);
-  return <canvas ref={ref} className="portada-polvo" aria-hidden="true" />;
+  return (
+    <>
+      <canvas ref={ref} className="portada-polvo" aria-hidden="true" />
+      {/* Imagen fija del primer fotograma del polvo: se ve desde el primer pintado (sin JS) y se funde con el
+          polvo vivo cuando arranca. Con movimiento reducido o sin WebGL se queda: el fondo nunca está vacío. */}
+      <div className="portada-poster" aria-hidden="true" />
+    </>
+  );
 }

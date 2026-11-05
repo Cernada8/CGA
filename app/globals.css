@@ -491,10 +491,27 @@
     height: 100%;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 1.2s var(--mov-transicion);
+    transition: opacity 0.6s var(--mov-entrada); /* aparece rápido pero sin golpe */
   }
   .portada-polvo[data-lista] {
     opacity: 1;
+  }
+  /* Imagen fija del primer fotograma (mismo encuadre que el canvas): móvil en vertical y el resto */
+  .portada-poster {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    pointer-events: none;
+    background: url("/hero/polvo-escritorio.webp") center / cover no-repeat;
+    transition: opacity 0.6s var(--mov-entrada);
+  }
+  @media (max-width: 1023px) and (orientation: portrait) {
+    .portada-poster {
+      background-image: url("/hero/polvo-movil.webp");
+    }
+  }
+  .portada-polvo[data-lista] + .portada-poster {
+    opacity: 0;
   }
 }
 

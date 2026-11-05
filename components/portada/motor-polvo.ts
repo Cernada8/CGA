@@ -12,6 +12,8 @@ const VERTICE = `attribute vec2 aPos;varying vec2 vUv;
 void main(){vUv=aPos*.5+.5;gl_Position=vec4(aPos,0.,1.);}`;
 
 const MANCHAS = 6;
+/** Segundo del reloj del polvo en el que arranca (el de las imágenes fijas) */
+const TIEMPO_INICIAL = 20;
 
 // highp si existe: el hash con sin()*43758 se rompe en mediump (16 bits en muchos móviles)
 const fragmento = (octavas: number) => `#ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -49,7 +51,7 @@ void main(){
   gl_FragColor=vec4(col*a,a);}`;
 
 /** Estela del puntero y barrida de entrada (valores del original) */
-const ESTELA = { radio: 0.2, desvanecer: 0.022, duracionBarrida: 1.6, retrasoBarrida: 500, vida: 3200 };
+const ESTELA = { radio: 0.2, desvanecer: 0.022, duracionBarrida: 1.6, retrasoBarrida: 150, vida: 3200 };
 
 type Opciones = { esperarA?: string };
 
@@ -66,10 +68,15 @@ export function iniciarPolvo(canvas: HTMLCanvasElement, seccion: HTMLElement, { 
   // Sin aceleración por hardware (WebGL emulado en la CPU) el humo bloquearía la página: mejor el negro con grano
   const info = gl.getExtension("WEBGL_debug_renderer_info");
   const tarjeta = String(gl.getParameter(info ? info.UNMASKED_RENDERER_WEBGL : gl.RENDERER) ?? "");
-  if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(tarjeta)) {
+  if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(tarjeta) && !("__polvoPoster" in window)) {
     gl.getExtension("WEBGL_lose_context")?.loseContext();
     return () => {};
   }
+
+  const movilAlArrancar = innerWidth < 1024;
+  const inicio = performance.now();
+  // Solo para generar las imágenes fijas (scripts/polvo-poster): deja el reloj quieto en T0
+  const congelado = "__polvoPoster" in window;
 
   // Estado del bucle (arriba: los oyentes y la barrida pueden llamar a activar() durante el arranque)
   let visible = true, raf = 0, antes = 0, primerFotograma = true;
@@ -148,7 +155,17 @@ export function iniciarPolvo(canvas: HTMLCanvasElement, seccion: HTMLElement, { 
   // visita): el camino es continuo y suave (sin saltos ni cambios bruscos de velocidad) y no se repite.
   // El tamaño y la densidad también respiran. En móvil recorren toda la pantalla; en escritorio, cargadas
   // hacia el luchador.
-  const azar = (min: number, max: number) => min + Math.random() * (max - min);
+  // Azar con semilla fija: el primer fotograma es siempre el mismo y coincide con la imagen fija que se ve
+  // mientras carga (public/hero/polvo-*.webp), así el paso de la imagen al polvo vivo no se nota.
+  // Los caminos siguen pareciendo aleatorios (frecuencias y fases distintas por mancha) y no se repiten.
+  let semilla = movilAlArrancar ? 0x9e3779b9 : 0x85ebca6b;
+  const aleatorio = () => {
+    semilla = (semilla + 0x6d2b79f5) | 0;
+    let t = Math.imul(semilla ^ (semilla >>> 15), 1 | semilla);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const azar = (min: number, max: number) => min + aleatorio() * (max - min);
   const manchas = Array.from({ length: MANCHAS }, (_, i) => ({
     cx: azar(0.25, 0.75), sesgo: i < 3 ? 0.18 : 0,
     ax: azar(0.2, 0.32), fx: azar(0.13, 0.26), px: azar(0, 6.3),
@@ -216,7 +233,7 @@ export function iniciarPolvo(canvas: HTMLCanvasElement, seccion: HTMLElement, { 
   let pinceladaBarrida: [number, number] | null = null;
   const empezarBarrida = () => {
     puertaAbierta = true;
-    barridaDesde = performance.now() + ESTELA.retrasoBarrida;
+    barridaDesde = congelado ? Infinity : performance.now() + ESTELA.retrasoBarrida;
     activar();
   };
   if (!puertaAbierta && esperarA) addEventListener(esperarA, empezarBarrida, { once: true });
@@ -278,8 +295,10 @@ export function iniciarPolvo(canvas: HTMLCanvasElement, seccion: HTMLElement, { 
       mascaraSucia = false;
     }
 
-    lava(ahora / 1000);
-    gl!.uniform1f(uTiempo, ahora / 1000);
+    // Reloj propio: arranca siempre en el mismo instante (T0) para que el primer fotograma sea el de la imagen fija
+    const segundos = TIEMPO_INICIAL + (congelado ? 0 : (ahora - inicio) / 1000);
+    lava(segundos);
+    gl!.uniform1f(uTiempo, segundos);
     gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
     if (primerFotograma) {
       primerFotograma = false;
