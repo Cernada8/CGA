@@ -382,8 +382,12 @@
     inset: auto 1rem 2.5rem;
     z-index: 1;
   }
-  /* Legibilidad sobre la foto y el polvo: sombra dura y corta, como el grafiti sobre pared */
+  /* Legibilidad sobre la foto y el polvo: sombra dura y corta, como el grafiti sobre pared.
+     Es un rótulo, no texto para leer y copiar: el ratón no cambia a cursor de texto ni se selecciona al arrastrar */
   .portada-titulo {
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
     text-shadow:
       0 0.04em 0 rgb(0 0 0 / 0.55),
       0 0.02em 0.25em rgb(0 0 0 / 0.75);
