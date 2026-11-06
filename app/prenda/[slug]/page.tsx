@@ -8,6 +8,9 @@ import { FotoPrenda } from "@/components/ui/FotoPrenda";
 import { getPrenda, getPrendas, type Producto } from "@/lib/drops";
 import { INSTAGRAM_DM_URL, SITIO_URL } from "@/lib/marca";
 import { jsonLd, OG_BASE } from "@/lib/seo";
+import tarjetas from "@/lib/tarjetas.json";
+
+const TARJETAS = new Set<string>(tarjetas);
 import { variablesDeTema } from "@/lib/tema";
 
 // Una página por prenda: se generan todas al publicar y, con Supabase, se refrescan como mucho cada minuto.
@@ -25,17 +28,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { producto, agotada } = ficha;
   const nombre = producto.nombre ?? "Prenda";
   const foto = producto.imagenes[0];
+  // Tarjeta para compartir: la diseñada (scripts/generar-tarjetas.mjs) si existe; si no (prendas nuevas del
+  // panel), la foto de la prenda
+  const imagen = TARJETAS.has(producto.slug)
+    ? { url: `/og/prenda/${producto.slug}.jpg`, width: 1200, height: 630, alt: `${nombre}, de CGA Training Hard` }
+    : foto?.ruta
+      ? { url: foto.ruta, width: foto.ancho, height: foto.alto, alt: foto.alt }
+      : null;
   return {
     title: nombre,
     description: agotada
       ? `${nombre} de CGA Training Hard. Ya no hay: salió una vez y no vuelve.`
       : `${nombre} de CGA Training Hard. Edición limitada, sin reposiciones. Escríbenos por Instagram con el modelo y la talla.`,
     alternates: { canonical: `/prenda/${producto.slug}` },
-    openGraph: {
-      ...OG_BASE,
-      url: `/prenda/${producto.slug}`,
-      ...(foto?.ruta ? { images: [{ url: foto.ruta, width: foto.ancho, height: foto.alto, alt: foto.alt }] } : {}),
-    },
+    openGraph: { ...OG_BASE, url: `/prenda/${producto.slug}`, ...(imagen ? { images: [imagen] } : {}) },
+    twitter: { card: "summary_large_image", ...(imagen ? { images: [imagen] } : {}) },
   };
 }
 

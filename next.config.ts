@@ -101,9 +101,15 @@ const nextConfig: NextConfig = {
         // Fotos y gráficos propios: el navegador los guarda un día (antes se volvían a pedir en cada visita)
         // y la CDN los sirve mientras revalida. Nombres sin huella: por eso no es «para siempre» (si se cambia
         // una foto con el mismo nombre, en un día como mucho todo el mundo ve la nueva).
-        source: "/:carpeta(prendas|coleccion|embajadores|hero|grafiti|instagram|marca|video)/:archivo*",
+        source: "/:carpeta(prendas|coleccion|embajadores|hero|grafiti|instagram|marca|video|og)/:archivo*",
         headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
       },
+      // Tarjetas para compartir: las piden X, WhatsApp, Instagram… desde sus servidores o las incrustan en sus
+      // apps. Se permiten desde otros orígenes (solo estas imágenes; el resto de la web sigue en same-origin).
+      { source: "/og/:archivo*", headers: [{ key: "Cross-Origin-Resource-Policy", value: "cross-origin" }] },
+      ...["/opengraph-image.jpg", "/twitter-image.jpg", "/colaboraciones/opengraph-image.jpg", "/colaboraciones/twitter-image.jpg"].map(
+        (source) => ({ source, headers: [{ key: "Cross-Origin-Resource-Policy", value: "cross-origin" }] }),
+      ),
       {
         // Las rutas de pruebas nunca deben indexarse aunque alguien las active.
         source: "/dev/:path*",

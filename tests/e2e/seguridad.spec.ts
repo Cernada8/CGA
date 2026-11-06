@@ -133,7 +133,7 @@ test.describe("CSP en el navegador", () => {
 
 test.describe("superficie expuesta", () => {
   test("las rutas de pruebas no existen en producción", async ({ request }) => {
-    for (const ruta of ["/dev/revelado", "/dev/error"]) {
+    for (const ruta of ["/dev/revelado", "/dev/error", "/dev/tarjeta/inicio"]) {
       expect((await request.get(ruta)).status(), ruta).toBe(404);
     }
   });
