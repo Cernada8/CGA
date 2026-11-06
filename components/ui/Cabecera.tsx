@@ -17,7 +17,7 @@ export function Cabecera({ centro }: { centro?: React.ReactNode } = {}) {
         {centro ? <div className="absolute left-1/2 hidden -translate-x-1/2 lg:block">{centro}</div> : null}
         <Link
           href="/"
-          className="flex min-h-11 items-center"
+          className="cabecera-logo flex min-h-11 items-center"
           aria-label="CGA Training Hard, inicio"
         >
           {/* Solo el logotipo de texto (CGA Training Hard), en móvil y en escritorio */}

@@ -23,10 +23,13 @@ test.describe("animaciones", () => {
   test("la portada termina visible y sin estilos en línea", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("html")).toHaveAttribute("data-gsap", "listo");
-    await expect(page.locator('[data-anim="palabra"]').first()).toBeInViewport();
+    // La portada es el logotipo en grande: se ve entero en la primera pantalla y acaba sin estilos en línea
+    const logo = page.locator('[data-anim="logo"]');
+    await expect(logo).toBeInViewport({ ratio: 1 });
+    await expect(page.getByRole("heading", { level: 1, name: "CGA Training Hard" })).toBeVisible();
     await page.waitForTimeout(2200);
     await expect(page.locator("html")).not.toHaveClass(/(^|\s)anim(\s|$)/);
-    expect(await page.locator('[data-anim="palabra"]').first().getAttribute("style")).toBeFalsy();
+    expect(await logo.getAttribute("style")).toBeFalsy();
   });
 
   test("al recorrer la página entera no queda nada oculto ni hay saltos de diseño", async ({ page }) => {

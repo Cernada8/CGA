@@ -29,8 +29,8 @@ const PROPORCION = { horizontal: 712.75 / 545.5, vertical: 480 / 765.75 } as con
 
 type MarcaTextoProps = {
   variante: "horizontal" | "vertical";
-  /** Ancho en px; el alto sale de la proporción del logo. */
-  ancho: number;
+  /** Ancho en px; el alto sale de la proporción del logo. «fluido»: ocupa el ancho de su contenedor (lo pone el CSS). */
+  ancho: number | "fluido";
   className?: string;
 };
 
@@ -46,8 +46,9 @@ export function MarcaTexto({ variante, ancho, className = "" }: MarcaTextoProps)
       aria-label="CGA Training Hard"
       className={`inline-block shrink-0 bg-current ${className}`}
       style={{
-        width: ancho,
-        height: Math.round(ancho / PROPORCION[variante]),
+        ...(ancho === "fluido"
+          ? { width: "100%", aspectRatio: `${PROPORCION[variante]}` }
+          : { width: ancho, height: Math.round(ancho / PROPORCION[variante]) }),
         maskImage: url,
         WebkitMaskImage: url,
         maskSize: "contain",

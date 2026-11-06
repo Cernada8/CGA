@@ -11,6 +11,22 @@ import { CONSULTAS } from "@/lib/motion";
  */
 export function PolvoPortada() {
   const ref = useRef<HTMLCanvasElement>(null);
+  // Mientras se ve el logo grande de la portada, el pequeño de la cabecera sobra: se oculta (CSS) y vuelve
+  // al bajar. html[data-portada-pasada] = la portada ya no se ve.
+  useEffect(() => {
+    const seccion = ref.current?.parentElement;
+    if (!seccion) return;
+    const html = document.documentElement;
+    const io = new IntersectionObserver(([e]) => html.toggleAttribute("data-portada-pasada", !e.isIntersecting), {
+      rootMargin: "-64px 0px 0px 0px",
+      threshold: 0.35,
+    });
+    io.observe(seccion);
+    return () => {
+      io.disconnect();
+      html.removeAttribute("data-portada-pasada");
+    };
+  }, []);
   useEffect(() => {
     const canvas = ref.current;
     const seccion = canvas?.parentElement;

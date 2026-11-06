@@ -2,12 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import { EVENTO_PUERTA_ABIERTA } from "@/lib/puerta";
-import { CONSULTAS, CURVA_CSS, DISTANCIA, DURACION, STAGGER, staggerSeguro } from "@/lib/motion";
+import { CONSULTAS, CURVA_CSS, DURACION, STAGGER } from "@/lib/motion";
 
 /**
  * Entrada de la portada, una sola vez:
- * 1) las tres palabras suben dentro de su máscara (120 % → 0),
- * 2) la foto (LCP) solo se desplaza 24 px; nunca parte de opacity 0.
+ * el logotipo sube 28 px y crece del 96 % al 100 %. Solo transform (nunca parte de opacity 0: es lo primero
+ * que se ve y no puede esperar a JavaScript para aparecer).
  * Con la Web Animations API del navegador (sin GSAP): sale en cuanto hidrata, sin esperar a descargar
  * ninguna librería, y la anima el compositor (solo transform), así que va fluida aunque haya carga.
  * El estado inicial lo pone el CSS bajo html.anim (antes de pintar) para que no haya destello;
@@ -23,27 +23,20 @@ export function AnimarPortada({ children }: { children: React.ReactNode }) {
       html.classList.remove("anim");
       return;
     }
-    const palabras = [...raiz.querySelectorAll<HTMLElement>('[data-anim="palabra"]')];
+    const logo = raiz.querySelector<HTMLElement>('[data-anim="logo"]');
     const despues = [...raiz.querySelectorAll<HTMLElement>('[data-anim="despues"]')];
-    const foto = raiz.querySelector<HTMLElement>('[data-anim="foto"]');
     const animaciones: Animation[] = [];
 
     const entrar = () => {
-      const movil = matchMedia(CONSULTAS.movil).matches;
       const ms = (s: number) => s * 1000;
-      const paso = staggerSeguro(palabras.length, movil ? STAGGER / 2 : STAGGER);
       const comunes = { easing: CURVA_CSS.entrada, fill: "backwards" as const };
-      palabras.forEach((p, i) => {
+      if (logo) {
         animaciones.push(
-          p.animate([{ transform: "translateY(120%)" }, { transform: "translateY(0)" }], { ...comunes, duration: ms(DURACION.lenta), delay: ms(i * paso) }),
+          logo.animate([{ transform: "translateY(28px) scale(0.96)" }, { transform: "none" }], { ...comunes, duration: ms(DURACION.lenta) * 1.2 }),
         );
-      });
-      if (foto) {
-        animaciones.push(foto.animate([{ transform: `translateY(${DISTANCIA.corta}px)` }, { transform: "translateY(0)" }], { ...comunes, duration: ms(DURACION.lenta) }));
       }
-      const inicioDespues = DURACION.lenta + palabras.length * paso - 0.35;
       despues.forEach((d, i) => {
-        animaciones.push(d.animate([{ opacity: 0 }, { opacity: 1 }], { ...comunes, duration: ms(DURACION.media), delay: ms(inicioDespues + i * STAGGER) }));
+        animaciones.push(d.animate([{ opacity: 0 }, { opacity: 1 }], { ...comunes, duration: ms(DURACION.media), delay: ms(DURACION.lenta * 0.6 + i * STAGGER) }));
       });
       // Las animaciones ya tienen su estado inicial: se quita la clase en el mismo fotograma (sin salto)
       html.classList.remove("anim");

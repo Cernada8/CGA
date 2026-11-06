@@ -358,130 +358,58 @@
 
 }
 
-/* ---------- Portada ---------- */
+/* ---------- Portada: el logotipo en grande sobre el polvo ---------- */
 @layer components {
-  /* Foto: móvil arriba a la derecha y algo más ancha que la pantalla (el borde la recorta); escritorio a la derecha */
-  /* Móvil y tableta: centrada (margin y no transform: el transform lo usa la animación de entrada) */
-  .portada-figura {
+  /* En la portada, el logo de la cabecera aparece solo cuando el grande ya no se ve (no dos logos a la vez) */
+  .cabecera-logo {
+    transition:
+      opacity var(--mov-rapida) var(--mov-entrada),
+      visibility var(--mov-rapida);
+  }
+  body:has(.portada) .cabecera-logo {
+    opacity: 0;
+    visibility: hidden;
+  }
+  html[data-portada-pasada] body:has(.portada) .cabecera-logo {
+    opacity: 1;
+    visibility: visible;
+  }
+  .portada-centro {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 100%;
+    padding: 4rem 1rem 0; /* deja libre la cabecera fija: el logo se centra en lo que queda */
+  }
+  /* Halo oscuro y suave detrás del logo: el polvo pasa por todo el fondo, pero el blanco del logo nunca se
+     pierde sobre la nube clara. Es el fondo el que se oscurece; el logo va limpio (cga-marca §5: sin sombras). */
+  .portada-centro::before {
+    content: "";
     position: absolute;
-    top: 4.5rem;
     left: 50%;
-    width: min(115%, 44rem);
-    margin-left: calc(min(115%, 44rem) / -2);
+    top: calc(50% + 2rem);
+    width: min(140vw, 130svh, 70rem);
+    aspect-ratio: 1.6;
+    translate: -50% -50%;
+    background: radial-gradient(closest-side, rgb(10 10 10 / 0.78), rgb(10 10 10 / 0.45) 55%, transparent);
     pointer-events: none;
   }
-  .portada-foto {
-    display: block;
-    width: 100%;
-    height: auto;
-    /* Se funde con el fondo por abajo: las palabras se montan encima */
-    mask-image: linear-gradient(to bottom, #000 55%, transparent 92%);
-  }
-  .portada-texto {
-    position: absolute;
-    inset: auto 1rem 2.5rem;
-    z-index: 1;
-  }
-  /* Legibilidad sobre la foto y el polvo: sombra dura y corta, como el grafiti sobre pared.
-     Es un rótulo, no texto para leer y copiar: el ratón no cambia a cursor de texto ni se selecciona al arrastrar */
-  .portada-titulo {
+  /* Tamaño: el más pequeño entre el ancho de pantalla y lo que cabe en alto (proporción 1,31) → siempre entero
+     en la primera pantalla, en vertical u horizontal. */
+  .portada-logo {
+    position: relative;
+    width: min(86vw, calc((100svh - 9rem) * 1.31), 56rem);
+    color: var(--cga-blanco);
+    /* Es un rótulo: el ratón no cambia a cursor de texto ni se selecciona al arrastrar */
     cursor: default;
     user-select: none;
     -webkit-user-select: none;
-    text-shadow:
-      0 0.04em 0 rgb(0 0 0 / 0.55),
-      0 0.02em 0.25em rgb(0 0 0 / 0.75);
   }
-  /* Cada palabra: inicial grande (de arriba abajo se lee CGA) y el resto pegado en su línea base */
-  .portada-linea {
-    display: flex;
-    align-items: baseline;
-    margin-bottom: 0.06em;
+  .portada-logo > span {
+    display: block;
   }
-  .portada-inicial {
-    font-size: 1.36em;
-    line-height: 0.75;
-    margin-right: 0.02em;
-  }
-  /* Móviles bajos (iPhone SE, 667 px de alto): palabras algo más pequeñas para no tapar la cara */
-  @media (max-width: 1023px) and (max-height: 740px) and (orientation: portrait) {
-    .portada-texto {
-      bottom: 1.5rem;
-    }
-  }
-  @media (min-width: 640px) {
-    .portada-figura {
-      width: min(82%, 44rem);
-      margin-left: calc(min(82%, 44rem) / -2);
-    }
-    .portada-texto {
-      inset-inline: 1.5rem;
-    }
-  }
-  @media (min-width: 1024px) {
-    /* Escritorio: como estaba antes, a la derecha en el 58 % del ancho y un 15 % más alta que la pantalla */
-    .portada-figura {
-      inset: 0 0 0 auto;
-      left: auto;
-      margin-left: 0;
-      width: 58%;
-      display: flex;
-      align-items: flex-start;
-      justify-content: flex-end;
-      padding: 4.5rem 0.5rem 0 0;
-    }
-    .portada-foto {
-      height: 115%;
-      width: auto;
-      max-width: none;
-      object-fit: contain;
-      object-position: top;
-      /* el 13 % inferior queda fuera de la sección: el fundido termina justo en su borde */
-      mask-image: linear-gradient(to bottom, #000 66%, transparent 87%);
-    }
-    .portada-texto {
-      inset: 0 auto 0 1.5rem;
-      display: flex;
-      align-items: center;
-      padding-top: 4rem;
-    }
-  }
-}
-
-/* Móvil en horizontal (poca altura): palabras a la izquierda y luchador a la derecha, como en escritorio.
-   Sin @layer a propósito: tiene que ganar a las utilidades de Tailwind del propio elemento (tamaño de letra, alto). */
-@media (max-width: 1023px) and (orientation: landscape) and (max-height: 560px) {
-  .portada {
-    min-height: 0;
-  }
-  .portada-figura {
-    top: 4rem;
-    left: auto;
-    right: 0;
-    bottom: 0;
-    width: 46%;
-    margin-left: 0;
-    display: flex;
-    justify-content: flex-end;
-  }
-  .portada-foto {
-    height: 115%;
-    width: auto;
-    max-width: none;
-  }
-  .portada-texto {
-    inset: 4rem auto 0 1.5rem;
-    display: flex;
-    align-items: center;
-  }
-  .portada .portada-mascara {
-    font-size: min(15svh, 9vw);
-  }
-}
-/* Móviles bajos (iPhone SE, 667 px de alto): palabras algo más pequeñas para no tapar la cara. Sin @layer (igual). */
-@media (max-width: 1023px) and (max-height: 740px) and (orientation: portrait) {
-  .portada .portada-mascara {
-    font-size: clamp(3.1rem, min(19vw, 8.4svh), 9rem);
+  .anim [data-anim="logo"] {
+    transform: translateY(28px) scale(0.96);
   }
 }
 
@@ -1317,25 +1245,8 @@
 
 /* ---------- Animación: estados iniciales y máscaras ---------- */
 @layer components {
-  /* Máscara de las palabras de la portada: recorta en vertical pero deja respirar los trazos del grafiti */
-  .portada-mascara {
-    overflow-x: visible;
-    overflow-y: clip;
-    /* Holgura medida en la brush: las mayúsculas suben 0,11 em sobre la caja de línea y la G baja 0,08 em.
-       Va en em del tamaño de la palabra (la clase de tamaño está en la propia máscara). */
-    padding-block: 0.5em 0.12em; /* las iniciales (1,36 em) suben más */
-    margin-block: -0.5em -0.12em;
-    padding-inline: 0.06em;
-    margin-inline: -0.06em;
-  }
-  .anim [data-anim="palabra"] {
-    transform: translateY(120%);
-  }
   .anim [data-anim="despues"] {
     opacity: 0;
-  }
-  .anim [data-anim="foto"] {
-    transform: translateY(24px);
   }
 }
 

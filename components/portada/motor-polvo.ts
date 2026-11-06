@@ -153,8 +153,7 @@ export function iniciarPolvo(canvas: HTMLCanvasElement, seccion: HTMLElement, { 
   // ---------- Lámpara de lava ----------
   // Cada mancha sigue una suma de dos senos por eje, con frecuencias y fases al azar (distintas en cada
   // visita): el camino es continuo y suave (sin saltos ni cambios bruscos de velocidad) y no se repite.
-  // El tamaño y la densidad también respiran. En móvil recorren toda la pantalla; en escritorio, cargadas
-  // hacia el luchador.
+  // El tamaño y la densidad también respiran. Recorren toda la pantalla, alrededor del logo.
   // Azar con semilla fija: el primer fotograma es siempre el mismo y coincide con la imagen fija que se ve
   // mientras carga (public/hero/polvo-*.webp), así el paso de la imagen al polvo vivo no se nota.
   // Los caminos siguen pareciendo aleatorios (frecuencias y fases distintas por mancha) y no se repiten.
@@ -166,8 +165,8 @@ export function iniciarPolvo(canvas: HTMLCanvasElement, seccion: HTMLElement, { 
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
   const azar = (min: number, max: number) => min + aleatorio() * (max - min);
-  const manchas = Array.from({ length: MANCHAS }, (_, i) => ({
-    cx: azar(0.25, 0.75), sesgo: i < 3 ? 0.18 : 0,
+  const manchas = Array.from({ length: MANCHAS }, () => ({
+    cx: azar(0.25, 0.75),
     ax: azar(0.2, 0.32), fx: azar(0.13, 0.26), px: azar(0, 6.3),
     bx: azar(0.06, 0.12), gx: azar(0.33, 0.52),
     ay: azar(0.28, 0.4), fy: azar(0.09, 0.19), py: azar(0, 6.3),
@@ -178,7 +177,7 @@ export function iniciarPolvo(canvas: HTMLCanvasElement, seccion: HTMLElement, { 
   const datosManchas = new Float32Array(MANCHAS * 4);
   function lava(t: number) {
     manchas.forEach((m, i) => {
-      const cx = movil ? m.cx : Math.min(0.88, m.cx + m.sesgo);
+      const cx = m.cx;
       datosManchas[i * 4] = cx + m.ax * Math.sin(t * m.fx + m.px) + m.bx * Math.sin(t * m.gx + m.px * 1.7);
       datosManchas[i * 4 + 1] = 0.5 + m.ay * Math.sin(t * m.fy + m.py) + m.by * Math.sin(t * m.gy + m.py * 1.3);
       // Radio en alturas de la portada (en móvil la pantalla es alta: manchas algo más pequeñas)
@@ -275,8 +274,8 @@ export function iniciarPolvo(canvas: HTMLCanvasElement, seccion: HTMLElement, { 
       if (hayBarrida) {
         barrida = Math.min(1, barrida + Math.min(0.05, transcurrido) / ESTELA.duracionBarrida);
         const y = 0.9 - barrida * 0.8;
-        const centro = movil ? 0.5 : 0.7;
-        // De abajo arriba: el polvo se levanta del suelo por detrás del luchador
+        const centro = 0.5;
+        // De abajo arriba: el polvo se levanta del suelo por detrás del logo
         const destino: [number, number] = [(centro + Math.sin(y * 9.5 + 1.2) * (movil ? 0.22 : 0.13)) * w, y * h];
         if (pinceladaBarrida) estampar(pinceladaBarrida, destino, 0.9);
         pinceladaBarrida = destino;
