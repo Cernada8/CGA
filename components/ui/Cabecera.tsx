@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BotonInstagram } from "./BotonInstagram";
-import { MarcaTexto } from "./Logo";
+import { Insignia } from "./Logo";
 import { MenuMovil, NavEscritorio } from "./MenuSecciones";
 
 /** Cabecera fija con el CTA de Instagram siempre visible, también en móvil.
@@ -17,13 +17,11 @@ export function Cabecera({ centro }: { centro?: React.ReactNode } = {}) {
         {centro ? <div className="absolute left-1/2 hidden -translate-x-1/2 lg:block">{centro}</div> : null}
         <Link
           href="/"
-          className="cabecera-logo flex min-h-11 items-center"
+          className="flex min-h-11 items-center"
           aria-label="CGA Training Hard, inicio"
         >
-          {/* Solo el logotipo de texto (CGA Training Hard), en móvil y en escritorio */}
-          <span className="block text-blanco">
-            <MarcaTexto variante="horizontal" ancho={60} />
-          </span>
+          {/* La insignia del gorila, en móvil y en escritorio (el logotipo de texto va en grande en la portada) */}
+          <Insignia tamano={44} alt="" prioridad />
         </Link>
         {centro ? null : <NavEscritorio />}
         <div className="flex items-center gap-2">

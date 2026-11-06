@@ -17,9 +17,18 @@ export function Manifiesto() {
       <PolvoPortada />
       <AnimarPortada>
         <div className="portada-centro">
+          {/* Luz de fondo: halo oscuro con un borde de luz caqui que respira, como un rótulo iluminado por detrás */}
+          <span className="portada-luz" aria-hidden="true" data-profundidad="-1" />
           <h1 id="manifiesto-titulo" className="portada-logo" data-anim="logo">
-            <MarcaTexto variante="horizontal" ancho="fluido" />
+            {/* Tres capas: la entrada (h1), el alejamiento al hacer scroll y la inclinación hacia el ratón */}
+            <span className="portada-logo__scroll">
+              <span className="portada-logo__inclinacion" data-profundidad="1">
+                <MarcaTexto variante="horizontal" ancho="fluido" />
+              </span>
+            </span>
           </h1>
+          {/* Niebla por delante: el polvo pasa por encima de la parte baja del logo (sale del humo) */}
+          <span className="portada-niebla" aria-hidden="true" data-profundidad="2" />
         </div>
       </AnimarPortada>
     </section>

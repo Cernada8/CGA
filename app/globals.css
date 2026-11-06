@@ -360,20 +360,6 @@
 
 /* ---------- Portada: el logotipo en grande sobre el polvo ---------- */
 @layer components {
-  /* En la portada, el logo de la cabecera aparece solo cuando el grande ya no se ve (no dos logos a la vez) */
-  .cabecera-logo {
-    transition:
-      opacity var(--mov-rapida) var(--mov-entrada),
-      visibility var(--mov-rapida);
-  }
-  body:has(.portada) .cabecera-logo {
-    opacity: 0;
-    visibility: hidden;
-  }
-  html[data-portada-pasada] body:has(.portada) .cabecera-logo {
-    opacity: 1;
-    visibility: visible;
-  }
   .portada-centro {
     position: relative;
     display: grid;
@@ -381,18 +367,60 @@
     height: 100%;
     padding: 4rem 1rem 0; /* deja libre la cabecera fija: el logo se centra en lo que queda */
   }
-  /* Halo oscuro y suave detrás del logo: el polvo pasa por todo el fondo, pero el blanco del logo nunca se
-     pierde sobre la nube clara. Es el fondo el que se oscurece; el logo va limpio (cga-marca §5: sin sombras). */
-  .portada-centro::before {
-    content: "";
+  /* Luz de fondo: centro oscuro (el blanco del logo nunca se pierde sobre la nube clara) y un borde de luz caqui
+     que respira despacio, como un rótulo iluminado por detrás. Es el fondo el que cambia; el logo va limpio
+     (cga-marca §5: sin degradados ni sombras en el logo). */
+  .portada-luz {
     position: absolute;
     left: 50%;
     top: calc(50% + 2rem);
-    width: min(140vw, 130svh, 70rem);
-    aspect-ratio: 1.6;
-    translate: -50% -50%;
-    background: radial-gradient(closest-side, rgb(10 10 10 / 0.78), rgb(10 10 10 / 0.45) 55%, transparent);
+    width: min(150vw, 135svh, 76rem);
+    aspect-ratio: 1.55;
+    margin: calc(min(150vw, 135svh, 76rem) / -3.1) 0 0 calc(min(150vw, 135svh, 76rem) / -2);
+    background: radial-gradient(
+      closest-side,
+      rgb(10 10 10 / 0.82),
+      rgb(10 10 10 / 0.55) 46%,
+      color-mix(in srgb, var(--cga-acento) 30%, transparent) 64%,
+      color-mix(in srgb, var(--cga-acento) 10%, transparent) 77%,
+      transparent
+    );
     pointer-events: none;
+    animation: portada-respira 7s var(--mov-transicion) infinite alternate;
+  }
+  @keyframes portada-respira {
+    from {
+      scale: 0.97;
+      opacity: 0.85;
+    }
+    to {
+      scale: 1.04;
+      opacity: 1;
+    }
+  }
+  /* Niebla por delante del logo: velos del color del polvo, a la deriva y fundidos con «screen» (solo aclaran).
+     Solo en la parte baja: el logo «sale del humo». Con degradados y no con una imagen: así no compite como
+     elemento principal de la carga (LCP) ni pide nada a la red. */
+  .portada-niebla {
+    position: absolute;
+    inset: 20% -25% -10%;
+    background:
+      radial-gradient(38% 30% at 22% 72%, color-mix(in srgb, var(--cga-acento) 70%, transparent), transparent 70%),
+      radial-gradient(30% 26% at 68% 84%, color-mix(in srgb, var(--cga-acento) 60%, transparent), transparent 70%),
+      radial-gradient(44% 22% at 48% 64%, color-mix(in srgb, var(--cga-blanco) 35%, transparent), transparent 70%);
+    mix-blend-mode: screen;
+    opacity: 0.22;
+    mask-image: linear-gradient(to bottom, transparent 30%, #000 70%);
+    pointer-events: none;
+    animation: portada-deriva 26s linear infinite alternate;
+  }
+  @keyframes portada-deriva {
+    from {
+      translate: -6% 2%;
+    }
+    to {
+      translate: 6% -3%;
+    }
   }
   /* Tamaño: el más pequeño entre el ancho de pantalla y lo que cabe en alto (proporción 1,31) → siempre entero
      en la primera pantalla, en vertical u horizontal. */
@@ -400,13 +428,44 @@
     position: relative;
     width: min(86vw, calc((100svh - 9rem) * 1.31), 56rem);
     color: var(--cga-blanco);
+    perspective: 1100px;
     /* Es un rótulo: el ratón no cambia a cursor de texto ni se selecciona al arrastrar */
     cursor: default;
     user-select: none;
     -webkit-user-select: none;
   }
-  .portada-logo > span {
+  .portada-logo__scroll,
+  .portada-logo__inclinacion,
+  .portada-logo__inclinacion > span {
     display: block;
+  }
+  .portada-logo__inclinacion {
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  /* Al bajar, el logo se acerca y se desvanece (profundidad), y la niebla sube: solo navegadores con
+     animaciones ligadas al scroll; el resto lo ve quieto, igual de bien */
+  @supports (animation-timeline: scroll()) {
+    /* Ligado al scroll de la página: durante la primera pantalla de recorrido (la portada mide 100svh) */
+    .portada-logo__scroll {
+      animation: portada-alejar linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 85svh;
+    }
+    @keyframes portada-alejar {
+      to {
+        scale: 1.14;
+        opacity: 0;
+        translate: 0 -6%;
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .portada-luz,
+    .portada-niebla,
+    .portada-logo__scroll {
+      animation: none;
+    }
   }
   .anim [data-anim="logo"] {
     transform: translateY(28px) scale(0.96);

@@ -15,6 +15,50 @@ import { CONSULTAS, CURVA_CSS, DURACION, STAGGER } from "@/lib/motion";
  */
 export function AnimarPortada({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+
+  // Profundidad con el ratón (solo ratón de verdad, sin movimiento reducido): el logo se inclina hacia el
+  // puntero en 3D, la luz de detrás se va al lado contrario y la niebla de delante se mueve más. Tres planos
+  // que se desplazan a distinta velocidad = sensación de profundidad. Suavizado en cada fotograma (rAF) y se
+  // para solo cuando llega a su sitio; los oyentes solo guardan la posición.
+  useEffect(() => {
+    const raiz = ref.current;
+    if (!raiz || !matchMedia("(hover: hover) and (pointer: fine)").matches || matchMedia(CONSULTAS.reducido).matches) return;
+    const seccion = raiz.closest("section");
+    const capas = [...raiz.querySelectorAll<HTMLElement>("[data-profundidad]")].map((el) => ({ el, z: Number(el.dataset.profundidad) }));
+    if (!seccion || !capas.length) return;
+    let objetivo = { x: 0, y: 0 };
+    const actual = { x: 0, y: 0 };
+    let raf = 0;
+    const pintar = () => {
+      raf = 0;
+      actual.x += (objetivo.x - actual.x) * 0.08;
+      actual.y += (objetivo.y - actual.y) * 0.08;
+      for (const { el, z } of capas) {
+        if (z === 1) el.style.transform = `rotateY(${(actual.x * 10).toFixed(2)}deg) rotateX(${(-actual.y * 7).toFixed(2)}deg)`;
+        else el.style.transform = `translate3d(${(actual.x * 14 * z).toFixed(1)}px, ${(actual.y * 9 * z).toFixed(1)}px, 0)`;
+      }
+      if (Math.abs(objetivo.x - actual.x) > 0.001 || Math.abs(objetivo.y - actual.y) > 0.001) raf = requestAnimationFrame(pintar);
+    };
+    const mover = (e: PointerEvent) => {
+      const r = seccion.getBoundingClientRect();
+      if (e.clientY > r.bottom) return;
+      objetivo = { x: ((e.clientX - r.left) / r.width) * 2 - 1, y: ((e.clientY - r.top) / r.height) * 2 - 1 };
+      if (!raf) raf = requestAnimationFrame(pintar);
+    };
+    const soltar = () => {
+      objetivo = { x: 0, y: 0 };
+      if (!raf) raf = requestAnimationFrame(pintar);
+    };
+    addEventListener("pointermove", mover, { passive: true });
+    document.documentElement.addEventListener("pointerleave", soltar);
+    return () => {
+      cancelAnimationFrame(raf);
+      removeEventListener("pointermove", mover);
+      document.documentElement.removeEventListener("pointerleave", soltar);
+      for (const { el } of capas) el.style.transform = "";
+    };
+  }, []);
+
   useEffect(() => {
     const raiz = ref.current;
     const html = document.documentElement;
