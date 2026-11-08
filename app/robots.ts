@@ -3,7 +3,7 @@ import { SITIO_URL } from "@/lib/marca";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: "*", allow: "/", disallow: ["/dev/", "/admin"] }],
+    rules: [{ userAgent: "*", allow: "/", disallow: ["/dev/", "/admin", "/api/"] }],
     sitemap: `${SITIO_URL}/sitemap.xml`,
   };
 }

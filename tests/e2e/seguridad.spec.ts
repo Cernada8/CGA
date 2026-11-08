@@ -299,3 +299,16 @@ test.describe("Trusted Types y aislamiento", () => {
     await ctx.close();
   });
 });
+
+test.describe("contador de visitas", () => {
+  test("solo acepta avisos de la propia web y nunca devuelve datos", async ({ request, baseURL }) => {
+    const desdeFuera = await request.post("/api/visita", { headers: { origin: "https://ejemplo.com" }, data: { ruta: "/" } });
+    expect(desdeFuera.status()).toBe(204);
+    expect(await desdeFuera.text()).toBe("");
+    const propia = await request.post("/api/visita", { headers: { origin: baseURL! }, data: { ruta: "/" } });
+    expect(propia.status()).toBe(204);
+    expect(propia.headers()["cache-control"]).toContain("no-store");
+    // No se puede leer nada por GET
+    expect((await request.get("/api/visita")).status()).toBe(405);
+  });
+});

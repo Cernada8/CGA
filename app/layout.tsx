@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { getDropActivo, TEMA_POR_DEFECTO } from "@/lib/drops";
+import { ContadorVisitas } from "@/components/ui/ContadorVisitas";
 import { clasesFuentes } from "@/lib/fuentes";
 import { SITIO_URL } from "@/lib/marca";
 import { scriptInicio } from "@/lib/puerta";
@@ -51,6 +52,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-dvh bg-negro text-blanco antialiased">
         {children}
+        <ContadorVisitas />
       </body>
     </html>
   );

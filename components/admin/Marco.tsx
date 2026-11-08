@@ -4,6 +4,7 @@ import { Insignia } from "@/components/ui/Logo";
 
 const ENLACES = [
   { href: "/admin", texto: "Inicio" },
+  { href: "/admin/estadisticas", texto: "Visitas" },
   { href: "/admin/actividad", texto: "Actividad" },
   { href: "/admin/cuenta", texto: "Tu cuenta" },
 ];

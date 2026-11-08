@@ -632,3 +632,188 @@
     color: #b9f6ca;
   }
 }
+
+/* ---------- Visitas (estadísticas) ---------- */
+@layer components {
+  .est {
+    display: grid;
+    gap: 2rem;
+  }
+  .est-rangos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .est-rango {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1.1rem;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 999px;
+    color: var(--cga-blanco);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .est-rango[aria-current="page"] {
+    border-color: var(--cga-acento);
+    background: var(--cga-acento);
+    color: var(--cga-negro);
+  }
+  .est-vacio {
+    padding: 1rem 1.25rem;
+    border: 1px dashed var(--cga-gris-oscuro);
+    border-radius: 12px;
+    color: var(--cga-gris);
+  }
+  .est-cifras {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }
+  @media (min-width: 900px) {
+    .est-cifras {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .est-cifra {
+    padding: 1.1rem 1.25rem;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 14px;
+    background: var(--cga-carbon);
+  }
+  .est-cifra__titulo {
+    color: var(--cga-gris);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .est-cifra__valor {
+    margin: 0.2rem 0 0;
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 800;
+    font-stretch: 85%;
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+  }
+  .est-cifra__nota {
+    margin: 0.35rem 0 0;
+    color: var(--cga-gris);
+    font-size: 0.875rem;
+  }
+  .est-bloque {
+    padding: 1.25rem;
+    border: 1px solid var(--cga-gris-oscuro);
+    border-radius: 14px;
+    background: var(--cga-carbon);
+  }
+  .est-subtitulo {
+    margin: 0 0 1rem;
+    font-size: 1.15rem;
+    font-weight: 800;
+  }
+  .est-grafica {
+    margin: 0;
+  }
+  .est-grafica svg {
+    display: block;
+    width: 100%;
+    height: 240px;
+    overflow: visible;
+  }
+  .est-grafica__guia {
+    stroke: var(--cga-gris-oscuro);
+    stroke-dasharray: 4 6;
+    vector-effect: non-scaling-stroke;
+  }
+  .est-grafica__barra {
+    fill: color-mix(in srgb, var(--cga-acento) 75%, transparent);
+  }
+  .est-grafica__barra:hover {
+    fill: var(--cga-acento);
+  }
+  .est-grafica__linea {
+    fill: none;
+    stroke: var(--cga-blanco);
+    stroke-width: 2.5;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .est-grafica__fechas {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    color: var(--cga-gris);
+    font-size: 0.8rem;
+  }
+  .est-leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    color: var(--cga-gris);
+    font-size: 0.875rem;
+  }
+  .est-leyenda__barra,
+  .est-leyenda__linea {
+    display: inline-block;
+    width: 1rem;
+    height: 0.75rem;
+    border-radius: 3px;
+    background: var(--cga-acento);
+  }
+  .est-leyenda__linea {
+    height: 3px;
+    margin-left: 0.75rem;
+    background: var(--cga-blanco);
+  }
+  .est-listas {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 900px) {
+    .est-listas {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .est-lista {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  /* Cada fila lleva detrás una barra proporcional (--parte, de 0 a 1) */
+  .est-lista__fila {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    isolation: isolate;
+  }
+  .est-lista__fila::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: calc(var(--parte) * 100%);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--cga-acento) 22%, transparent);
+    z-index: -1;
+  }
+  .est-lista__nombre {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .est-lista__total {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .est-lista__vacia,
+  .est-nota {
+    color: var(--cga-gris);
+    font-size: 0.9rem;
+  }
+}
