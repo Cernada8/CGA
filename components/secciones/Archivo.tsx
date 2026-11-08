@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Cinta } from "@/components/ui/Cinta";
 import { FotoPrenda } from "@/components/ui/FotoPrenda";
-import { AtajosGrupos, clasesRejilla, TituloGrupo } from "@/components/ui/GruposPrendas";
+import { AtajosGrupos, clasesRejilla, TituloGrupo, filasJustificadas, proporcionFoto } from "@/components/ui/GruposPrendas";
 import { agrupar } from "@/lib/categorias";
 import type { PrendaAgotada } from "@/lib/drops";
 import { variablesDeTema } from "@/lib/tema";
@@ -20,13 +20,16 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
           <>
             <AtajosGrupos seccion="ya-no-hay" nombreSeccion="Ya no hay" grupos={grupos.map((g) => g.grupo)} />
             <div className="grupos-prendas">
-              {grupos.map(({ grupo, items }) => (
+              {grupos.map(({ grupo, items }) => {
+                // Tableta y escritorio: filas justificadas. Móvil: carril deslizable (todas a la misma altura con --r)
+                const filas = filasJustificadas(items.map((i) => i.producto), { movil: false });
+                return (
                 <div key={grupo.id} className="grupo-prendas">
                   {/* Familia: bloque con su título, sin ser otra región (los títulos se repiten en «Lo nuevo» y «Ya no hay») */}
                   <TituloGrupo seccion="ya-no-hay" grupo={grupo} />
                   <ul className={clasesRejilla(grupo, { carril: true })}>
                     {items.map(({ producto, tema }) => (
-                      <li key={producto.id} id={producto.slug} style={variablesDeTema(tema)} className="scroll-mt-24">
+                      <li key={producto.id} id={producto.slug} style={{ ...variablesDeTema(tema), ...proporcionFoto(producto), ...filas.get(producto.id) }} className="scroll-mt-24">
                         <article className="ficha ficha--agotada">
                           <Link href={`/prenda/${producto.slug}`} tabIndex={-1} aria-hidden="true" className="ficha__foto-enlace ficha__foto relative">
                             <FotoPrenda
@@ -49,7 +52,8 @@ export function Archivo({ prendas }: { prendas: PrendaAgotada[] }) {
                     ))}
                   </ul>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </>
         ) : (

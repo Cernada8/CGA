@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AnimarTarjetas } from "@/components/animacion/AnimarTarjetas";
 import { Cinta } from "@/components/ui/Cinta";
 import { FotoPrenda } from "@/components/ui/FotoPrenda";
-import { AtajosGrupos, clasesRejilla, TituloGrupo } from "@/components/ui/GruposPrendas";
+import { AtajosGrupos, clasesRejilla, TituloGrupo, filasJustificadas } from "@/components/ui/GruposPrendas";
 import { agrupar } from "@/lib/categorias";
 import type { Drop, Producto } from "@/lib/drops";
 import { INSTAGRAM_DM_URL } from "@/lib/marca";
@@ -45,19 +45,22 @@ function GruposNuevo({ productos }: { productos: Producto[] }) {
       <AtajosGrupos seccion="lo-nuevo" nombreSeccion="Lo nuevo" grupos={grupos.map((g) => g.grupo)} />
       <AnimarTarjetas>
         <div className="grupos-prendas">
-          {grupos.map(({ grupo, items }) => (
+          {grupos.map(({ grupo, items }) => {
+            const filas = filasJustificadas(items);
+            return (
             <div key={grupo.id} className="grupo-prendas">
               {/* Familia: bloque con su título, sin ser otra región (los títulos se repiten en «Lo nuevo» y «Ya no hay») */}
               <TituloGrupo seccion="lo-nuevo" grupo={grupo} />
               <ul className={clasesRejilla(grupo)}>
                 {items.map((p) => (
-                  <li key={p.id} id={p.slug} data-anim="tarjeta" className="scroll-mt-24">
+                  <li key={p.id} id={p.slug} data-anim="tarjeta" className="scroll-mt-24" style={filas.get(p.id)}>
                     <FichaProducto producto={p} apaisado={grupo.apaisado} />
                   </li>
                 ))}
               </ul>
             </div>
-          ))}
+            );
+          })}
         </div>
       </AnimarTarjetas>
     </>

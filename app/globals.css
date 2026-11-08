@@ -991,29 +991,70 @@
     height: 1px;
     background: var(--cga-gris-oscuro);
   }
+  /* Rejilla «justificada» (como Google Fotos): las fotos se colocan, no se recortan ni se rellenan.
+     Cada ficha ocupa un ancho proporcional a su foto (--r = ancho / alto, desde GruposPrendas.tsx):
+     flex-grow y flex-basis proporcionales a --r reparten el ancho de la fila de forma que TODAS las fotos de una
+     fila acaban con el mismo alto exacto y la fila llena el ancho de lado a lado. --alto es la altura objetivo
+     de cada fila; el navegador decide cuántas caben. */
   .grupo-prendas__rejilla {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2.25rem 1rem;
-    align-items: start;
+    --alto: 10rem;
+    --hueco-x: 0.875rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.25rem var(--hueco-x);
     margin-top: 1.75rem;
+  }
+  /* Filas calculadas en el servidor (GruposPrendas.tsx, filasJustificadas), una disposición por pantalla:
+     --cuota-* = parte de la fila que ocupa la prenda; --n-* = prendas en esa fila (para descontar los huecos);
+     --orden-* = su puesto. Si faltan (prendas sin datos), la rejilla flexible de abajo hace de plan B. */
+  @media (max-width: 639.98px) {
+    .grupo-prendas__rejilla:not(.grupo-prendas__rejilla--carril) > li[style*="--cuota-m"] {
+      order: var(--orden-m);
+      flex: 0 0 calc(var(--cuota-m) * (100% - (var(--n-m) - 1) * var(--hueco-x)));
+      max-width: none;
+    }
+  }
+  @media (min-width: 640px) and (max-width: 1023.98px) {
+    .grupo-prendas__rejilla > li[style*="--cuota-t"] {
+      order: var(--orden-t);
+      flex: 0 0 calc(var(--cuota-t) * (100% - (var(--n-t) - 1) * var(--hueco-x)));
+      max-width: none;
+    }
+  }
+  @media (min-width: 1024px) {
+    .grupo-prendas__rejilla > li[style*="--cuota-d"] {
+      order: var(--orden-d);
+      flex: 0 0 calc(var(--cuota-d) * (100% - (var(--n-d) - 1) * var(--hueco-x)));
+      max-width: none;
+    }
+  }
+  .grupo-prendas__rejilla > li {
+    flex: var(--r, 0.8) 1 calc(var(--r, 0.8) * var(--alto));
+    min-width: 0;
+    /* Tope: ninguna foto crece más de un 25 % sobre la altura objetivo. Así la última fila de una familia, si
+       queda corta, no se estira hasta hacerse gigante: se queda a una altura parecida a la del resto */
+    max-width: calc(var(--r, 0.8) * var(--alto) * 1.25);
   }
   @media (min-width: 640px) {
     .grupo-prendas__rejilla {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 2.5rem 1.5rem;
+      --alto: 12.5rem;
+      --hueco-x: 1.25rem;
+      row-gap: 2.5rem;
     }
   }
   @media (min-width: 1024px) {
     .grupo-prendas__rejilla {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      --alto: 15rem;
+      --hueco-x: 1.5rem;
+      row-gap: 2.75rem;
     }
   }
-  /* «Ya no hay» en el móvil: cada familia es una fila que se desliza (asoma la siguiente prenda para que se
-     entienda). Lo que ya no está no necesita ocupar media página; desde 640 px vuelve a ser rejilla */
+  /* «Ya no hay» en el móvil: cada familia es una fila que se desliza, todas las fotos a la misma altura
+     (asoma la siguiente prenda para que se entienda). Desde 640 px vuelve a ser rejilla justificada */
   @media (max-width: 639.98px) {
     .grupo-prendas__rejilla--carril {
-      display: flex;
+      --alto: 11rem;
+      flex-wrap: nowrap;
       gap: 0.75rem;
       margin-inline: -1rem;
       padding: 0 1rem 0.5rem;
@@ -1027,25 +1068,9 @@
       display: none;
     }
     .grupo-prendas__rejilla--carril > li {
-      flex: 0 0 44%;
+      flex: 0 0 calc(var(--r, 0.8) * var(--alto));
+      max-width: none;
       scroll-snap-align: start;
-    }
-    .grupo-prendas__rejilla--carril.grupo-prendas__rejilla--apaisada > li {
-      flex-basis: 78%;
-    }
-  }
-  /* Fotos apaisadas (delante y detrás lado a lado): una por fila en el móvil, tres en escritorio */
-  .grupo-prendas__rejilla--apaisada {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  @media (min-width: 640px) {
-    .grupo-prendas__rejilla--apaisada {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1024px) {
-    .grupo-prendas__rejilla--apaisada {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
 

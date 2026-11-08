@@ -151,3 +151,26 @@ test("menú de secciones: en el móvil se abre, lleva a la sección y se cierra;
   }
   await expect(page.locator("#colaboraciones")).toBeInViewport();
 });
+
+test("rejilla de prendas: en cada fila todas las fotos miden lo mismo de alto y nada se recorta", async ({ page }) => {
+  await page.goto("/?entrar=directo");
+  const filas = await page.evaluate(() =>
+    [...document.querySelectorAll("section[aria-labelledby='lo-nuevo'] .grupo-prendas__rejilla")].flatMap((ul) => {
+      const porFila: Record<number, { alto: number; recorte: boolean }[]> = {};
+      ul.querySelectorAll<HTMLImageElement>(":scope > li img.foto-prenda:not(.foto-prenda--detras)").forEach((img) => {
+        const r = img.getBoundingClientRect();
+        // La foto se ve con su proporción real (ni recortada ni deformada)
+        const natural = Number(img.getAttribute("width")) / Number(img.getAttribute("height"));
+        const recorte = Math.abs(r.width / r.height - natural) > 0.02;
+        (porFila[Math.round(r.top)] ||= []).push({ alto: r.height, recorte });
+      });
+      return Object.values(porFila);
+    }),
+  );
+  expect(filas.length).toBeGreaterThan(2);
+  for (const fila of filas) {
+    const altos = fila.map((f) => f.alto);
+    expect(Math.max(...altos) - Math.min(...altos)).toBeLessThan(1.5);
+    expect(fila.some((f) => f.recorte)).toBe(false);
+  }
+});
