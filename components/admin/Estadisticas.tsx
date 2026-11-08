@@ -24,7 +24,7 @@ const nombreRuta = (r: string) => NOMBRE_RUTA[r] ?? (r.startsWith("/prenda/") ? 
 const nombrePais = (c: string) => (c === "??" ? "Desconocido" : (PAIS.of(c) ?? c));
 
 /** Panel de visitas: cifras grandes, gráfica por día y de dónde viene la gente. Sin librerías (SVG propio). */
-export function Estadisticas({ resumen, rangos }: { resumen: Resumen; rangos: readonly number[] }) {
+export function Estadisticas({ resumen, rangos, ruta = "/admin/estadisticas" }: { resumen: Resumen; rangos: readonly number[]; ruta?: string }) {
   const { por_dia } = resumen;
   const dias = por_dia.length || 1;
   const media = resumen.visitas / dias;
@@ -36,7 +36,7 @@ export function Estadisticas({ resumen, rangos }: { resumen: Resumen; rangos: re
     <div className="est">
       <nav aria-label="Periodo" className="est-rangos">
         {rangos.map((r) => (
-          <Link key={r} href={`/admin/estadisticas?dias=${r}`} aria-current={r === resumen.dias ? "page" : undefined} className="est-rango">
+          <Link key={r} href={`${ruta}?dias=${r}`} aria-current={r === resumen.dias ? "page" : undefined} className="est-rango">
             Últimos {r} días
           </Link>
         ))}

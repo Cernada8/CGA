@@ -2,6 +2,7 @@ import { PantallaAcceso } from "@/components/admin/Marco";
 import { FormEntrar } from "@/components/admin/FormulariosAcceso";
 import { Aviso } from "@/components/admin/ui";
 import { estadoSesion, rutaDePaso } from "@/lib/admin/sesion";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export const metadata = { title: "Entrar" };
@@ -22,6 +23,9 @@ export default async function Entrar({ searchParams }: { searchParams: Promise<{
       {error === "sin-acceso" ? <Aviso ok={false}>Correo o contraseña incorrectos.</Aviso> : null}
       <FormEntrar />
       <p className="adm-ayuda mt-6">¿Has olvidado la contraseña? Pídele a Alex que te la restablezca.</p>
+      <p className="adm-ayuda mt-2">
+        ¿Solo vas a consultar las visitas? <Link href="/admin/visor">Entra con tu usuario</Link>.
+      </p>
     </PantallaAcceso>
   );
 }

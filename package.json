@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
     "coleccion:importar": "node scripts/importar-coleccion.mjs",
-    "tarjetas": "node scripts/generar-tarjetas.mjs"
+    "tarjetas": "node scripts/generar-tarjetas.mjs",
+    "visor:clave": "node scripts/clave-visor.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
