@@ -1049,23 +1049,25 @@
     }
   }
 
-  /* Sello de agotado: tinta estampada, en gótica */
+  /* Sello de agotado: tinta roja estampada, en gótica. Rojo de marca (#FF2A1F, 5,3:1 sobre negro) y un velo
+     oscuro debajo para que se lea igual sobre ropa negra, blanca o de color (antes caqui y fundido, se perdía) */
   .sello-agotado {
+    --rojo-sello: #ff2a1f;
     position: absolute;
     top: 0.9rem;
     right: 0.7rem;
     z-index: 1;
     padding: 0.15em 0.55em 0.25em;
-    border: 3px solid var(--cga-acento);
+    border: 3px solid var(--rojo-sello);
     border-radius: 6px;
-    color: var(--cga-acento);
+    background: rgb(10 10 10 / 0.72);
+    color: var(--rojo-sello);
     font-family: var(--font-pirata), serif;
-    font-size: clamp(1rem, 2vw, 1.35rem);
+    font-size: clamp(1.05rem, 2.1vw, 1.45rem);
     line-height: 1;
     transform: rotate(8deg);
-    mix-blend-mode: screen;
-    opacity: 0.9;
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 1;
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.1 1.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   .ficha--agotada .foto-pendiente__marca {
     opacity: 0.04;
